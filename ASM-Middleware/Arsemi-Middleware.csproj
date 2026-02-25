@@ -15,6 +15,7 @@
 		<PackageReference Include="Hexa.NET.SDL3" Version="1.2.11" />
 		<PackageReference Include="Hexa.NET.Utilities" Version="2.2.1" />
 		<PackageReference Include="Hexa.NET.OpenGL3" Version="1.1.0" />
+		<PackageReference Include="System.IO.Ports" Version="8.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
