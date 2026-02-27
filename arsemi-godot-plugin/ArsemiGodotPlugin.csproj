@@ -1,0 +1,12 @@
+<Project Sdk="Godot.NET.Sdk/4.6.0">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+</Project>
+
+<!-- TODO: Replace with path to dlls (ONLY FOR DEBUG) -->
+<ItemGroup>
+  <ProjectReference Include="../Arsemi-Middleware/Arsemi-Middleware.csproj" />
+</ItemGroup>
