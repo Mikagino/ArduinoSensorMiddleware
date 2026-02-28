@@ -1,7 +1,8 @@
 using System.IO.MemoryMappedFiles;
+using Arsemi.Sensor;
 
 namespace Arsemi {
-    namespace Sensor {
+    namespace IPC {
         public class MemoryMappedSensorData {
             // Sensor data memory mapped file
             private const string FileDirectory = "Arsemi";

@@ -1,4 +1,5 @@
 using System.IO.Ports;
+using Arsemi.IPC;
 using Arsemi.Sensor;
 using Microsoft.VisualBasic;
 
@@ -8,6 +9,8 @@ namespace Arsemi {
     private static readonly SerialPort _serialPort = new("COM3", 9600);
 
     private readonly MemoryMappedSensorData _memoryMappedSensorData = new();
+
+    private readonly AnalogSensor _exampleSensor = new();
 
 
     /// <summary>
@@ -35,14 +38,6 @@ namespace Arsemi {
       Console.WriteLine(arduinoMessage);
     }
 
-    public struct SensorFrame {
-      public long Timestamp;
-      public float HeartRate;
-      public float Gsr;
-    }
-
-
-    private AnalogSensor _exampleSensor = new();
 
     /// <summary>
     /// TODO: Stores sensor values received from the microcontroller in shared memory | 

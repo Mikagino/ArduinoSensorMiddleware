@@ -1,5 +1,3 @@
-using System.IO.Ports;
-
 namespace Arsemi {
     namespace Examples {
         public static class ConceptUsage {
