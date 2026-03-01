@@ -6,6 +6,10 @@ namespace Arsemi {
             public SensorData Data = new();
             protected static List<uint> _previouslyGeneratedIDs = [];
 
+            public enum EventType {
+                Threshold,
+            }
+
 
             public AbstractSensor(uint customID = 0) {
                 if(customID != 0) {
@@ -53,6 +57,13 @@ namespace Arsemi {
             /// <returns>Unique number for each new instance of the class (currently simply counting up)</returns>
             private uint GenerateID() {
                 return (uint)_previouslyGeneratedIDs.Count;
+            }
+
+            /// <summary>
+            /// TODO: Adds a new event (base function -> needs implementations for specific event types, maybe use class instead of enum?)
+            /// </summary>
+            public void AddEvent(EventType eventType, string name, int value) {
+                throw new NotImplementedException();
             }
         }
     }

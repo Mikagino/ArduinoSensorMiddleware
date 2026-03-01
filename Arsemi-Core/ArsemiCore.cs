@@ -4,6 +4,12 @@ using Arsemi.Sensor;
 using Microsoft.VisualBasic;
 
 namespace Arsemi {
+  /// <summary>
+  /// Flexible API for microcontroller based sensor networks that are supplied to the user in an easy accessible manner.
+  /// Multiple sensors can be setup, those settings can be stored and loaded.
+  /// Filters can be applied to each sensor and much more...
+  /// For more information: TODO<Insert Link>
+  /// </summary>
   public class ArsemiCore {
     private Dictionary<string, AbstractSensor> _sensors = [];
     private static readonly SerialPort _serialPort = new("COM3", 9600);
@@ -102,6 +108,14 @@ namespace Arsemi {
     /// TODO: Suspends the microcontrollers update loop until FinishSetup() or Start() is called
     /// </summary>
     public void StopLoop() {
+    }
+
+
+    /// <summary>
+    /// Connects the emission of an event to a 
+    /// </summary>
+    public void ConnectSensorEvent(string sensorName, string eventName, Action eventAction) {
+      throw new NotImplementedException();
     }
   }
 }
