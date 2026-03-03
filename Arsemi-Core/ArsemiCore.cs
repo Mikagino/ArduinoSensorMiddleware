@@ -1,4 +1,3 @@
-using System.IO.Ports;
 using Arsemi.IPC;
 using Arsemi.Sensor;
 using Microsoft.VisualBasic;
@@ -12,9 +11,10 @@ namespace Arsemi {
   /// </summary>
   public class ArsemiCore {
     private Dictionary<string, AbstractSensor> _sensors = [];
-    private static readonly SerialPort _serialPort = new("COM3", 9600);
 
+    // IPC
     private readonly MemoryMappedSensorData _memoryMappedSensorData = new();
+    private readonly SerialMessaging _serialMessaging = new("COM3", 9600);
 
     private readonly AnalogSensor _exampleSensor = new();
 
@@ -23,9 +23,6 @@ namespace Arsemi {
     /// TODO: Setup communication with arduino an other important things :> 
     /// </summary>
     public void StartSetup() {
-      _serialPort.ReceivedBytesThreshold = 5;
-      _serialPort.DataReceived += ReadLineSerial;
-      _serialPort.Open();
     }
 
 
@@ -33,15 +30,6 @@ namespace Arsemi {
     /// TODO: Loops when program is running (in Program.cs?)
     /// </summary>
     public void Update() {
-    }
-
-
-    /// <summary>
-    /// TODO: Reads a line from the USB-Port for reading data send from arduino
-    /// </summary>
-    private void ReadLineSerial(object _, SerialDataReceivedEventArgs e) {
-      string arduinoMessage = _serialPort.ReadLine();
-      Console.WriteLine(arduinoMessage);
     }
 
 
