@@ -40,11 +40,17 @@ namespace Arsemi {
             /// Adds a specific filter to the filterstack (all of them will be executed)
             /// </summary>
             /// <returns></returns>
-            public AbstractSensor AddFilter(IFilter filter) {
-                if(Data.Filters == null) {
-                    Data.Filters = [];
-                }
-                Data.Filters.Add(filter);
+            public AbstractSensor AddFilter(AbstractFilter filter) {
+                // Data.Filters ??= [];
+                // for(int i = 0; i < Data.Filters.Length; i++) {
+                //     if(!Data.Filters[i].Added) {
+                //         Data.Filters[i] = filter.Data;
+                //         break;
+                //     }
+                //     if(i == Data.Filters.Length) {
+                //         throw new OverflowException("Too many filters added!");
+                //     }
+                // }
                 return this;
             }
 

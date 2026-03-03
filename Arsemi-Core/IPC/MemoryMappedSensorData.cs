@@ -33,7 +33,6 @@ namespace Arsemi {
             /// </summary>
             public void Write(SensorData data) {
                 _file.Write(0, ref data);
-
             }
 
 

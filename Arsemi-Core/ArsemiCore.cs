@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Arsemi.IPC;
 using Arsemi.Sensor;
 using Microsoft.VisualBasic;
@@ -15,8 +16,6 @@ namespace Arsemi {
     // IPC
     private readonly MemoryMappedSensorData _memoryMappedSensorData = new();
     //private readonly SerialMessaging _serialMessaging = new("COM3", 9600);
-
-    private readonly AnalogSensor _exampleSensor = new();
 
 
     /// <summary>
@@ -37,8 +36,8 @@ namespace Arsemi {
     /// TODO: Stores sensor values received from the microcontroller in shared memory | 
     /// NICE TO HAVE: Make timed for each sensor individually -> for performance setting / more control
     /// </summary>
-    private void StoreSensorData() {
-      _memoryMappedSensorData.Write(_exampleSensor.Data);
+    private void StoreSensorData(uint sensor) {
+      _memoryMappedSensorData.Write(_sensors[((Examples.ExampleConstants.Sensors)sensor).ToString()].Data);
     }
 
 
@@ -55,8 +54,8 @@ namespace Arsemi {
     /// <summary>
     /// </summary>
     /// <returns>TODO: Current sensor value based on filters, timings, etc.</returns>
-    public VariantType GetSensorValueID(uint sensorID) {
-      return 0;
+    public float GetSensorValue(uint sensorID) {
+      return _memoryMappedSensorData.ReadAll().Value; //DEBUG
     }
 
 
@@ -78,9 +77,19 @@ namespace Arsemi {
 
 
     /// <summary>
-    /// TODO: Wakes the microcontrollers update loop until Stop() is called
+    /// TODO: Wakes the microcontrollers update loop until Stop() is called.
     /// </summary>
-    public void StartLoop() {
+    public async Task StartLoop() {
+      new Timer(new TimerCallback(ContinueLoop), this, 0, 1000).ConfigureAwait(false);
+    }
+
+
+    /// <summary>
+    /// DEBUG
+    /// </summary>
+    private void ContinueLoop(object? state) {
+      _sensors[Examples.ExampleConstants.Sensors.Heartrate.ToString()].Data.Value++;
+      StoreSensorData((uint)Examples.ExampleConstants.Sensors.Heartrate);
     }
 
 

@@ -4,12 +4,12 @@ namespace Arsemi {
             /// <summary>
             /// Not yet implemented class of filtering
             /// </summary>
-            public class BlaBlaFilter : IFilter {
+            public class BlaBlaFilter : AbstractFilter {
                 /// <summary>
                 /// </summary>
                 /// <param name="input"></param>
                 /// <returns>Filtered value based on some calculations</returns>
-                public float FilterValue(float input) {
+                public override float FilterValue(float input) {
                     return 0;
                 }
             }
