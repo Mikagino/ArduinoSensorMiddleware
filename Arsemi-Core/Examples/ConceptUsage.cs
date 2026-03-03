@@ -29,8 +29,9 @@ namespace Arsemi {
                 _asmCore.AddSensor(new Sensor.DigitalSensor(), "Button");
                 _asmCore.SetInterval("Button", 200);
                 _asmCore.FinishSetup();
+                ExampleConstants.Events.Excitement += EventAction;
 
-                ArsemiConfig.SaveTo(_asmCore, PathToConfigFile, ArsemiConfig.ConfigurationType.JSON);
+                ArsemiConfig.SaveTo(_asmCore, PathToConfigFile, ArsemiConfig.ConfigType.JSON);
             }
 
 
@@ -40,6 +41,7 @@ namespace Arsemi {
             /// Also can be done in the GUI!
             /// </summary>
             public static void AutomaticSetup() {
+                _asmCore.StartSetup();
                 _asmCore = ArsemiConfig.LoadConfiguration(PathToConfigFile);
                 _asmCore.FinishSetup();
             }
@@ -52,7 +54,6 @@ namespace Arsemi {
             public static bool UpdateLoop() {
                 float currentGSR = (float)_asmCore.GetSensorValueID(2);
                 float currentHeartrate = (float)_asmCore.GetSensorValue(ExampleConstants.Sensors.Heartrate);
-                ExampleConstants.Events.Excitement += EventAction;
                 return false;
             }
 

@@ -20,7 +20,7 @@ namespace Arsemi {
 
 
     /// <summary>
-    /// TODO: Setup communication with arduino an other important things :> 
+    /// TODO: Setup communication with arduino an other important things :> (can this be combined with FinishSetup() into one method?)
     /// </summary>
     public void StartSetup() {
     }
@@ -78,7 +78,7 @@ namespace Arsemi {
 
 
     /// <summary>
-    /// TODO: Sends sensor setup data to microcontroller and starts it's execution
+    /// TODO: Sends sensor setup data to microcontroller and starts it's execution  (can this be combined with StartSetup() into one method?)
     /// </summary>
     public void FinishSetup() {
 
