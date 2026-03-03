@@ -14,7 +14,7 @@ namespace Arsemi {
 
     // IPC
     private readonly MemoryMappedSensorData _memoryMappedSensorData = new();
-    private readonly SerialMessaging _serialMessaging = new("COM3", 9600);
+    //private readonly SerialMessaging _serialMessaging = new("COM3", 9600);
 
     private readonly AnalogSensor _exampleSensor = new();
 
@@ -56,14 +56,6 @@ namespace Arsemi {
     /// </summary>
     /// <returns>TODO: Current sensor value based on filters, timings, etc.</returns>
     public VariantType GetSensorValueID(uint sensorID) {
-      return 0;
-    }
-
-
-    /// <summary>
-    /// </summary>
-    /// <returns>TODO: Current sensor value based on filters, timings, etc.</returns>
-    public float GetSensorValue(string sensorName) {
       return 0;
     }
 

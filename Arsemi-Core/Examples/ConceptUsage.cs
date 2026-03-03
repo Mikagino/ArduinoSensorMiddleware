@@ -53,7 +53,7 @@ namespace Arsemi {
             /// </summary>
             public static bool UpdateLoop() {
                 float currentGSR = (float)_asmCore.GetSensorValueID(2);
-                float currentHeartrate = (float)_asmCore.GetSensorValue(ExampleConstants.Sensors.Heartrate);
+                float currentHeartrate = (float)_asmCore.GetSensorValueID((uint)ExampleConstants.Sensors.Heartrate);
                 return false;
             }
 

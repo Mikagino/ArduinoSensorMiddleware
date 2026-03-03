@@ -41,6 +41,9 @@ namespace Arsemi {
             /// </summary>
             /// <returns></returns>
             public AbstractSensor AddFilter(IFilter filter) {
+                if(Data.Filters == null) {
+                    Data.Filters = [];
+                }
                 Data.Filters.Add(filter);
                 return this;
             }
@@ -63,7 +66,6 @@ namespace Arsemi {
             /// TODO: Adds a new event (base function -> needs implementations for specific event types, maybe use class instead of enum?)
             /// </summary>
             public void AddEvent(EventType eventType, string name, int value) {
-                throw new NotImplementedException();
             }
         }
     }
