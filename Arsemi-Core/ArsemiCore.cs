@@ -89,13 +89,5 @@ namespace Arsemi {
     /// </summary>
     public void StopLoop() {
     }
-
-
-    /// <summary>
-    /// Connects the emission of an event to a 
-    /// </summary>
-    public void ConnectSensorEvent(string sensorName, string eventName, Action eventAction) {
-      throw new NotImplementedException();
-    }
   }
 }
