@@ -2,7 +2,7 @@
 namespace Arsemi {
     public static class ArsemiConfig {
 
-        public enum ConfigurationType {
+        public enum ConfigType {
             INI,
             JSON,
         }
@@ -11,7 +11,7 @@ namespace Arsemi {
         /// <summary>
         /// TODO: Stores the settings from the ArsemiCore
         /// </summary>
-        public static void SaveTo(ArsemiCore arsemiCore, string pathToConfigFile, ConfigurationType configurationType) {
+        public static void SaveTo(ArsemiCore arsemiCore, string pathToConfigFile, ConfigType configurationType) {
             throw new NotImplementedException();
         }
 
