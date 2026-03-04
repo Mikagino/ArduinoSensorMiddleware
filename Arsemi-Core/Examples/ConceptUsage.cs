@@ -35,7 +35,7 @@ namespace Arsemi {
                 ExampleConstants.Events.Excitement += EventAction;
 
                 ArsemiConfig.SaveTo(_asmCore, PathToConfigFile, ArsemiConfig.ConfigType.JSON);
-                _asmCore.StartLoop();
+                //_asmCore.StartLoop();
             }
 
 
