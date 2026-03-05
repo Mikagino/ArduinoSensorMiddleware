@@ -1,7 +1,6 @@
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
-using Microsoft.VisualBasic;
 
 namespace Arsemi {
   /// <summary>
@@ -11,10 +10,10 @@ namespace Arsemi {
   /// For more information: TODO<Insert Link>
   /// </summary>
   public class ArsemiCore {
-    private Dictionary<string, AbstractSensor> _sensors = [];
+    [JsonInclude] public Dictionary<string, AbstractSensor> Sensors = [];
 
     // IPC
-    private readonly MemoryMappedSensorData _memoryMappedSensorData = new();
+    private readonly MemoryMappedSensorData _memoryMappedSensorData = new("SensorData", 1024);
     //private readonly SerialMessaging _serialMessaging = new("COM3", 9600);
 
 
@@ -37,7 +36,7 @@ namespace Arsemi {
     /// NICE TO HAVE: Make timed for each sensor individually -> for performance setting / more control
     /// </summary>
     private void StoreSensorData(uint sensor) {
-      _memoryMappedSensorData.Write(_sensors[((Examples.ExampleConstants.Sensors)sensor).ToString()].Data);
+      _memoryMappedSensorData.Write(Sensors[((Examples.ExampleConstants.Sensors)sensor).ToString()].Data);
     }
 
 
@@ -46,7 +45,7 @@ namespace Arsemi {
     /// </summary>
     /// <returns>New sensor for using it in a stacked setup</returns>
     public AbstractSensor AddSensor(AbstractSensor sensor, string name) {
-      _sensors.Add(name, sensor);
+      Sensors.Add(name, sensor);
       return sensor;
     }
 
@@ -78,6 +77,7 @@ namespace Arsemi {
 
     /// <summary>
     /// TODO: Wakes the microcontrollers update loop until Stop() is called.
+    /// Starts a timer for 1000ms and calls ContinueLoop when it's finished
     /// </summary>
     public async Task StartLoop() {
       new Timer(new TimerCallback(ContinueLoop), this, 0, 1000).ConfigureAwait(false);
@@ -88,7 +88,7 @@ namespace Arsemi {
     /// DEBUG
     /// </summary>
     private void ContinueLoop(object? state) {
-      _sensors[Examples.ExampleConstants.Sensors.Heartrate.ToString()].Data.Value++;
+      Sensors[Examples.ExampleConstants.Sensors.Heartrate.ToString()].Data.Value++;
       StoreSensorData((uint)Examples.ExampleConstants.Sensors.Heartrate);
     }
 
@@ -97,6 +97,10 @@ namespace Arsemi {
     /// TODO: Suspends the microcontrollers update loop until FinishSetup() or Start() is called
     /// </summary>
     public void StopLoop() {
+    }
+
+    public string JsonSerializer() {
+      return System.Text.Json.JsonSerializer.Serialize(this);
     }
   }
 }

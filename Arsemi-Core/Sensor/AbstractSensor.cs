@@ -1,9 +1,10 @@
+using System.Text.Json.Serialization;
 using Arsemi.Sensor.Filter;
 
 namespace Arsemi {
     namespace Sensor {
         public class AbstractSensor : ISensor {
-            public SensorData Data = new();
+            [JsonInclude] public SensorData Data = new();
             protected static List<uint> _previouslyGeneratedIDs = [];
 
             public enum EventType {
@@ -28,11 +29,10 @@ namespace Arsemi {
             }
 
             /// <summary>
-            /// Implement parsing to JSON
             /// </summary>
-            /// <returns></returns>
-            public virtual string ParseDataToJson() {
-                return "";
+            /// <returns>TODO: Complete sensor data as JSON string.</returns>
+            public string ParseDataToJson() {
+                return System.Text.Json.JsonSerializer.Serialize(this);
             }
 
 
@@ -65,7 +65,7 @@ namespace Arsemi {
             /// </summary>
             /// <returns>Unique number for each new instance of the class (currently simply counting up)</returns>
             private uint GenerateID() {
-                return (uint)_previouslyGeneratedIDs.Count;
+                return (uint)_previouslyGeneratedIDs.Count + 1;
             }
 
             /// <summary>

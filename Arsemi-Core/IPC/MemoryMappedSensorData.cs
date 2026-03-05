@@ -6,8 +6,6 @@ namespace Arsemi {
         public class MemoryMappedSensorData {
             // Sensor data memory mapped file
             private const string FileDirectory = "Arsemi";
-            private const string FileName = "SensorData";
-            private const long FileCapacity = 1024;
             private readonly MemoryMappedViewAccessor _file;
             private readonly string _filePath;
 
@@ -15,16 +13,16 @@ namespace Arsemi {
             /// <summary>
             /// Creates a new MemoryMappedFileAccessor for each instance
             /// </summary>
-            public MemoryMappedSensorData() {
+            public MemoryMappedSensorData(string fileName, long fileCapacity = 1024) {
                 _filePath = Path.Combine(Path.GetTempPath(), FileDirectory);
 
                 if(!Directory.Exists(_filePath)) {
                     Directory.CreateDirectory(_filePath);
                 }
                 
-                _filePath = Path.Combine(_filePath, FileName);
+                _filePath = Path.Combine(_filePath, fileName);
 
-                _file = MemoryMappedFile.CreateFromFile(_filePath, FileMode.OpenOrCreate, null, FileCapacity).CreateViewAccessor();
+                _file = MemoryMappedFile.CreateFromFile(_filePath, FileMode.OpenOrCreate, null, fileCapacity).CreateViewAccessor();
             }
 
 
