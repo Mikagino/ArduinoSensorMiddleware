@@ -1,15 +1,17 @@
+using System.Text.Json.Serialization;
+
 namespace Arsemi {
     namespace Examples {
         /// <summary>
         /// Example for a C# class using the ArsemiCore
         /// </summary>
         public static class ConceptUsage {
-            private static ArsemiCore _asmCore = new();
-            public const string PathToConfigFile = "path/to/config.json";
+            [JsonInclude] private static ArsemiCore _asmCore = new();
+            public const string PathToConfigFile = "/home/mika/Downloads/ArsemiConfig.json";
 
 
             public static async Task Main() {
-                Setup(); // Alternative: AutomaticSetup()
+                await Setup(); // Alternative: AutomaticSetup()
                 bool exiting = false;
                 while(!exiting) {
                     exiting = await UpdateLoopAsync();
@@ -21,7 +23,7 @@ namespace Arsemi {
             /// <summary>
             /// Sets up each sensor, filters and other settings via code
             /// </summary>
-            public static void Setup() {
+            public static async Task Setup() {
                 _asmCore.StartSetup();
                 _asmCore.AddSensor(new Sensor.AnalogSensor(), "Heartrate")
                     .AddFilter(new Sensor.Filter.BlaBlaFilter())
@@ -32,8 +34,8 @@ namespace Arsemi {
                 _asmCore.FinishSetup();
                 ExampleConstants.Events.Excitement += EventAction;
 
-                ArsemiConfig.SaveTo(_asmCore, PathToConfigFile, ArsemiConfig.ConfigType.JSON);
-                //_asmCore.StartLoop();
+                await ConfigSaver.SaveTo(_asmCore, PathToConfigFile);
+                // _asmCore.StartLoop();
             }
 
 
@@ -42,9 +44,9 @@ namespace Arsemi {
             /// without the need of an elaborate setup. So this is equal to Setup() but ONLY if the config-file from Setup() is saved.
             /// Also can be done in the GUI!
             /// </summary>
-            public static void AutomaticSetup() {
+            public static async Task AutomaticSetup() {
                 _asmCore.StartSetup();
-                _asmCore = ArsemiConfig.LoadConfiguration(PathToConfigFile);
+                _asmCore = await ConfigSaver.LoadConfiguration(PathToConfigFile);
                 _asmCore.FinishSetup();
             }
 
