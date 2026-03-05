@@ -1,3 +1,22 @@
 [gd_scene format=3 uid="uid://ccwncy0w3mmk5"]
 
-[node name="TestScene" type="Node2D" unique_id=71925828]
+[ext_resource type="Script" uid="uid://c2gydyyiamwah" path="res://Arsemigo.cs" id="1_mncer"]
+
+[node name="TestScene" type="Control" unique_id=1980870391 node_paths=PackedStringArray("DebugLabel")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mncer")
+DebugLabel = NodePath("Label")
+
+[node name="Label" type="Label" parent="." unique_id=396323848]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 23.0
+grow_horizontal = 0
