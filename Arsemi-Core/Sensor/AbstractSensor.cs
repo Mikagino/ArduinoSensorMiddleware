@@ -5,14 +5,18 @@ namespace Arsemi {
     namespace Sensor {
         public class AbstractSensor : ISensor {
             [JsonInclude] public SensorData Data = new();
+            [JsonInclude] public Dictionary<string, AbstractFilter> Filters = [];
+
             protected static List<uint> _previouslyGeneratedIDs = [];
+
+            protected List<double> _samples = [];
 
             public enum EventType {
                 Threshold,
             }
 
 
-            public AbstractSensor(uint customID = 0) {
+            public AbstractSensor(uint sampleRange = 256, uint customID = 0) {
                 if(customID != 0) {
                     Data.ID = GenerateID();
                 }
@@ -40,23 +44,15 @@ namespace Arsemi {
             /// Adds a specific filter to the filterstack (all of them will be executed)
             /// </summary>
             /// <returns></returns>
-            public AbstractSensor AddFilter(AbstractFilter filter) {
-                // Data.Filters ??= [];
-                // for(int i = 0; i < Data.Filters.Length; i++) {
-                //     if(!Data.Filters[i].Added) {
-                //         Data.Filters[i] = filter.Data;
-                //         break;
-                //     }
-                //     if(i == Data.Filters.Length) {
-                //         throw new OverflowException("Too many filters added!");
-                //     }
-                // }
+            public AbstractSensor AddFilter(AbstractFilter filter, string name) {
+                Filters ??= [];
+                Filters.Add(name, filter);
                 return this;
             }
 
 
             public AbstractSensor SetInterval(uint milliseconds) {
-                Data.Interval = milliseconds;
+                Data.IntervalMS = milliseconds;
                 return this;
             }
 
