@@ -79,8 +79,8 @@ namespace Arsemi {
     /// TODO: Wakes the microcontrollers update loop until Stop() is called.
     /// Starts a timer for 1000ms and calls ContinueLoop when it's finished
     /// </summary>
-    public async Task StartLoop() {
-      new Timer(new TimerCallback(ContinueLoop), this, 0, 1000).ConfigureAwait(false);
+    public void StartLoop() {
+      _ = new Timer(new TimerCallback(ContinueLoop), this, 0, 1000);
     }
 
 

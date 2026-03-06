@@ -6,7 +6,7 @@ namespace Arsemi {
         public interface ISensor {
             protected void StoreValue();
             public string ParseDataToJson();
-            public AbstractSensor AddFilter(AbstractFilter filter);
+            public AbstractSensor AddFilter(AbstractFilter filter, string name);
             public AbstractSensor SetInterval(uint milliseconds);
         }
     }
