@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Text.Json.Serialization;
 
 namespace Arsemi {
@@ -5,12 +6,13 @@ namespace Arsemi {
         namespace Filter {
             /// <summary>
             /// Implementation of the Butterworth Filter based on:
-            /// A Butterworth Filter in C# - Darryl Bryk
+            /// >A Butterworth Filter in C#<(Darryl Bryk) and >Unity-IIR-Realtime-Filtering<(mariusrubo)
             /// </summary>
             public class ButterworthFilter : AbstractFilter {
 
                 #region Public Properties
-                [JsonInclude] public float CutOff {
+                [JsonInclude]
+                public float CutOff {
                     set {
                         _cutOff = value;
                         EvaluateConstants();
@@ -20,6 +22,7 @@ namespace Arsemi {
                 private float _cutOff;
 
                 private readonly AbstractSensor _sensor;
+                public new int SampleRange = 2;
                 #endregion Public Properties
 
 
@@ -28,8 +31,6 @@ namespace Arsemi {
                 private float _a0, _a1, _a2;
                 private float _b1, _b2;
 
-                private float _x1, _x2;
-                private float _y1, _y2;
                 #endregion Evaluated Properties
 
 
@@ -58,8 +59,6 @@ namespace Arsemi {
                     float k3 = _a1 / k2;
                     _b1 = -2f * _a0 + k3;
                     _b2 = 1f - (2f * _a0) - k3;
-
-                    _x1 = _x2 = _y1 = _y2 = 0;
                 }
 
 
@@ -67,15 +66,15 @@ namespace Arsemi {
                 /// </summary>
                 /// <param name="input"></param>
                 /// <returns>Filtered value based on the previously evaluated properties and older stored values.</returns>
-                public override float FilterValue(float input) {
-                    float y = (_a0 * input) + (_a1 * _x1) + (_a2 * _x2) + (_b1 * _y1) + (_b2 * _y2);
-
-                    _x2 = _x1;
-                    _x1 = input;
-                    _y2 = _y1;
-                    _y1 = y;
-
-                    return y;
+                public override Vector2 FilterValue(Utilities.RingBuffer samples) {
+                    return new() {
+                        Y = (_a0 * samples[0].X)
+                        + (_a1 * samples[1].X)
+                        + (_a2 * samples[2].X)
+                        + (_b1 * samples[1].Y)
+                        + (_b2 * samples[2].Y),
+                        X = samples[0].X
+                    };
                 }
             }
         }
