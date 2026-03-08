@@ -3,7 +3,7 @@ using System.Numerics;
 namespace Arsemi {
     namespace Utilities {
         /// <summary>
-        /// Flexibly sized buffer for managing Vector2D data sorted by newest to oldest.
+        /// Flexibly sized buffer for managing Vector2D data sorted by newest to oldest from first to last index.
         /// </summary>
         public class RingBuffer {
 
@@ -15,19 +15,38 @@ namespace Arsemi {
 
             #region buffer handling
             private Vector2[] _buffer = [];
-            private int _currentIndex;
+            private int _currentIndex = 0;
             #endregion buffer handling
 
 
+            public RingBuffer() {
+
+            }
+
 
             /// <summary>
-            /// Positive modulo index for the buffer.
+            /// Copy all data from source to target.
+            /// </summary>
+            /// <param name="previousBuffer"></param>
+            public RingBuffer(RingBuffer previousBuffer) {
+                _buffer = previousBuffer._buffer;
+                _currentIndex = previousBuffer._currentIndex;
+            }
+
+
+            public static int PosMod(int a, int m) {
+                int result = a % m;
+                return result < 0 ? result + m : result;
+            }
+
+            /// <summary>
+            /// Positive modulo index for the buffer starting from the last saved value at 0.
             /// </summary>
             /// <param name="index"></param>
             /// <returns></returns>
             private int CycleRingIndex(int index) {
                 if(_buffer.Length == 0) { return 0; }
-                return (_currentIndex + index + _buffer.Length) % _buffer.Length;
+                return PosMod(_currentIndex + index, _buffer.Length);
             }
 
 
@@ -72,7 +91,10 @@ namespace Arsemi {
             /// Pushes a new value into the buffer while keeping the size and the x last values, where x is Length-1.
             /// </summary>
             /// <param name="newValue"></param>
-            public void Push(Vector2 newValue) => _buffer[CycleRingIndex(++_currentIndex)] = newValue;
+            public void Push(Vector2 newValue) {
+                _currentIndex = CycleRingIndex(-1);
+                _buffer[_currentIndex] = newValue;
+            }
 
 
             /// <summary>

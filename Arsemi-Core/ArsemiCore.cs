@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
-using Arsemi.Sensor.Filter;
+using Arsemi.Utilities;
 
 namespace Arsemi {
   /// <summary>
@@ -18,6 +18,9 @@ namespace Arsemi {
     //private readonly SerialMessaging _serialMessaging = new("COM3", 9600);
 
     private List<Timer> _timers = [];
+
+    private long _tick = 0; // DEBUG
+    private float[] _testValues = [0, 1, 2, 1, 2, 3, 4, 7, 4, 3];
 
     /// <summary>
     /// TODO: Setup communication with arduino an other important things :> (can this be combined with FinishSetup() into one method?)
@@ -84,7 +87,7 @@ namespace Arsemi {
     /// Starts a timer for 1000ms and calls ContinueLoop when it's finished
     /// </summary>
     public void StartLoop() {
-      _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, 1000));
+      _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, Sensors[Examples.ExampleConstants.Sensors.Heartrate.ToString()].Data.IntervalMS));
     }
 
 
@@ -92,8 +95,14 @@ namespace Arsemi {
     /// DEBUG
     /// </summary>
     private void ContinueLoop(object? state) {
-      Sensors[Examples.ExampleConstants.Sensors.Heartrate.ToString()].Data.Value++;
+      AbstractSensor currentSensor = Sensors[Examples.ExampleConstants.Sensors.Heartrate.ToString()];
+      currentSensor.Data.Value++;
       StoreSensorData((uint)Examples.ExampleConstants.Sensors.Heartrate);
+
+      currentSensor.RawBuffer.Push(new(_tick * currentSensor.Data.IntervalMS, _testValues[RingBuffer.PosMod((int)_tick, _testValues.Length)]));
+      _tick++;
+      currentSensor.ApplyFilters();
+      File.AppendAllText("/home/mika/Downloads/filter.csv", $"{_tick}, {currentSensor.RawBuffer[0].Y}, {currentSensor.FilteredBuffer[0].Y}\n");
     }
 
 

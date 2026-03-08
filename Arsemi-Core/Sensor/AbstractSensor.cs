@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Arsemi.Sensor.Filter;
+using Arsemi.Utilities;
 
 namespace Arsemi {
     namespace Sensor {
@@ -12,8 +13,8 @@ namespace Arsemi {
 
 
             #region Samples
-            protected Utilities.RingBuffer _rawBuffer = new();
-            protected Utilities.RingBuffer _filteredBuffer = new();
+            public Utilities.RingBuffer RawBuffer = new();
+            public Utilities.RingBuffer FilteredBuffer = new();
             #endregion Samples
 
 
@@ -56,9 +57,9 @@ namespace Arsemi {
                 Filters ??= [];
 
                 Filters.Add(name, filter);
-                if(_rawBuffer.Length < filter.SampleRange) {
-                    _rawBuffer.Resize(filter.SampleRange);
-                    _filteredBuffer.Resize(filter.SampleRange);
+                if(RawBuffer.Length < filter.SampleRange) {
+                    RawBuffer.Resize(filter.SampleRange);
+                    FilteredBuffer.Resize(filter.SampleRange);
                 }
                 return this;
             }
@@ -68,12 +69,13 @@ namespace Arsemi {
             /// TODO: Applies all the filters to the currently stored sensor data.
             /// </summary>
             public void ApplyFilters() {
+                FilteredBuffer.Push(RawBuffer[0]);
+                AbstractFilter filter;
                 for(int i = 0; i < Filters.Count; i++) {
-                    _filteredBuffer[0] = Filters.ElementAt(i).Value.FilterValue(_rawBuffer);
+                    filter = Filters.ElementAt(i).Value;
+                    filter.EvaluateConstants();
+                    FilteredBuffer[0] = filter.FilterValue(RawBuffer, FilteredBuffer);
                 }
-
-                _filteredBuffer.SetX(0, _filteredBuffer[0].X + 1);
-                _filteredBuffer.MoveIndex();
             }
             #endregion Filters
 
