@@ -2,7 +2,10 @@ namespace Arsemi {
     namespace Sensor {
         namespace Filter {
             public abstract class AbstractFilter {
-                public abstract float FilterValue(float input);
+                public int SampleRange = 0;
+                public bool Enabled = true;
+                public string Name = "";
+                public abstract float FilterValue(Utilities.RingBuffer samples);
             }
         }
     }

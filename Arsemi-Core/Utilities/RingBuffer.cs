@@ -1,0 +1,85 @@
+using System.Numerics;
+
+namespace Arsemi {
+    namespace Utilities {
+        /// <summary>
+        /// Flexibly sized buffer for managing Vector2D data sorted by newest to oldest.
+        /// </summary>
+        public class RingBuffer {
+
+            public Vector2 this[int index] {
+                get => _buffer[CycleRingIndex(index)];
+                set => _buffer[CycleRingIndex(index)] = value;
+            }
+            public int Length => _buffer.Length;
+
+            #region buffer handling
+            private Vector2[] _buffer = [];
+            private int _currentIndex;
+            #endregion buffer handling
+
+
+
+            /// <summary>
+            /// Positive modulo index for the buffer.
+            /// </summary>
+            /// <param name="index"></param>
+            /// <returns></returns>
+            private int CycleRingIndex(int index) {
+                if(_buffer.Length == 0) { return 0; }
+                return (_currentIndex + index + _buffer.Length) % _buffer.Length;
+            }
+
+
+            /// <summary>
+            /// Resize the buffer to newSize and copy data.
+            /// </summary>
+            /// <param name="newSize"></param>
+            public void Resize(int newSize) {
+                Vector2[] newBuffer = new Vector2[newSize];
+                int copyCount = Math.Min(newSize, Length);
+                for(int i = 0; i < copyCount; i++) {
+                    newBuffer[i] = this[i];
+                }
+                _buffer = newBuffer;
+                _currentIndex = 0;
+            }
+
+
+            /// <summary>
+            /// Sets the X value at the specified index in the ring buffer, starting from the current value at index 0.
+            /// </summary>
+            /// <param name="index"></param>
+            /// <param name="value"></param>
+            public void SetX(int index, float value) {
+                int ringIndex = CycleRingIndex(index);
+                _buffer[ringIndex].X = value;
+            }
+
+
+            /// <summary>
+            /// Sets the Y value at the specified index in the ring buffer, starting from the current value at index 0.
+            /// </summary>
+            /// <param name="index"></param>
+            /// <param name="value"></param>
+            public void SetY(int index, float value) {
+                int ringIndex = CycleRingIndex(index);
+                _buffer[ringIndex].Y = value;
+            }
+
+
+            /// <summary>
+            /// Pushes a new value into the buffer while keeping the size and the x last values, where x is Length-1.
+            /// </summary>
+            /// <param name="newValue"></param>
+            public void Push(Vector2 newValue) => _buffer[CycleRingIndex(++_currentIndex)] = newValue;
+
+
+            /// <summary>
+            /// Increases only the index without providing a new value.
+            /// </summary>
+            /// <param name="offset"></param>
+            public void MoveIndex(int offset = 0) => _currentIndex = CycleRingIndex(offset);
+        }
+    }
+}

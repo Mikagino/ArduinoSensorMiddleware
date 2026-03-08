@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
+using Arsemi.Sensor.Filter;
 
 namespace Arsemi {
   /// <summary>
@@ -16,6 +17,7 @@ namespace Arsemi {
     private readonly MemoryMappedSensorData _memoryMappedSensorData = new("SensorData", 1024);
     //private readonly SerialMessaging _serialMessaging = new("COM3", 9600);
 
+    private List<Timer> _timers = [];
 
     /// <summary>
     /// TODO: Setup communication with arduino an other important things :> (can this be combined with FinishSetup() into one method?)
@@ -36,7 +38,9 @@ namespace Arsemi {
     /// NICE TO HAVE: Make timed for each sensor individually -> for performance setting / more control
     /// </summary>
     private void StoreSensorData(uint sensor) {
-      _memoryMappedSensorData.Write(Sensors[((Examples.ExampleConstants.Sensors)sensor).ToString()].Data);
+      AbstractSensor currentSensor = Sensors[((Examples.ExampleConstants.Sensors)sensor).ToString()];
+      currentSensor.ApplyFilters();
+      _memoryMappedSensorData.Write(currentSensor.Data);
     }
 
 
@@ -80,7 +84,7 @@ namespace Arsemi {
     /// Starts a timer for 1000ms and calls ContinueLoop when it's finished
     /// </summary>
     public void StartLoop() {
-      _ = new Timer(new TimerCallback(ContinueLoop), this, 0, 1000);
+      _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, 1000));
     }
 
 
@@ -94,13 +98,13 @@ namespace Arsemi {
 
 
     /// <summary>
-    /// TODO: Suspends the microcontrollers update loop until FinishSetup() or Start() is called
+    /// DisposesAsync() all sensor timers.
+    /// TODO: Suspends the microcontrollers update loop until StartLoop() is called
     /// </summary>
-    public void StopLoop() {
-    }
-
-    public string JsonSerializer() {
-      return System.Text.Json.JsonSerializer.Serialize(this);
+    public async Task StopLoop() {
+      for(int i = 0; i < Sensors.Count; i++) {
+        _ = _timers[i].DisposeAsync();
+      }
     }
   }
 }
