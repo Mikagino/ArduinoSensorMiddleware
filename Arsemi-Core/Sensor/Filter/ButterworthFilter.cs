@@ -22,19 +22,18 @@ namespace Arsemi {
                 private float _cutOff;
 
                 private readonly AbstractSensor _sensor;
-                public new int SampleRange = 2;
+                public override int SampleRange => 3;
                 #endregion Public Properties
 
 
                 #region Evaluated Properties
-                private const float Sqrt2 = 1.414213562f;
                 private float _a0, _a1, _a2;
                 private float _b1, _b2;
 
                 #endregion Evaluated Properties
 
 
-                public ButterworthFilter(AbstractSensor sensor, float cutOff = 10) {
+                public ButterworthFilter(AbstractSensor sensor, float cutOff = 2) {
                     _sensor = sensor;
                     CutOff = cutOff;
                 }
@@ -43,14 +42,15 @@ namespace Arsemi {
                 /// <summary>
                 /// Recalculates values for FilterValues(). Only called when important values change to improve performance.
                 /// </summary>
-                public void EvaluateConstants() {
+                public override void EvaluateConstants() {
                     if(_cutOff == 0) {
                         return;
                     }
 
-                    float samplingRate = 1f / _sensor.Data.IntervalMS;
+                    const float sqrt2 = 1.414213562f;
+                    float samplingRate = 1000f / _sensor.Data.IntervalMS;
                     float wc = MathF.Tan(CutOff * MathF.PI / samplingRate);
-                    float k1 = Sqrt2 * wc;
+                    float k1 = sqrt2 * wc;
                     float k2 = wc * wc;
 
                     _a0 = k2 / (1 + k1 + k2);
@@ -66,15 +66,16 @@ namespace Arsemi {
                 /// </summary>
                 /// <param name="input"></param>
                 /// <returns>Filtered value based on the previously evaluated properties and older stored values.</returns>
-                public override Vector2 FilterValue(Utilities.RingBuffer samples) {
-                    return new() {
-                        Y = (_a0 * samples[0].X)
-                        + (_a1 * samples[1].X)
-                        + (_a2 * samples[2].X)
-                        + (_b1 * samples[1].Y)
-                        + (_b2 * samples[2].Y),
-                        X = samples[0].X
+                public override Vector2 FilterValue(Utilities.RingBuffer rawBuffer, Utilities.RingBuffer filteredBuffer) {
+                    Vector2 result = new() {
+                        Y = (_a0 * rawBuffer[0].Y)
+                        + (_a1 * rawBuffer[1].Y)
+                        + (_a2 * rawBuffer[2].Y)
+                        + (_b1 * filteredBuffer[1].Y)
+                        + (_b2 * filteredBuffer[2].Y),
+                        X = rawBuffer[0].X
                     };
+                    return result;
                 }
             }
         }
