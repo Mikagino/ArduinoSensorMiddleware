@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Arsemi.Sensor;
+using Arsemi.Sensor.Filter;
 
 namespace Arsemi {
     namespace Examples {
@@ -25,8 +27,8 @@ namespace Arsemi {
             /// </summary>
             public static async Task Setup() {
                 _asmCore.StartSetup();
-                Sensor.AbstractSensor hr = _asmCore.AddSensor(new Sensor.AnalogSensor(), "Heartrate");
-                Sensor.Filter.AbstractFilter butterworth = new Sensor.Filter.ButterworthFilter(hr, 2);
+                AbstractSensor hr = _asmCore.AddSensor(new AnalogSensor(), "Heartrate");
+                AbstractFilter butterworth = new ButterworthFilter(hr, 2);
                 hr.AddFilter(butterworth, "Butterworth")
                     .SetInterval(100)
                     .AddEvent(Sensor.AbstractSensor.EventType.Threshold, "Excitement", 120);
