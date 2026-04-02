@@ -1,6 +1,8 @@
 #ifndef ABSTRACT_SENSOR_H
 #define ABSTRACT_SENSOR_H
 
+#include <stdint.h>
+
 // Abstraction for setting up multiple sensors in a big array
 // Polymorphism for more sophisticated sensors
 class AbstractSensor {
@@ -10,7 +12,7 @@ protected:
 
     
 public:
-    float _lastValue;
+    uint32_t _lastValue;
     virtual bool begin() = 0;
     inline bool checkInterval();
     // Checks interval and updates+sends sensor readings
