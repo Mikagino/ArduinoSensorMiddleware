@@ -1,30 +1,21 @@
 // Main
 #include "SensorMAX30102.h"
+#include "ArsemiArduinoCore.h"
 
-const uint8_t MAX_SENSOR_COUNT = 8;
-AbstractSensor* sensors[MAX_SENSOR_COUNT];
-
-int intervalMillis = 100;
+ArsemiArduinoCore arsemi(8);
+int intervalMillis = 50;
 
 void setup() {
-  createSensors();
   Serial.begin(9600);
-  for (int i = 0; i < MAX_SENSOR_COUNT; i++) {
-  }
-}
+  Serial.println("Setup started");
 
-void createSensors() {
-  sensors[0] = new SensorMAX30102();
-}
+  arsemi.addSensor(new SensorMAX30102());
+  arsemi.beginAllSensors();
 
-void destroySensors() {
-  for (int i = 0; i < MAX_SENSOR_COUNT; i++) {
-      sensors[i]->~AbstractSensor();
-    }
+  Serial.println("Setup finished!");
 }
 
 void loop() {
-  sensors[0]->update();
-  Serial.println(sensors[0]->_lastValue);
+  arsemi.updateAllSensors();
   delay(intervalMillis);
 }

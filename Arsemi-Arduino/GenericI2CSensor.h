@@ -1,6 +1,7 @@
-#ifndef GENERIC_I2C_SENSOR
-#define GENERIC_I2C_SENSOR
+#pragma once
 
+#include "Arduino.h"
+#include <stdint.h>
 #include "AbstractSensor.h"
 #include <Wire.h>
 
@@ -17,8 +18,5 @@ public:
   GenericI2CSensor(unsigned int address = 0x00, unsigned int reg = 0x00,
                    unsigned int bytes = 2, float scale = 1)
       : _address(address), _reg(reg), _bytes(bytes), _scale(scale) {}
-
   void updateLastValue() override;
 };
-
-#endif

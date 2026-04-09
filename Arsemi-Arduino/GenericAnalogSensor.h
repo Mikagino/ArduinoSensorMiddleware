@@ -1,14 +1,15 @@
-#ifndef GENERIC_ANALOG_SENSOR
-#define GENERIC_ANALOG_SENSOR
+#pragma once
 
+#include "Arduino.h"
+#include <stdint.h>
 #include "AbstractSensor.h"
 
+// Generic Analog sensor, works for most simple sensors!
 class GenericAnalogSensor : public AbstractSensor {
 private:
-  unsigned int _pin;
+  const uint8_t _sensorPin;
 
 public:
+  GenericAnalogSensor(uint8_t sensorPin);
   void updateLastValue() override;
 };
-
-#endif

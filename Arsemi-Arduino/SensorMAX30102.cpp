@@ -11,7 +11,6 @@ bool SensorMAX30102::begin() {
   }
 }
 
-
 void SensorMAX30102::updateLastValue() {
   _lastValue = sensor.readSample(1000).red;
 }

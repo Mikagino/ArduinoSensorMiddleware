@@ -1,4 +1,3 @@
-#include <Wire.h>
 #include "GenericI2CSensor.h"
 
 void GenericI2CSensor::updateLastValue() {
