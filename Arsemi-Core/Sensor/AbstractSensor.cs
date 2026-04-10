@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Arsemi.Sensor.Event;
 using Arsemi.Sensor.Filter;
 using Arsemi.Utilities;
 
@@ -7,20 +8,16 @@ namespace Arsemi {
         public class AbstractSensor : ISensor {
             [JsonInclude] public SensorData Data = new();
             [JsonInclude] public Dictionary<string, AbstractFilter> Filters = [];
+            [JsonInclude] public Dictionary<string, AbstractEvent> Events = [];
 
 
             protected static List<uint> _previouslyGeneratedIDs = [];
 
 
             #region Samples
-            public Utilities.RingBuffer RawBuffer = new();
-            public Utilities.RingBuffer FilteredBuffer = new();
+            public RingBuffer RawBuffer = new();
+            public RingBuffer FilteredBuffer = new();
             #endregion Samples
-
-
-            public enum EventType {
-                Threshold,
-            }
 
 
             public AbstractSensor(uint customID = 0) {
@@ -94,11 +91,29 @@ namespace Arsemi {
             }
 
 
+            #region Events
             /// <summary>
-            /// TODO: Adds a new event (base function -> needs implementations for specific event types, maybe use class instead of enum?)
+            /// Adds event to the dictionary Events
             /// </summary>
-            public void AddEvent(EventType eventType, string name, int value) {
+            public AbstractSensor AddEvent(AbstractEvent eventType, string name) {
+                Events ??= [];
+
+                Events.Add(name, eventType);
+                return this;
             }
+
+
+            /// <summary>
+            /// Calls CheckCondition() on each event and invokes Actions if conditions are met
+            /// </summary>
+            public void CheckEventsConditions() {
+                foreach(var action in Events) {
+                    if(action.Value.CheckCondition(RawBuffer)) {
+                        ArsemiConstants.Actions.ActionMap[action.Key]()?.Invoke();
+                    }
+                }
+            }
+            #endregion Events
         }
     }
 }

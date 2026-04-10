@@ -5,7 +5,7 @@ namespace Arsemi {
     namespace Sensor {
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct SensorData() {
-            [JsonInclude] public float Value = 0;
+            public float Value = 0;
             [JsonInclude] public uint ID;
             [JsonInclude] public uint IntervalMS;
         }

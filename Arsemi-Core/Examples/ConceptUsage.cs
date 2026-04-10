@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Arsemi.Sensor;
+using Arsemi.Sensor.Event;
 using Arsemi.Sensor.Filter;
 
 namespace Arsemi {
@@ -9,7 +11,7 @@ namespace Arsemi {
         /// </summary>
         public static class ConceptUsage {
             [JsonInclude] private static ArsemiCore _asmCore = new();
-            public const string PathToConfigFile = "/home/mika/Downloads/ArsemiConfig.json";
+            public const string PathToConfigDirectory = "/home/mika/Downloads/ArsemiConfig/";
 
 
             public static async Task Main() {
@@ -18,12 +20,13 @@ namespace Arsemi {
                 while(!exiting) {
                     exiting = await UpdateLoopAsync();
                 }
-                Exit();
+                await Exit();
             }
 
 
             /// <summary>
-            /// Sets up each sensor, filters and other settings via code
+            /// Sets up each sensor, filters and other settings via code.
+            /// Ideally this is done in the GUI and then only AutomaticSetup() called.
             /// </summary>
             public static async Task Setup() {
                 _asmCore.StartSetup();
@@ -31,13 +34,14 @@ namespace Arsemi {
                 AbstractFilter butterworth = new ButterworthFilter(hr, 2);
                 hr.AddFilter(butterworth, "Butterworth")
                     .SetInterval(100)
-                    .AddEvent(Sensor.AbstractSensor.EventType.Threshold, "Excitement", 120);
-                _asmCore.AddSensor(new Sensor.DigitalSensor(), "Button");
+                    .AddEvent(new AboveThresholdEvent(15), "Excitement");
+                _asmCore.AddSensor(new DigitalSensor(), "Button");
                 _asmCore.SetInterval("Button", 200);
                 _asmCore.FinishSetup();
-                ExampleConstants.Events.Excitement += EventAction;
+                ArsemiConstants.Actions.Excitement += EventAction;
 
-                await ConfigSaver.SaveTo(_asmCore, PathToConfigFile);
+                await ConfigSaver.SaveTo(_asmCore, PathToConfigDirectory);
+                await ConfigSaver.GenerateConstants(_asmCore, PathToConfigDirectory);
                 _asmCore.StartLoop();
             }
 
@@ -49,8 +53,9 @@ namespace Arsemi {
             /// </summary>
             public static async Task AutomaticSetup() {
                 _asmCore.StartSetup();
-                _asmCore = await ConfigSaver.LoadConfiguration(PathToConfigFile);
+                _asmCore = await ConfigSaver.LoadConfigAsync(PathToConfigDirectory);
                 _asmCore.FinishSetup();
+                _asmCore.StartLoop();
             }
 
 
@@ -60,7 +65,7 @@ namespace Arsemi {
             /// </summary>
             public static async Task<bool> UpdateLoopAsync() {
                 //float currentGSR = (float)_asmCore.GetSensorValueID(2);
-                float currentHeartrate = (float)_asmCore.GetSensorValue((uint)ExampleConstants.Sensors.Heartrate);
+                float currentHeartrate = (float)_asmCore.GetSensorValue((uint)ArsemiConstants.Sensors.Heartrate);
                 await Task.Delay(200).ConfigureAwait(false);
                 return false;
             }
@@ -70,15 +75,15 @@ namespace Arsemi {
             /// When an event is emitted by the
             /// </summary>
             public static void EventAction() {
-                // Insert code that gets executed when Arsemi emits an Action
+                Console.WriteLine("Event action function called!");
             }
 
 
             /// <summary>
             /// Execution of the microcontroller can be manually stopped (also stops upon exiting debugging)
             /// </summary>
-            public static void Exit() {
-                _asmCore.StopLoop();
+            public static async Task Exit() {
+                await _asmCore.StopLoop();
             }
         }
     }

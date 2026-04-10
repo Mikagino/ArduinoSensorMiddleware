@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
-using Arsemi.Utilities;
 
 namespace Arsemi {
   /// <summary>
@@ -41,7 +40,7 @@ namespace Arsemi {
     /// NICE TO HAVE: Make timed for each sensor individually -> for performance setting / more control
     /// </summary>
     private void StoreSensorData(uint sensor) {
-      AbstractSensor currentSensor = Sensors[((Examples.ExampleConstants.Sensors)sensor).ToString()];
+      AbstractSensor currentSensor = Sensors[((ArsemiConstants.Sensors)sensor).ToString()];
       currentSensor.ApplyFilters();
       _memoryMappedSensorData.Write(currentSensor.Data);
     }
@@ -87,7 +86,7 @@ namespace Arsemi {
     /// Starts a timer for 1000ms and calls ContinueLoop when it's finished
     /// </summary>
     public void StartLoop() {
-      _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, Sensors[Examples.ExampleConstants.Sensors.Heartrate.ToString()].Data.IntervalMS));
+      _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, Sensors[ArsemiConstants.Sensors.Heartrate.ToString()].Data.IntervalMS));
     }
 
 
@@ -95,20 +94,22 @@ namespace Arsemi {
     /// DEBUG
     /// </summary>
     private void ContinueLoop(object? state) {
-      AbstractSensor currentSensor = Sensors[Examples.ExampleConstants.Sensors.Heartrate.ToString()];
+      AbstractSensor currentSensor = Sensors[ArsemiConstants.Sensors.Heartrate.ToString()];
       currentSensor.Data.Value++;
-      StoreSensorData((uint)Examples.ExampleConstants.Sensors.Heartrate);
+      currentSensor.RawBuffer.Push(new(_tick, currentSensor.Data.Value));
+      Console.WriteLine(currentSensor.Data.Value);
+      currentSensor.CheckEventsConditions();
+      StoreSensorData((uint)ArsemiConstants.Sensors.Heartrate);
 
-      currentSensor.RawBuffer.Push(new(_tick * currentSensor.Data.IntervalMS, _testValues[RingBuffer.PosMod((int)_tick, _testValues.Length)]));
+      // currentSensor.RawBuffer.Push(new(_tick * currentSensor.Data.IntervalMS, _testValues[RingBuffer.PosMod((int)_tick, _testValues.Length)]));
       _tick++;
-      currentSensor.ApplyFilters();
       File.AppendAllText("/home/mika/Downloads/filter.csv", $"{_tick}, {currentSensor.RawBuffer[0].Y}, {currentSensor.FilteredBuffer[0].Y}\n");
     }
 
 
     /// <summary>
     /// DisposesAsync() all sensor timers.
-    /// TODO: Suspends the microcontrollers update loop until StartLoop() is called
+    /// TODO: Suspends the microcontrollers update loop until StartLoop() is called + threadpooling, wait for all
     /// </summary>
     public async Task StopLoop() {
       for(int i = 0; i < Sensors.Count; i++) {
