@@ -107,9 +107,9 @@ namespace Arsemi {
             /// Calls CheckCondition() on each event and invokes Actions if conditions are met
             /// </summary>
             public void CheckEventsConditions() {
-                foreach(var action in Events) {
-                    if(action.Value.CheckCondition(RawBuffer)) {
-                        ArsemiConstants.Actions.ActionMap[action.Key]()?.Invoke();
+                foreach(var @event in Events) {
+                    if(@event.Value.CheckCondition(RawBuffer)) {
+                        ArsemiConstants.Events.EventMap[@event.Key]()?.Invoke();
                     }
                 }
             }

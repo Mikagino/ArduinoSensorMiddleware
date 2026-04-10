@@ -1,19 +1,17 @@
-using System.Reflection;
-
 namespace ArsemiConstants {
     /// <summary>
     /// This file will be generated upon calling -INSERT METHOD- or when using the GUI for generating the configuration.
     /// </summary>
     public enum Sensors {
         Heartrate,
-        Button,
+        GSR,
     }
 
-    public class Actions {
+    public class Events {
         public static Action? Excitement;
 
 
-        public static Dictionary<string, Func<Action?>> ActionMap = new(
+        public static Dictionary<string, Func<Action?>> EventMap = new(
             [
                 new("Excitement", () => Excitement),
             ]

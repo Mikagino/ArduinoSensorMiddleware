@@ -69,7 +69,7 @@ namespace Arsemi {
     /// </summary>
     /// <returns></returns>
     public void SetInterval(string sensorName, uint milliseconds) {
-
+      Sensors[sensorName].SetInterval(milliseconds);
     }
 
 
@@ -97,6 +97,9 @@ namespace Arsemi {
       AbstractSensor currentSensor = Sensors[ArsemiConstants.Sensors.Heartrate.ToString()];
       currentSensor.Data.Value++;
       currentSensor.RawBuffer.Push(new(_tick, currentSensor.Data.Value));
+      currentSensor.ApplyFilters();
+      currentSensor.FilteredBuffer.Push(new(_tick, currentSensor.Data.Value));
+      
       Console.WriteLine(currentSensor.Data.Value);
       currentSensor.CheckEventsConditions();
       StoreSensorData((uint)ArsemiConstants.Sensors.Heartrate);

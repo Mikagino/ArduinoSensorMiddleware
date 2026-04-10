@@ -1,4 +1,3 @@
-using System.Runtime.Serialization.Formatters;
 using Arsemi.Sensor.Filter;
 
 namespace Arsemi {
@@ -8,6 +7,7 @@ namespace Arsemi {
             public string ParseDataToJson();
             public AbstractSensor AddFilter(AbstractFilter filter, string name);
             public AbstractSensor SetInterval(uint milliseconds);
+            public void ApplyFilters();
         }
     }
 }

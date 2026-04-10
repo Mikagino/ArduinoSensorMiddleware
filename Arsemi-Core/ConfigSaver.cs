@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Arsemi.Sensor;
 
 namespace Arsemi {
     /// <summary>
@@ -11,18 +12,23 @@ namespace Arsemi {
 
         #region Constant file strings
         private const string ConstantFileHeader = @"
-        namespace ExampleConstants {
-            /// <summary>
-            /// This file will be generated upon calling -INSERT METHOD- or when using the GUI for generating the configuration.
-            /// </summary>
-        ";
+namespace ArsemiConstants {
+    /// <summary>
+    /// This file will be generated upon calling GenerateConstants() or when using the GUI for generating the configuration.
+    /// </summary>
+";
         private const string ConstantFileSensorEnumHeader = @"
-            public enum Sensors {
-        ";
+    public enum Sensors {
+";
         private const string ConstantFileEventClassHeader = @"
-            public class Events {
-        ";
-        #endregion  Constant file strings
+    public class Events {";
+        private const string ConstantFileEvent = @"
+        public static Action? ";
+        private const string ConstantFileEventMapHeader = @"
+        public static Dictionary<string, Func<Action?>> EventMap = new(
+            [
+                ";
+        #endregion Constant file strings
 
 
         /// <summary>
@@ -69,23 +75,41 @@ namespace Arsemi {
         /// <summary>
         /// Generates C# file containing enum with the sensor names and action delegates
         /// </summary>
-        /// <param name="asmCore"></param>
+        /// <param name="arsemiCore"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static async Task GenerateConstants(ArsemiCore asmCore, string configDirectory) {
+        public static async Task GenerateConstants(ArsemiCore arsemiCore, string configDirectory) {
             string constantFileText = ConstantFileHeader;
 
             #region Sensor enum
             constantFileText += ConstantFileSensorEnumHeader;
-            for(int i = 0; i > asmCore.Sensors.Count; i++) {
-                constantFileText += asmCore.Sensors.Keys.ElementAt(i) + ",\n";
+            foreach(string sensorName in arsemiCore.Sensors.Keys) {
+                constantFileText += "\t\t" + sensorName + ",\n";
             }
-            constantFileText += "}\n\n";
+
+            constantFileText += "\t}\n\n";
             #endregion Sensor enum
 
             #region Event actions
             constantFileText += ConstantFileEventClassHeader;
+            string allEvents = "";
+            string eventMap = ConstantFileEventMapHeader;
+            foreach(AbstractSensor sensor in arsemiCore.Sensors.Values) {
+                foreach(string eventName in sensor.Events.Keys) {
+                    allEvents += ConstantFileEvent + eventName + ";\n";
+                    eventMap += "new(\"" + eventName + "\", " + "() => " + eventName + ",\n";
+                }
+            }
+            eventMap += "\t\t\t]\n\t\t);";
+
+            constantFileText += allEvents;
+            constantFileText += eventMap + "\n";
+            constantFileText += "\t}\n";
+            constantFileText += "}";
             #endregion Event actions
+
+            string filePath = Path.Combine(configDirectory + ConstantsFileName);
+            File.WriteAllLines(filePath, [constantFileText]);
         }
     }
 }
