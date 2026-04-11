@@ -36,11 +36,12 @@ namespace Arsemi {
                     .AddEvent(new AboveThresholdEvent(15), "Excitement");
                 _arsemiCore.AddSensor(new AnalogSensor(), "GSR");
                 _arsemiCore.SetInterval("GSR", 200);
+                _arsemiCore.ConnectMicrocontroller("/dev/ttyUSB0");
                 _arsemiCore.FinishSetup();
-                ArsemiConstants.Events.Excitement += EventAction;
 
                 await ConfigSaver.SaveTo(_arsemiCore, PathToConfigDirectory);
                 await ConfigSaver.GenerateConstants(_arsemiCore, PathToConfigDirectory);
+                ArsemiConstants.Events.Excitement += EventAction;
                 _arsemiCore.StartLoop();
             }
 

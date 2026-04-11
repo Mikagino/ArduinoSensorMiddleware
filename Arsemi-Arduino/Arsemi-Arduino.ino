@@ -3,7 +3,7 @@
 #include "ArsemiArduinoCore.h"
 
 ArsemiArduinoCore arsemi(8);
-int intervalMillis = 50;
+int intervalMillis = 2000;
 
 void setup() {
   Serial.begin(9600);
@@ -17,5 +17,6 @@ void setup() {
 
 void loop() {
   arsemi.updateAllSensors();
+  Serial.println("Haiiii :D");
   delay(intervalMillis);
 }

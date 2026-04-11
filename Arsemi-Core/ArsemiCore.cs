@@ -1,3 +1,4 @@
+using System.IO.Ports;
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
@@ -14,7 +15,7 @@ namespace Arsemi {
 
     // IPC
     private readonly MemoryMappedSensorData _memoryMappedSensorData = new("SensorData", 1024);
-    //private readonly SerialMessaging _serialMessaging = new("COM3", 9600);
+    private SerialMessaging _serialMessaging = new();
 
     private List<Timer> _timers = [];
 
@@ -74,18 +75,38 @@ namespace Arsemi {
 
 
     /// <summary>
+    /// Connects the microcontroller at the specified serial port.
+    /// </summary>
+    /// <param name="portName"></param>
+    /// <param name="baudRate"></param>
+    /// <param name="receivedBytesThreshold"></param>
+    public void ConnectMicrocontroller(string portName, int baudRate = SerialProtocol.BaudRate, int receivedBytesThreshold = 5) {
+      _serialMessaging.Begin(portName, baudRate, receivedBytesThreshold);
+    }
+
+
+    /// <summary>
     /// TODO: Sends sensor setup data to microcontroller and starts it's execution  (can this be combined with StartSetup() into one method?)
+    /// DONE: Sends 2 types of setup messages over the serial port (ClearConfiguration, AddSensor for each sensor)
     /// </summary>
     public void FinishSetup() {
+      _serialMessaging.WriteLine(SerialProtocol.CombineToMessage(SerialProtocol.SetupCodes.ClearConfiguration));
+
+      foreach(AbstractSensor sensor in Sensors.Values) {
+        _serialMessaging.WriteLine(
+          SerialProtocol.CombineToMessage(SerialProtocol.SetupCodes.AddSensor, sensor.GetDataAsStrings()));
+      }
 
     }
 
 
     /// <summary>
-    /// TODO: Wakes the microcontrollers update loop until Stop() is called.
-    /// Starts a timer for 1000ms and calls ContinueLoop when it's finished
+    /// TODO: Wakes the microcontrollers update loop until Stop() is called. |
+    /// DONE: Sends WakeMicrocontroller over the serial port. |
+    /// DEBUG: Starts a timer for 1000ms and calls ContinueLoop everytime it's finished |
     /// </summary>
     public void StartLoop() {
+      _serialMessaging.WriteLine(SerialProtocol.CombineToMessage(SerialProtocol.SystemCodes.WakeMicrocontroller));
       _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, Sensors[ArsemiConstants.Sensors.Heartrate.ToString()].Data.IntervalMS));
     }
 
@@ -99,8 +120,8 @@ namespace Arsemi {
       currentSensor.RawBuffer.Push(new(_tick, currentSensor.Data.Value));
       currentSensor.ApplyFilters();
       currentSensor.FilteredBuffer.Push(new(_tick, currentSensor.Data.Value));
-      
-      Console.WriteLine(currentSensor.Data.Value);
+
+      // Console.WriteLine(currentSensor.Data.Value);
       currentSensor.CheckEventsConditions();
       StoreSensorData((uint)ArsemiConstants.Sensors.Heartrate);
 

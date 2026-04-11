@@ -45,6 +45,11 @@ namespace Arsemi {
             }
 
 
+            public virtual string[] GetDataAsStrings() {
+                return [Data.ID.ToString(), Data.IntervalMS.ToString()];
+            }
+
+
             #region Filters
             /// <summary>
             /// Adds a specific filter to the filterstack (all of them will be executed) and adjusts the size of the sample arrays.
