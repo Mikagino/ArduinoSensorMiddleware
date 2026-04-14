@@ -28,10 +28,15 @@ namespace Arsemi {
             /// TODO: Reads a line from the USB-Port for reading data send from arduino
             /// </summary>
             private void ReadLine(object _, SerialDataReceivedEventArgs e) {
-                // DataReceived?.Invoke(_, e);
+                DataReceived?.Invoke(_, e);
+                // CheckPort();
+                // string arduinoMessage = _serialPort.ReadLine();
+                // Console.WriteLine("Arduino says: " + arduinoMessage);
+            }
+
+            public string ReadLine() {
                 CheckPort();
-                string arduinoMessage = _serialPort.ReadLine();
-                Console.WriteLine("Arduino says: " + arduinoMessage);
+                return _serialPort.ReadLine();
             }
 
 
@@ -63,7 +68,7 @@ namespace Arsemi {
             /// </summary>
             /// <param name="finishAction"></param>
             private void RequestHandshake(Action? finishAction) {
-                string requestHandshakeMessage = SerialProtocol.CombineToMessage((uint)SerialProtocol.SetupCodes.AddSensor);
+                string requestHandshakeMessage = SerialProtocol.CombineToMessage(0, SerialProtocol.SetupCodes.AddSensor);
                 WriteLine(requestHandshakeMessage);
                 _waitingAction += finishAction;
             }

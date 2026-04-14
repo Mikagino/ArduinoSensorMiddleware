@@ -108,6 +108,7 @@ namespace Arsemi {
     public void StartLoop() {
       _serialMessaging.WriteLine(SerialProtocol.CombineToMessage(0, SerialProtocol.SystemCodes.WakeMicrocontroller));
       _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, Sensors[ArsemiGlobals.Sensors.Heartrate.ToString()].Data.IntervalMS));
+      _serialMessaging.DataReceived += ParseMessages;
     }
 
 
@@ -138,6 +139,74 @@ namespace Arsemi {
     public async Task StopLoop() {
       for(int i = 0; i < Sensors.Count; i++) {
         _ = _timers[i].DisposeAsync();
+      }
+    }
+
+
+    /// <summary>
+    /// Converts a new message from string to package and then matches the action code to the required actions
+    /// </summary>
+    /// <param name="_"></param>
+    /// <param name="e"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    public void ParseMessages(object _, SerialDataReceivedEventArgs e) {
+      string message = _serialMessaging.ReadLine();
+      // Console.WriteLine("Received message: " + message);
+      SerialProtocol.Package package = SerialProtocol.Split(message);
+      switch(package.ActionCode) {
+      case SerialProtocol.SystemCodes.HibernateMicrocontroller:
+        throw new NotImplementedException();
+      case SerialProtocol.SystemCodes.WakeMicrocontroller:
+        throw new NotImplementedException();
+      case SerialProtocol.SystemCodes.SystemError:
+        throw new NotImplementedException();
+      case SerialProtocol.SystemCodes.RequestHandshake:
+        throw new NotImplementedException();
+      case SerialProtocol.SystemCodes.ReplyHandshake:
+        throw new NotImplementedException();
+      case SerialProtocol.SetupCodes.ClearConfiguration:
+        throw new NotImplementedException();
+      case SerialProtocol.SetupCodes.AddSensor:
+        throw new NotImplementedException();
+      case SerialProtocol.SensorCodes.NewSample:
+        ParseNewSample(package);
+        break;
+      case SerialProtocol.SensorCodes.SensorError:
+        ParseSensorError(package);
+        break;
+      }
+    }
+
+
+    /// <summary>
+    /// Parses sensorId and value from the packages parameters
+    /// </summary>
+    /// <param name="package"></param>
+    /// <exception cref="Exception"></exception>
+    private void ParseNewSample(SerialProtocol.Package package) {
+      if(package.Parameters.Length < 2) {
+        throw new Exception("Package doesn't contain all parameters, message may be corrupt: " + package);
+      }
+      if(!uint.TryParse(package.Parameters[0], out uint sensorId)) {
+        throw new Exception("Couldn't read sensor id, message may be corrupt: " + package);
+      }
+      if(!uint.TryParse(package.Parameters[1], out uint value)) {
+        throw new Exception("Couldn't read sensor value, message may be corrupt: " + package);
+      }
+
+      Console.WriteLine("Received sensor data from sensorId: " + sensorId + " with a value of: " + value);
+    }
+
+
+    /// <summary>
+    /// Parses the different sensor errors to their error messages
+    /// </summary>
+    /// <param name="package"></param>
+    private void ParseSensorError(SerialProtocol.Package package) {
+      switch(package.Parameters[0]) {
+      default:
+        Console.WriteLine("Received sensor error code: " + package.Parameters[0]);
+        break;
       }
     }
   }
