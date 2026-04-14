@@ -41,7 +41,7 @@ namespace Arsemi {
     /// NICE TO HAVE: Make timed for each sensor individually -> for performance setting / more control
     /// </summary>
     private void StoreSensorData(uint sensor) {
-      AbstractSensor currentSensor = Sensors[((ArsemiConstants.Sensors)sensor).ToString()];
+      AbstractSensor currentSensor = Sensors[((ArsemiGlobals.Sensors)sensor).ToString()];
       currentSensor.ApplyFilters();
       _memoryMappedSensorData.Write(currentSensor.Data);
     }
@@ -90,11 +90,11 @@ namespace Arsemi {
     /// DONE: Sends 2 types of setup messages over the serial port (ClearConfiguration, AddSensor for each sensor)
     /// </summary>
     public void FinishSetup() {
-      _serialMessaging.WriteLine(SerialProtocol.CombineToMessage(SerialProtocol.SetupCodes.ClearConfiguration));
+      _serialMessaging.WriteLine(SerialProtocol.CombineToMessage(0, SerialProtocol.SetupCodes.ClearConfiguration));
 
       foreach(AbstractSensor sensor in Sensors.Values) {
         _serialMessaging.WriteLine(
-          SerialProtocol.CombineToMessage(SerialProtocol.SetupCodes.AddSensor, sensor.GetDataAsStrings()));
+          SerialProtocol.CombineToMessage(0, SerialProtocol.SetupCodes.AddSensor, sensor.GetDataAsStrings()));
       }
 
     }
@@ -106,8 +106,8 @@ namespace Arsemi {
     /// DEBUG: Starts a timer for 1000ms and calls ContinueLoop everytime it's finished |
     /// </summary>
     public void StartLoop() {
-      _serialMessaging.WriteLine(SerialProtocol.CombineToMessage(SerialProtocol.SystemCodes.WakeMicrocontroller));
-      _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, Sensors[ArsemiConstants.Sensors.Heartrate.ToString()].Data.IntervalMS));
+      _serialMessaging.WriteLine(SerialProtocol.CombineToMessage(0, SerialProtocol.SystemCodes.WakeMicrocontroller));
+      _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, Sensors[ArsemiGlobals.Sensors.Heartrate.ToString()].Data.IntervalMS));
     }
 
 
@@ -115,7 +115,7 @@ namespace Arsemi {
     /// DEBUG
     /// </summary>
     private void ContinueLoop(object? state) {
-      AbstractSensor currentSensor = Sensors[ArsemiConstants.Sensors.Heartrate.ToString()];
+      AbstractSensor currentSensor = Sensors[ArsemiGlobals.Sensors.Heartrate.ToString()];
       currentSensor.Data.Value++;
       currentSensor.RawBuffer.Push(new(_tick, currentSensor.Data.Value));
       currentSensor.ApplyFilters();
@@ -123,7 +123,7 @@ namespace Arsemi {
 
       // Console.WriteLine(currentSensor.Data.Value);
       currentSensor.CheckEventsConditions();
-      StoreSensorData((uint)ArsemiConstants.Sensors.Heartrate);
+      StoreSensorData((uint)ArsemiGlobals.Sensors.Heartrate);
 
       // currentSensor.RawBuffer.Push(new(_tick * currentSensor.Data.IntervalMS, _testValues[RingBuffer.PosMod((int)_tick, _testValues.Length)]));
       _tick++;

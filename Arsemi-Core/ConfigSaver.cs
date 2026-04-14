@@ -8,23 +8,23 @@ namespace Arsemi {
     public static class ConfigSaver {
         private static readonly JsonSerializerOptions _options = new() { WriteIndented = true };
         private const string ConfigFileName = "ArsemiConfig.json";
-        private const string ConstantsFileName = "ArsemiConstants.cs";
+        private const string GlobalsFileName = "ArsemiGlobals.cs";
 
         #region Constant file strings
-        private const string ConstantFileHeader = @"
-namespace ArsemiConstants {
+        private const string GlobalsFileHeader = @"
+namespace ArsemiGlobals {
     /// <summary>
     /// This file will be generated upon calling GenerateConstants() or when using the GUI for generating the configuration.
     /// </summary>
 ";
-        private const string ConstantFileSensorEnumHeader = @"
+        private const string GlobalsFileSensorEnumHeader = @"
     public enum Sensors {
 ";
-        private const string ConstantFileEventClassHeader = @"
+        private const string GlobalsFileEventClassHeader = @"
     public class Events {";
-        private const string ConstantFileEvent = @"
+        private const string GlobalsFileEvent = @"
         public static Action? ";
-        private const string ConstantFileEventMapHeader = @"
+        private const string GlobalsFileEventMapHeader = @"
         public static Dictionary<string, Func<Action?>> EventMap = new(
             [
                 ";
@@ -79,10 +79,10 @@ namespace ArsemiConstants {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public static async Task GenerateConstants(ArsemiCore arsemiCore, string configDirectory) {
-            string constantFileText = ConstantFileHeader;
+            string constantFileText = GlobalsFileHeader;
 
             #region Sensor enum
-            constantFileText += ConstantFileSensorEnumHeader;
+            constantFileText += GlobalsFileSensorEnumHeader;
             foreach(string sensorName in arsemiCore.Sensors.Keys) {
                 constantFileText += "\t\t" + sensorName + ",\n";
             }
@@ -91,12 +91,12 @@ namespace ArsemiConstants {
             #endregion Sensor enum
 
             #region Event actions
-            constantFileText += ConstantFileEventClassHeader;
+            constantFileText += GlobalsFileEventClassHeader;
             string allEvents = "";
-            string eventMap = ConstantFileEventMapHeader;
+            string eventMap = GlobalsFileEventMapHeader;
             foreach(AbstractSensor sensor in arsemiCore.Sensors.Values) {
                 foreach(string eventName in sensor.Events.Keys) {
-                    allEvents += ConstantFileEvent + eventName + ";\n";
+                    allEvents += GlobalsFileEvent + eventName + ";\n";
                     eventMap += "new(\"" + eventName + "\", " + "() => " + eventName + ",\n";
                 }
             }
@@ -108,7 +108,7 @@ namespace ArsemiConstants {
             constantFileText += "}";
             #endregion Event actions
 
-            string filePath = Path.Combine(configDirectory + ConstantsFileName);
+            string filePath = Path.Combine(configDirectory + GlobalsFileName);
             File.WriteAllLines(filePath, [constantFileText]);
         }
     }

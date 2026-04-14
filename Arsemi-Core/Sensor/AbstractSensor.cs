@@ -114,7 +114,7 @@ namespace Arsemi {
             public void CheckEventsConditions() {
                 foreach(var @event in Events) {
                     if(@event.Value.CheckCondition(RawBuffer)) {
-                        ArsemiConstants.Events.EventMap[@event.Key]()?.Invoke();
+                        ArsemiGlobals.Events.EventMap[@event.Key]()?.Invoke();
                     }
                 }
             }
