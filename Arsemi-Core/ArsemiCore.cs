@@ -40,8 +40,8 @@ namespace Arsemi {
     /// TODO: Stores sensor values received from the microcontroller in shared memory | 
     /// NICE TO HAVE: Make timed for each sensor individually -> for performance setting / more control
     /// </summary>
-    private void StoreSensorData(uint sensor) {
-      AbstractSensor currentSensor = Sensors[((ArsemiGlobals.Sensors)sensor).ToString()];
+    private void StoreSensorData(uint sensorId) {
+      AbstractSensor currentSensor = Sensors[AbstractSensor.ParseSensorIdToName(sensorId)];
       currentSensor.ApplyFilters();
       _memoryMappedSensorData.Write(currentSensor.Data);
     }
@@ -107,8 +107,8 @@ namespace Arsemi {
     /// </summary>
     public void StartLoop() {
       _serialMessaging.WriteLine(SerialProtocol.CombineToMessage(0, SerialProtocol.SystemCodes.WakeMicrocontroller));
-      _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, Sensors[ArsemiGlobals.Sensors.Heartrate.ToString()].Data.IntervalMS));
-      _serialMessaging.DataReceived += ParseMessages;
+      // _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, Sensors[ArsemiGlobals.Sensors.Heartrate.ToString()].Data.IntervalMS));
+      _serialMessaging.DataReceived += ParseMessage;
     }
 
 
@@ -149,7 +149,7 @@ namespace Arsemi {
     /// <param name="_"></param>
     /// <param name="e"></param>
     /// <exception cref="NotImplementedException"></exception>
-    public void ParseMessages(object _, SerialDataReceivedEventArgs e) {
+    public void ParseMessage(object _, SerialDataReceivedEventArgs e) {
       string message = _serialMessaging.ReadLine();
       // Console.WriteLine("Received message: " + message);
       SerialProtocol.Package package = SerialProtocol.Split(message);
@@ -194,7 +194,11 @@ namespace Arsemi {
         throw new Exception("Couldn't read sensor value, message may be corrupt: " + package);
       }
 
-      Console.WriteLine("Received sensor data from sensorId: " + sensorId + " with a value of: " + value);
+      Console.Write("Received sensor data from sensorId: " + sensorId + " with a value of: " + value);
+      Console.WriteLine(" | Sensorname: " + AbstractSensor.ParseSensorIdToName(sensorId));
+
+      Sensors[AbstractSensor.ParseSensorIdToName(sensorId)].Data.Value = value;
+      StoreSensorData(sensorId);
     }
 
 

@@ -56,7 +56,7 @@ namespace Arsemi {
             /// </summary>
             /// <exception cref="Exception"></exception>
             private void CheckPort() {
-                if(_serialPort == null) {
+                if(_serialPort == null || !_serialPort.IsOpen) {
                     throw new Exception("Serial port is not open yet! ;^; Call Begin() before reading...");
                 }
             }

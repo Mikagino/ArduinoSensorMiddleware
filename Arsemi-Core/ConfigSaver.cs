@@ -12,10 +12,13 @@ namespace Arsemi {
 
         #region Constant file strings
         private const string GlobalsFileHeader = @"
+/// <summary>
+/// This file will be generated upon calling GenerateConstants() or when using the GUI for generating the configuration.
+/// </summary>
+using System;
+using System.Collections.Generic;
+
 namespace ArsemiGlobals {
-    /// <summary>
-    /// This file will be generated upon calling GenerateConstants() or when using the GUI for generating the configuration.
-    /// </summary>
 ";
         private const string GlobalsFileSensorEnumHeader = @"
     public enum Sensors {

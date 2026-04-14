@@ -17,7 +17,7 @@ void setup() {
 
 void loop() {
   arsemi.updateAllSensors();
-  Serial.println("0:302:1:3057"); // new sensor sample
+  Serial.println("0:302:0:3057"); // new sensor sample
   delay(intervalMillis);
   Serial.println("0:301:911"); // Sensor error code
   delay(intervalMillis);

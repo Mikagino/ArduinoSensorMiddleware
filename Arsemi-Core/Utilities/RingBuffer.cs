@@ -25,7 +25,7 @@ namespace Arsemi {
 
 
             /// <summary>
-            /// Copy all data from source to target.
+            /// Copy constructor that copies all data from source to target.
             /// </summary>
             /// <param name="previousBuffer"></param>
             public RingBuffer(RingBuffer previousBuffer) {
@@ -36,8 +36,10 @@ namespace Arsemi {
 
             public static int PosMod(int a, int m) {
                 int result = a % m;
-                return result < 0 ? result + m : result;
+                result = result < 0 ? result + m : result;
+                return result;
             }
+
 
             /// <summary>
             /// Positive modulo index for the buffer starting from the last saved value at 0.
