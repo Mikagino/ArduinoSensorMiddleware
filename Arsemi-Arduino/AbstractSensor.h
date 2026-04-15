@@ -7,19 +7,20 @@
 // Polymorphism for more sophisticated sensors
 class AbstractSensor {
 protected:
-    uint8_t _sensorId = 0;
-    unsigned int _intervalMillis = 100;     // interval in which new sensor data is sent over serial
-    unsigned long _lastReadMillis = 0;  // stores the last time the sensor was read
-    
+  uint8_t _sensorId = 0;
+  unsigned int _intervalMillis =
+      100; // interval in which new sensor data is sent over serial
+  unsigned long _lastReadMillis = 0; // stores the last time the sensor was read
+
 public:
-    uint32_t _lastValue;
-    virtual bool begin() = 0;
-    // Checks if the last reading has been interval millis before now
-    inline bool checkInterval();
-    // Checks interval and calls updateLastValue() if interval time is over
-    virtual bool update();
-    // Reads the last value (overwritten for each type of sensor)
-    virtual void updateLastValue() = 0;
-    // getter for sensor id
-    uint8_t getSensorId() { return _sensorId; }
+  uint32_t _lastValue;
+  virtual bool begin() = 0;
+  // Checks if the last reading has been interval millis before now
+  inline bool checkInterval();
+  // Checks interval and calls updateLastValue() if interval time is over
+  virtual bool update();
+  // Reads the last value (overwritten for each type of sensor)
+  virtual void updateLastValue() = 0;
+  // getter for sensor id
+  uint8_t getSensorId() { return _sensorId; }
 };

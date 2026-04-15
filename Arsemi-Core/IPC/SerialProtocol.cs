@@ -52,6 +52,7 @@ namespace Arsemi {
 
             /// <summary>
             /// Combines the message code and the parameters to a ready-to-send message for the serial interface with the microcontroller.
+            /// TODO: rework to use numbers instead of strings
             /// </summary>
             /// <param name="code"></param>
             /// <param name="parameters"></param>

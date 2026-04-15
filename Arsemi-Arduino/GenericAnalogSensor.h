@@ -1,8 +1,8 @@
 #pragma once
 
+#include "AbstractSensor.h"
 #include "Arduino.h"
 #include <stdint.h>
-#include "AbstractSensor.h"
 
 // Generic Analog sensor, works for most simple sensors!
 class GenericAnalogSensor : public AbstractSensor {

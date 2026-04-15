@@ -10,5 +10,6 @@ bool AbstractSensor::update() {
 
   _lastReadMillis = millis();
   updateLastValue();
-  Serial.println("Sensor " + String(_sensorId) + " -> value: " + String(_lastValue)); // DEBUG!
+  Serial.println("Sensor " + String(_sensorId) +
+                 " -> value: " + String(_lastValue)); // DEBUG!
 }
