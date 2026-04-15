@@ -36,15 +36,15 @@ namespace Arsemi {
     }
 
 
-    /// <summary>
-    /// TODO: Stores sensor values received from the microcontroller in shared memory | 
-    /// NICE TO HAVE: Make timed for each sensor individually -> for performance setting / more control
-    /// </summary>
-    private void StoreSensorData(uint sensorId) {
-      AbstractSensor currentSensor = Sensors[AbstractSensor.ParseSensorIdToName(sensorId)];
-      currentSensor.ApplyFilters();
-      _memoryMappedSensorData.Write(currentSensor.Data);
-    }
+    // /// <summary>
+    // /// TODO: Stores sensor values received from the microcontroller in shared memory | 
+    // /// NICE TO HAVE: Make timed for each sensor individually -> for performance setting / more control
+    // /// </summary>
+    // private void StoreSensorData(uint sensorId) {
+    //   AbstractSensor currentSensor = Sensors[AbstractSensor.ParseSensorIdToName(sensorId)];
+    //   currentSensor.ApplyFilters();
+    //   _memoryMappedSensorData.Write(currentSensor.Data);
+    // }
 
 
     /// <summary>
@@ -124,7 +124,7 @@ namespace Arsemi {
 
       // Console.WriteLine(currentSensor.Data.Value);
       currentSensor.CheckEventsConditions();
-      StoreSensorData((uint)ArsemiGlobals.Sensors.Heartrate);
+      // StoreSensorData((uint)ArsemiGlobals.Sensors.Heartrate);
 
       // currentSensor.RawBuffer.Push(new(_tick * currentSensor.Data.IntervalMS, _testValues[RingBuffer.PosMod((int)_tick, _testValues.Length)]));
       _tick++;
@@ -154,25 +154,26 @@ namespace Arsemi {
       // Console.WriteLine("Received message: " + message);
       SerialProtocol.Package package = SerialProtocol.Split(message);
       switch(package.ActionCode) {
-      case SerialProtocol.SystemCodes.HibernateMicrocontroller:
-        throw new NotImplementedException();
-      case SerialProtocol.SystemCodes.WakeMicrocontroller:
-        throw new NotImplementedException();
+      // Codes meant for sending to the microcontroller -> no need to implement
+      // case SerialProtocol.SystemCodes.HibernateMicrocontroller:
+      //   throw new NotImplementedException();
+      // case SerialProtocol.SystemCodes.WakeMicrocontroller:
+      //   throw new NotImplementedException();
+      // case SerialProtocol.SetupCodes.ClearConfiguration:
+      //   throw new NotImplementedException();
+      // case SerialProtocol.SetupCodes.AddSensor:
+      //   throw new NotImplementedException();
+
+      // Codes meant for receiving from the microcontroller
       case SerialProtocol.SystemCodes.SystemError:
-        throw new NotImplementedException();
+        ParseSystemError(package);
+        break;
       case SerialProtocol.SystemCodes.RequestHandshake:
         throw new NotImplementedException();
       case SerialProtocol.SystemCodes.ReplyHandshake:
         throw new NotImplementedException();
-      case SerialProtocol.SetupCodes.ClearConfiguration:
-        throw new NotImplementedException();
-      case SerialProtocol.SetupCodes.AddSensor:
-        throw new NotImplementedException();
       case SerialProtocol.SensorCodes.NewSample:
         ParseNewSample(package);
-        break;
-      case SerialProtocol.SensorCodes.SensorError:
-        ParseSensorError(package);
         break;
       }
     }
@@ -198,7 +199,7 @@ namespace Arsemi {
       Console.WriteLine(" | Sensorname: " + AbstractSensor.ParseSensorIdToName(sensorId));
 
       Sensors[AbstractSensor.ParseSensorIdToName(sensorId)].Data.Value = value;
-      StoreSensorData(sensorId);
+      // StoreSensorData(sensorId);
     }
 
 
@@ -206,7 +207,7 @@ namespace Arsemi {
     /// Parses the different sensor errors to their error messages
     /// </summary>
     /// <param name="package"></param>
-    private void ParseSensorError(SerialProtocol.Package package) {
+    private void ParseSystemError(SerialProtocol.Package package) {
       switch(package.Parameters[0]) {
       default:
         Console.WriteLine("Received sensor error code: " + package.Parameters[0]);

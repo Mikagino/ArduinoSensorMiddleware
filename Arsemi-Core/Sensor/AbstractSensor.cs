@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Text.Json.Serialization;
 using Arsemi.Sensor.Event;
 using Arsemi.Sensor.Filter;
@@ -18,6 +19,13 @@ namespace Arsemi {
             public RingBuffer RawBuffer = new();
             public RingBuffer FilteredBuffer = new();
             #endregion Samples
+
+
+            public void PushNewValue(Vector2 value) {
+                RawBuffer.Push(value);
+                ApplyFilters();
+                Data.Value = FilteredBuffer[0].Y;
+            }
 
 
             public AbstractSensor(uint customID = 0) {

@@ -1,5 +1,3 @@
-using System.Data.Common;
-
 namespace Arsemi {
 
     namespace IPC {
@@ -48,8 +46,7 @@ namespace Arsemi {
 
 
             public struct SensorCodes {
-                public const uint SensorError = (Categories.Sensor * CodeShifter) + 1;
-                public const uint NewSample = (Categories.Sensor * CodeShifter) + 2;
+                public const uint NewSample = (Categories.Sensor * CodeShifter) + 1;
             }
 
 
