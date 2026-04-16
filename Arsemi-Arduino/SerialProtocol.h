@@ -1,8 +1,9 @@
-#include <cstdint>
 #pragma once
 
 #include "Arduino.h"
 #include <stdint.h>
+#include "StringSplitter.h"
+
 
 class SerialProtocol {
 private:
@@ -15,7 +16,6 @@ private:
 
   /// Filters out unwanted symbols (currently only "?")
   static String FilterUnwantedSymbols(String message);
-  static String GetNextSubPackage(String &message);
 
   public:
     static const char Delimiter = ':';
@@ -55,7 +55,8 @@ private:
     public:
       uint16_t Timestamp = 0;
       uint8_t ActionCode = 0;
-      String *Parameters;
+      StringSplitter* AllSubpackages;
+      uint8_t SubpackageCount = 0;
     };
 
     /// Combines the message code and the parameters to a ready-to-send message
@@ -63,5 +64,6 @@ private:
     static String CombineToMessage(uint16_t timestamp, uint8_t code,
                                    int parameterCount, String *parameters);
     /// Splits a serial message into timestamp, action code and up to (MaximumSubPackages-2) parameters
-    static Package *Split(String message);
+    static void Split(String& message, Package& package);
+    // static String GetNextSubPackage(String &message);
   };

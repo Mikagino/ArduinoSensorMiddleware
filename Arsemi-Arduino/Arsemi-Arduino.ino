@@ -25,7 +25,12 @@ void loop() {
   String package[1] = {"102"};
   String message = SerialProtocol::CombineToMessage(
       millis(), SerialProtocol::SystemCodes::SystemError, 1, package);
-  SerialProtocol::Package *package2 = SerialProtocol::Split(message);
-  Serial.println(message);
+  Serial.println("Message: " + message);
+
+  SerialProtocol::Package package2;
+  SerialProtocol::Split(message, package2);
+  Serial.println("Package: " + String(package2.Timestamp) + ":" + String(package2.ActionCode));
+  // Serial.println("SubPack: " + SerialProtocol::GetNextSubPackage(message));
+  Serial.println("\n\n---");
   delay(intervalMillis);
 }
