@@ -5,20 +5,20 @@
 
 /// Combines the message code and the parameters to a ready-to-send message for
 /// the serial interface with the microcontroller.
-String SerialProtocol::CombineToMessage(uint16_t timestamp, uint8_t code,
-                                               int parameterCount,
-                                               String *parameters) {
-  String result = String(timestamp) + Delimiter + String(code);
-  // va_list argList;
-  // va_start(argList, parameters);
-  if (parameters != nullptr) {
-    for (int i = 0; i < parameterCount; i++) {
-      result += Delimiter + String(parameters[i]);
-    }
-  }
-  // va_end(argList);
-  return result;
-}
+// String SerialProtocol::CombineToMessage(uint16_t timestamp, uint8_t code,
+//                                                int parameterCount,
+//                                                String *parameters) {
+//   String result = String(timestamp) + Delimiter + String(code);
+//   // va_list argList;
+//   // va_start(argList, parameters);
+//   if (parameters != nullptr) {
+//     for (int i = 0; i < parameterCount; i++) {
+//       result += Delimiter + String(parameters[i]);
+//     }
+//   }
+//   // va_end(argList);
+//   return result;
+// }
 
 
 // String SerialProtocol::FilterUnwantedSymbols(String message) {
@@ -35,13 +35,13 @@ String SerialProtocol::CombineToMessage(uint16_t timestamp, uint8_t code,
 // }
 
 
-void SerialProtocol::Split(String& message, Package& package) {
-  package.AllSubpackages = new StringSplitter(message, SerialProtocol::Delimiter, SerialProtocol::MaximumSubPackageCount);
-  package.SubpackageCount = package.AllSubpackages->getItemCount();
+// void SerialProtocol::Split(String& message, Package& package) {
+//   package.AllSubpackages = new StringSplitter(message, SerialProtocol::Delimiter, SerialProtocol::MaximumSubPackageCount);
+//   package.SubpackageCount = package.AllSubpackages->getItemCount();
 
-  package.Timestamp = package.AllSubpackages->getItemAtIndex(0);
-  package.ActionCode = package.AllSubpackages->getItemAtIndex(1);
-}
+//   package.Timestamp = package.AllSubpackages->getItemAtIndex(0);
+//   package.ActionCode = package.AllSubpackages->getItemAtIndex(1);
+// }
 
 // static String* SerialProtocol::SplitStringPackages(String message) {
 //   message.split()

@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Text.Json.Serialization;
+using Arsemi.Utilities;
 
 namespace Arsemi {
     namespace Sensor {
@@ -66,15 +67,16 @@ namespace Arsemi {
                 /// </summary>
                 /// <param name="input"></param>
                 /// <returns>Filtered value based on the previously evaluated properties and older stored values.</returns>
-                public override Vector2 FilterValue(Utilities.RingBuffer rawBuffer, Utilities.RingBuffer filteredBuffer) {
-                    Vector2 result = new() {
-                        Y = (_a0 * rawBuffer[0].Y)
+                public override RingBuffer.Vector2_8bit FilterValue(RingBuffer rawBuffer, RingBuffer filteredBuffer) {
+                    byte y = (byte)((_a0 * rawBuffer[0].Y)
                         + (_a1 * rawBuffer[1].Y)
                         + (_a2 * rawBuffer[2].Y)
                         + (_b1 * filteredBuffer[1].Y)
-                        + (_b2 * filteredBuffer[2].Y),
-                        X = rawBuffer[0].X
-                    };
+                        + (_b2 * filteredBuffer[2].Y));
+                    RingBuffer.Vector2_8bit result = new(
+                        rawBuffer[0].X,
+                        y
+                    );
                     return result;
                 }
             }

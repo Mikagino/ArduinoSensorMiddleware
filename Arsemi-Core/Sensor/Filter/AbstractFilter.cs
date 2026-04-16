@@ -1,4 +1,4 @@
-using System.Numerics;
+using Arsemi.Utilities;
 
 namespace Arsemi {
     namespace Sensor {
@@ -8,7 +8,7 @@ namespace Arsemi {
                 public bool Enabled = true;
                 public string Name = "";
                 public abstract void EvaluateConstants();
-                public abstract Vector2 FilterValue(Utilities.RingBuffer rawSamples, Utilities.RingBuffer filteredSamples);
+                public abstract RingBuffer.Vector2_8bit FilterValue(Utilities.RingBuffer rawSamples, Utilities.RingBuffer filteredSamples);
             }
         }
     }

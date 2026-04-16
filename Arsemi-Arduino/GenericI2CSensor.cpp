@@ -13,5 +13,5 @@ void GenericI2CSensor::updateLastValue() {
     value = (value << 8) | Wire.read();
   }
 
-  _lastValue = value;
+  lastValue = value;
 }

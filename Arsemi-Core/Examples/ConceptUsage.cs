@@ -29,8 +29,11 @@ namespace Arsemi {
             /// Ideally this is done in the GUI and then only AutomaticSetup() called.
             /// </summary>
             public static async Task Setup() {
-                string pack = SerialProtocol.CombineToMessage(0, SerialProtocol.SystemCodes.WakeMicrocontroller, "145");
-                Console.WriteLine("Size of NewSample package: " + System.Text.ASCIIEncoding.Unicode.GetByteCount(pack));
+                // char[] msg = "255:255:255:255".ToCharArray();
+                // int siz = sizeof(msg);
+                // byte[] wakeupMessage = new SerialPackage(SerialProtocol.SystemCodes.WakeMicrocontroller).Serialize();
+                // string pack = SerialProtocol.CombineToMessage(0, SerialProtocol.SystemCodes.WakeMicrocontroller, "145");
+                // Console.WriteLine("Size of NewSample package: " + wakeupMessage.Length * 8);
                 _arsemiCore.StartSetup();
                 AbstractSensor hr = _arsemiCore.AddSensor(new AnalogSensor(), "Heartrate");
                 AbstractFilter butterworth = new ButterworthFilter(hr, 2);

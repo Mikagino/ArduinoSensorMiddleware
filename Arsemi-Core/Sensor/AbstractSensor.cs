@@ -1,4 +1,3 @@
-using System.Numerics;
 using System.Text.Json.Serialization;
 using Arsemi.Sensor.Event;
 using Arsemi.Sensor.Filter;
@@ -21,8 +20,8 @@ namespace Arsemi {
             #endregion Samples
 
 
-            public void PushNewValue(Vector2 value) {
-                RawBuffer.Push(value);
+            public void PushNewValue(byte x, byte y) {
+                RawBuffer.Push(x, y);
                 ApplyFilters();
                 Data.Value = FilteredBuffer[0].Y;
             }
@@ -55,6 +54,10 @@ namespace Arsemi {
 
             public virtual string[] GetDataAsStrings() {
                 return [Data.ID.ToString(), Data.IntervalMS.ToString()];
+            }
+
+            public virtual byte[] GetDataAsBytes() {
+                return [Data.ID, Data.IntervalMS];
             }
 
 
@@ -95,7 +98,7 @@ namespace Arsemi {
             #endregion Filters
 
 
-            public AbstractSensor SetInterval(uint milliseconds) {
+            public AbstractSensor SetInterval(byte milliseconds) {
                 Data.IntervalMS = milliseconds;
                 return this;
             }
@@ -104,8 +107,8 @@ namespace Arsemi {
             /// <summary>
             /// </summary>
             /// <returns>Unique number for each new instance of the class (currently simply counting up)</returns>
-            private uint GenerateID() {
-                return (uint)_previouslyGeneratedIDs.Count + 1;
+            private byte GenerateID() {
+                return (byte)(_previouslyGeneratedIDs.Count + 1);
             }
 
 

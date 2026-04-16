@@ -6,15 +6,20 @@ namespace Arsemi {
         /// Flexibly sized buffer for managing Vector2D data sorted by newest to oldest from first to last index.
         /// </summary>
         public class RingBuffer {
+            public class Vector2_8bit(byte x, byte y) {
+                public byte X = x;
+                public byte Y = y;
+            }
 
-            public Vector2 this[int index] {
+
+            public Vector2_8bit this[int index] {
                 get => _buffer[CycleRingIndex(index)];
                 set => _buffer[CycleRingIndex(index)] = value;
             }
             public int Length => _buffer.Length;
 
             #region buffer handling
-            private Vector2[] _buffer = [];
+            private Vector2_8bit[] _buffer = [];
             private int _currentIndex = 0;
             #endregion buffer handling
 
@@ -57,7 +62,7 @@ namespace Arsemi {
             /// </summary>
             /// <param name="newSize"></param>
             public void Resize(int newSize) {
-                Vector2[] newBuffer = new Vector2[newSize];
+                Vector2_8bit[] newBuffer = new Vector2_8bit[newSize];
                 int copyCount = Math.Min(newSize, Length);
                 for(int i = 0; i < copyCount; i++) {
                     newBuffer[i] = this[i];
@@ -72,7 +77,7 @@ namespace Arsemi {
             /// </summary>
             /// <param name="index"></param>
             /// <param name="value"></param>
-            public void SetX(int index, float value) {
+            public void SetX(int index, byte value) {
                 int ringIndex = CycleRingIndex(index);
                 _buffer[ringIndex].X = value;
             }
@@ -83,7 +88,7 @@ namespace Arsemi {
             /// </summary>
             /// <param name="index"></param>
             /// <param name="value"></param>
-            public void SetY(int index, float value) {
+            public void SetY(int index, byte value) {
                 int ringIndex = CycleRingIndex(index);
                 _buffer[ringIndex].Y = value;
             }
@@ -93,9 +98,19 @@ namespace Arsemi {
             /// Pushes a new value into the buffer while keeping the size and the x last values, where x is Length-1.
             /// </summary>
             /// <param name="newValue"></param>
-            public void Push(Vector2 newValue) {
+            public void Push(byte x, byte y) {
                 _currentIndex = CycleRingIndex(-1);
-                _buffer[_currentIndex] = newValue;
+                _buffer[_currentIndex] = new Vector2_8bit(x, y);
+            }
+
+
+            /// <summary>
+            /// Pushes a new value into the buffer while keeping the size and the x last values, where x is Length-1.
+            /// </summary>
+            /// <param name="newValue"></param>
+            public void Push(Vector2_8bit vector2_8Bit) {
+                _currentIndex = CycleRingIndex(-1);
+                _buffer[_currentIndex] = vector2_8Bit;
             }
 
 

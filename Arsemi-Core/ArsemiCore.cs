@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO.Ports;
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
@@ -21,6 +22,10 @@ namespace Arsemi {
 
     private long _tick = 0; // DEBUG
     private float[] _testValues = [0, 1, 2, 1, 2, 3, 4, 7, 4, 3];
+
+
+    private byte _queuedActionCode = 0;
+
 
     /// <summary>
     /// TODO: Setup communication with arduino an other important things :> (can this be combined with FinishSetup() into one method?)
@@ -69,7 +74,7 @@ namespace Arsemi {
     /// Sets the interval for the sensor with the sensorName
     /// </summary>
     /// <returns></returns>
-    public void SetInterval(string sensorName, uint milliseconds) {
+    public void SetInterval(string sensorName, byte milliseconds) {
       Sensors[sensorName].SetInterval(milliseconds);
     }
 
@@ -80,7 +85,7 @@ namespace Arsemi {
     /// <param name="portName"></param>
     /// <param name="baudRate"></param>
     /// <param name="receivedBytesThreshold"></param>
-    public void ConnectMicrocontroller(string portName, int baudRate = SerialProtocol.BaudRate, int receivedBytesThreshold = 5) {
+    public void ConnectMicrocontroller(string portName, int baudRate = SerialProtocol.BaudRate, int receivedBytesThreshold = SerialProtocol.ReceivedBytesThreshold) {
       _serialMessaging.Begin(portName, baudRate, receivedBytesThreshold);
     }
 
@@ -90,11 +95,10 @@ namespace Arsemi {
     /// DONE: Sends 2 types of setup messages over the serial port (ClearConfiguration, AddSensor for each sensor)
     /// </summary>
     public void FinishSetup() {
-      _serialMessaging.WriteLine(SerialProtocol.CombineToMessage(0, SerialProtocol.SetupCodes.ClearConfiguration));
+      _serialMessaging.WriteBytes(new SerialPackage(SerialProtocol.SetupCodes.ClearConfiguration).Serialize());
 
       foreach(AbstractSensor sensor in Sensors.Values) {
-        _serialMessaging.WriteLine(
-          SerialProtocol.CombineToMessage(0, SerialProtocol.SetupCodes.AddSensor, sensor.GetDataAsStrings()));
+        _serialMessaging.WriteBytes(new SerialPackage(SerialProtocol.SetupCodes.AddSensor, sensor.GetDataAsBytes()).Serialize());
       }
 
     }
@@ -106,9 +110,9 @@ namespace Arsemi {
     /// DEBUG: Starts a timer for 1000ms and calls ContinueLoop everytime it's finished |
     /// </summary>
     public void StartLoop() {
-      _serialMessaging.WriteLine(SerialProtocol.CombineToMessage(0, SerialProtocol.SystemCodes.WakeMicrocontroller));
+      _serialMessaging.WriteBytes(new SerialPackage(SerialProtocol.SystemCodes.WakeMicrocontroller).Serialize());
       // _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, Sensors[ArsemiGlobals.Sensors.Heartrate.ToString()].Data.IntervalMS));
-      _serialMessaging.DataReceived += ParseMessage;
+      _serialMessaging.DataReceivedAction += ParseMessage;
     }
 
 
@@ -116,19 +120,19 @@ namespace Arsemi {
     /// DEBUG
     /// </summary>
     private void ContinueLoop(object? state) {
-      AbstractSensor currentSensor = Sensors[ArsemiGlobals.Sensors.Heartrate.ToString()];
-      currentSensor.Data.Value++;
-      currentSensor.RawBuffer.Push(new(_tick, currentSensor.Data.Value));
-      currentSensor.ApplyFilters();
-      currentSensor.FilteredBuffer.Push(new(_tick, currentSensor.Data.Value));
+      // AbstractSensor currentSensor = Sensors[ArsemiGlobals.Sensors.Heartrate.ToString()];
+      // currentSensor.Data.Value++;
+      // currentSensor.RawBuffer.Push(new(_tick, currentSensor.Data.Value));
+      // currentSensor.ApplyFilters();
+      // currentSensor.FilteredBuffer.Push(new(_tick, currentSensor.Data.Value));
 
-      // Console.WriteLine(currentSensor.Data.Value);
-      currentSensor.CheckEventsConditions();
-      // StoreSensorData((uint)ArsemiGlobals.Sensors.Heartrate);
+      // // Console.WriteLine(currentSensor.Data.Value);
+      // currentSensor.CheckEventsConditions();
+      // // StoreSensorData((uint)ArsemiGlobals.Sensors.Heartrate);
 
-      // currentSensor.RawBuffer.Push(new(_tick * currentSensor.Data.IntervalMS, _testValues[RingBuffer.PosMod((int)_tick, _testValues.Length)]));
-      _tick++;
-      File.AppendAllText("/home/mika/Downloads/filter.csv", $"{_tick}, {currentSensor.RawBuffer[0].Y}, {currentSensor.FilteredBuffer[0].Y}\n");
+      // // currentSensor.RawBuffer.Push(new(_tick * currentSensor.Data.IntervalMS, _testValues[RingBuffer.PosMod((int)_tick, _testValues.Length)]));
+      // _tick++;
+      // File.AppendAllText("/home/mika/Downloads/filter.csv", $"{_tick}, {currentSensor.RawBuffer[0].Y}, {currentSensor.FilteredBuffer[0].Y}\n");
     }
 
 
@@ -140,42 +144,92 @@ namespace Arsemi {
       for(int i = 0; i < Sensors.Count; i++) {
         _ = _timers[i].DisposeAsync();
       }
+      _serialMessaging.DataReceivedAction -= ParseMessage;
     }
 
 
     /// <summary>
     /// Converts a new message from string to package and then matches the action code to the required actions
     /// </summary>
-    /// <param name="_"></param>
-    /// <param name="e"></param>
     /// <exception cref="NotImplementedException"></exception>
-    public void ParseMessage(object _, SerialDataReceivedEventArgs e) {
-      string message = _serialMessaging.ReadLine();
-      // Console.WriteLine("Received message: " + message);
-      SerialProtocol.Package package = SerialProtocol.Split(message);
-      switch(package.ActionCode) {
-      // Codes meant for sending to the microcontroller -> no need to implement
-      // case SerialProtocol.SystemCodes.HibernateMicrocontroller:
-      //   throw new NotImplementedException();
-      // case SerialProtocol.SystemCodes.WakeMicrocontroller:
-      //   throw new NotImplementedException();
-      // case SerialProtocol.SetupCodes.ClearConfiguration:
-      //   throw new NotImplementedException();
-      // case SerialProtocol.SetupCodes.AddSensor:
-      //   throw new NotImplementedException();
+    public void ParseMessage() {
+      while(_serialMessaging.AvailableBytes()) {
 
-      // Codes meant for receiving from the microcontroller
-      case SerialProtocol.SystemCodes.SystemError:
-        ParseSystemError(package);
-        break;
-      case SerialProtocol.SystemCodes.RequestHandshake:
-        throw new NotImplementedException();
-      case SerialProtocol.SystemCodes.ReplyHandshake:
-        throw new NotImplementedException();
-      case SerialProtocol.SensorCodes.NewSample:
-        ParseNewSample(package);
-        break;
+        ParsePackageStart();
+
+        switch(_queuedActionCode) {
+        /// Codes meant for sending to the microcontroller -> no need to implement
+        // case SerialProtocol.SystemCodes.HibernateMicrocontroller:
+        //   throw new NotImplementedException();
+        // case SerialProtocol.SystemCodes.WakeMicrocontroller:
+        //   throw new NotImplementedException();
+        // case SerialProtocol.SetupCodes.ClearConfiguration:
+        //   throw new NotImplementedException();
+        // case SerialProtocol.SetupCodes.AddSensor:
+        //   throw new NotImplementedException();
+
+        /// Codes meant for receiving from the microcontroller
+        case SerialProtocol.SystemCodes.SystemError:
+          ParseSystemError();
+          break;
+        case SerialProtocol.SystemCodes.RequestHandshake:
+          throw new NotImplementedException();
+        case SerialProtocol.SystemCodes.ReplyHandshake:
+          throw new NotImplementedException();
+        case SerialProtocol.SensorCodes.NewSample:
+          ParseNewSample();
+          break;
+        default:
+          throw new NotImplementedException("The action code in the message can't be associated with a command.");
+        }
       }
+    }
+
+
+    /// <summary>
+    /// Discards all bytes from the Serial stream until @packageStartByte is reached.
+    /// </summary>
+    /// <param name="packageStartByte"></param>
+    private void ParsePackageStart(byte packageStartByte = SerialProtocol.PackageStartByte) {
+      if(_queuedActionCode == 0) {
+        if(!DiscardUntilValue(packageStartByte)) {
+          return;
+        }
+        _queuedActionCode = _serialMessaging.ReadByte();
+      }
+    }
+
+
+    /// <summary>
+    /// Reads from Serial until value is reached 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns>false when value is not found (stream to short?), true when it is found</returns>
+    private bool DiscardUntilValue(byte value) {
+      while(_serialMessaging.AvailableBytes()) {
+        byte message = _serialMessaging.ReadByte();
+        if(message == value) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+
+    /// <summary>
+    /// Reads from Serial until a byte that is not equal to @value is read and returns it.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns>-1 when there's no fitting value, next byte after @value</returns>
+    private int DiscardSimilarValues(byte value) {
+      byte result;
+      while(_serialMessaging.AvailableBytes()) {
+        result = _serialMessaging.ReadByte();
+        if(result != value) {
+          return result;
+        }
+      }
+      return -1;
     }
 
 
@@ -184,22 +238,20 @@ namespace Arsemi {
     /// </summary>
     /// <param name="package"></param>
     /// <exception cref="Exception"></exception>
-    private void ParseNewSample(SerialProtocol.Package package) {
-      if(package.Parameters.Length < 2) {
-        throw new Exception("Package doesn't contain all parameters, message may be corrupt: " + package);
+    private void ParseNewSample() {
+      if(!_serialMessaging.AvailableBytes(2)) {
+        return;
       }
-      if(!uint.TryParse(package.Parameters[0], out uint sensorId)) {
-        throw new Exception("Couldn't read sensor id, message may be corrupt: " + package);
-      }
-      if(!uint.TryParse(package.Parameters[1], out uint value)) {
-        throw new Exception("Couldn't read sensor value, message may be corrupt: " + package);
-      }
+
+      byte sensorId = _serialMessaging.ReadByte();
+      byte value = _serialMessaging.ReadByte();
 
       Console.Write("Received sensor data from sensorId: " + sensorId + " with a value of: " + value);
       Console.WriteLine(" | Sensorname: " + AbstractSensor.ParseSensorIdToName(sensorId));
+      Console.WriteLine("\n---");
 
       Sensors[AbstractSensor.ParseSensorIdToName(sensorId)].Data.Value = value;
-      // StoreSensorData(sensorId);
+      _queuedActionCode = 0;
     }
 
 
@@ -207,12 +259,18 @@ namespace Arsemi {
     /// Parses the different sensor errors to their error messages
     /// </summary>
     /// <param name="package"></param>
-    private void ParseSystemError(SerialProtocol.Package package) {
-      switch(package.Parameters[0]) {
+    private void ParseSystemError() {
+      if(!_serialMessaging.AvailableBytes(1)) {
+        return;
+      }
+
+      byte errorCode = _serialMessaging.ReadByte();
+      switch(errorCode) {
       default:
-        Console.WriteLine("Received sensor error code: " + package.Parameters[0]);
+        Console.WriteLine("Received sensor error code: " + errorCode);
         break;
       }
+      _queuedActionCode = 0;
     }
   }
 }
