@@ -45,11 +45,11 @@ namespace Arsemi {
     // /// TODO: Stores sensor values received from the microcontroller in shared memory | 
     // /// NICE TO HAVE: Make timed for each sensor individually -> for performance setting / more control
     // /// </summary>
-    // private void StoreSensorData(uint sensorId) {
-    //   AbstractSensor currentSensor = Sensors[AbstractSensor.ParseSensorIdToName(sensorId)];
-    //   currentSensor.ApplyFilters();
-    //   _memoryMappedSensorData.Write(currentSensor.Data);
-    // }
+    private void StoreSensorData(uint sensorId) {
+      AbstractSensor currentSensor = Sensors[AbstractSensor.ParseSensorIdToName(sensorId)];
+      currentSensor.ApplyFilters();
+      _memoryMappedSensorData.Write(currentSensor.Data);
+    }
 
 
     /// <summary>
@@ -66,7 +66,8 @@ namespace Arsemi {
     /// </summary>
     /// <returns>TODO: Current sensor value based on filters, timings, etc.</returns>
     public float GetSensorValue(uint sensorID) {
-      return _memoryMappedSensorData.ReadAll().Value; //DEBUG
+      return Sensors[AbstractSensor.ParseSensorIdToName(sensorID)].Data.Value;
+      // return _memoryMappedSensorData.ReadAll().Value; //DEBUG
     }
 
 
@@ -82,12 +83,14 @@ namespace Arsemi {
     /// <summary>
     /// Connects the microcontroller at the specified serial port.
     /// </summary>
-    /// <param name="portName"></param>
+    /// <param name="portName">If null the first accessible port is used.</param>
     /// <param name="baudRate"></param>
     /// <param name="receivedBytesThreshold"></param>
-    public void ConnectMicrocontroller(string portName, int baudRate = SerialProtocol.BaudRate, int receivedBytesThreshold = SerialProtocol.ReceivedBytesThreshold) {
+    public void ConnectMicrocontroller(string? portName = null, int baudRate = SerialProtocol.BaudRate, int receivedBytesThreshold = SerialProtocol.ReceivedBytesThreshold) {
+      portName ??= SerialPort.GetPortNames()[0];
       _serialMessaging.Begin(portName, baudRate, receivedBytesThreshold);
     }
+
 
 
     /// <summary>
@@ -179,8 +182,8 @@ namespace Arsemi {
         case SerialProtocol.SensorCodes.NewSample:
           ParseNewSample();
           break;
-        default:
-          throw new NotImplementedException("The action code in the message can't be associated with a command.");
+          // default:
+          //   throw new NotImplementedException("The action code in the message can't be associated with a command.");
         }
       }
     }
@@ -234,10 +237,8 @@ namespace Arsemi {
 
 
     /// <summary>
-    /// Parses sensorId and value from the packages parameters
+    /// Parses sensorId and value from the next 2 bytes in the serial stream.
     /// </summary>
-    /// <param name="package"></param>
-    /// <exception cref="Exception"></exception>
     private void ParseNewSample() {
       if(!_serialMessaging.AvailableBytes(2)) {
         return;
@@ -248,7 +249,7 @@ namespace Arsemi {
 
       Console.Write("Received sensor data from sensorId: " + sensorId + " with a value of: " + value);
       Console.WriteLine(" | Sensorname: " + AbstractSensor.ParseSensorIdToName(sensorId));
-      Console.WriteLine("\n---");
+      Console.WriteLine("---");
 
       Sensors[AbstractSensor.ParseSensorIdToName(sensorId)].Data.Value = value;
       _queuedActionCode = 0;
@@ -256,9 +257,8 @@ namespace Arsemi {
 
 
     /// <summary>
-    /// Parses the different sensor errors to their error messages
+    /// Matches the different sensor errors to their error messages.
     /// </summary>
-    /// <param name="package"></param>
     private void ParseSystemError() {
       if(!_serialMessaging.AvailableBytes(1)) {
         return;

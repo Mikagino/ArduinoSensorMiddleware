@@ -1,8 +1,9 @@
 [gd_scene format=3 uid="uid://ccwncy0w3mmk5"]
 
 [ext_resource type="Script" uid="uid://c2gydyyiamwah" path="res://Arsemigo.cs" id="1_mncer"]
+[ext_resource type="Texture2D" uid="uid://5ckdugewvt2p" path="res://icon.svg" id="2_cguwc"]
 
-[node name="TestScene" type="Control" unique_id=1980870391 node_paths=PackedStringArray("DebugLabel")]
+[node name="TestScene" type="Control" unique_id=1980870391 node_paths=PackedStringArray("DebugLabel", "Icon")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,6 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_mncer")
 DebugLabel = NodePath("Label")
+Icon = NodePath("TextureRect")
 
 [node name="Label" type="Label" parent="." unique_id=396323848]
 layout_mode = 1
@@ -20,3 +22,18 @@ anchor_right = 1.0
 offset_left = -40.0
 offset_bottom = 23.0
 grow_horizontal = 0
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=591700303]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_cguwc")

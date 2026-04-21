@@ -29,11 +29,6 @@ namespace Arsemi {
             /// Ideally this is done in the GUI and then only AutomaticSetup() called.
             /// </summary>
             public static async Task Setup() {
-                // char[] msg = "255:255:255:255".ToCharArray();
-                // int siz = sizeof(msg);
-                // byte[] wakeupMessage = new SerialPackage(SerialProtocol.SystemCodes.WakeMicrocontroller).Serialize();
-                // string pack = SerialProtocol.CombineToMessage(0, SerialProtocol.SystemCodes.WakeMicrocontroller, "145");
-                // Console.WriteLine("Size of NewSample package: " + wakeupMessage.Length * 8);
                 _arsemiCore.StartSetup();
                 AbstractSensor hr = _arsemiCore.AddSensor(new AnalogSensor(), "Heartrate");
                 AbstractFilter butterworth = new ButterworthFilter(hr, 2);
@@ -42,7 +37,7 @@ namespace Arsemi {
                     .AddEvent(new AboveThresholdEvent(15), "Excitement");
                 _arsemiCore.AddSensor(new AnalogSensor(), "GSR");
                 _arsemiCore.SetInterval("GSR", 200);
-                _arsemiCore.ConnectMicrocontroller("/dev/ttyUSB0");
+                _arsemiCore.ConnectMicrocontroller();
                 _arsemiCore.FinishSetup();
 
                 await ConfigSaver.SaveTo(_arsemiCore, PathToConfigDirectory);

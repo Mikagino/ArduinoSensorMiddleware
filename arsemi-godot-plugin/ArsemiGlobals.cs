@@ -9,7 +9,6 @@ namespace ArsemiGlobals {
 
     public enum Sensors {
 		Heartrate,
-		Button,
 	}
 
 
