@@ -42,7 +42,7 @@ bool ArsemiArduinoCore::updateAllSensors() {
     if(currentlyUpdated) {
       package[1] = i;
       package[2] = sensors[i]->lastValue;
-      SerialMessaging::Write(package, 3);
+      SerialMessaging::write(package, 3);
     }
     updated = (updated || currentlyUpdated); 
   }

@@ -3,6 +3,7 @@ using System.IO.Ports;
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
+using NullFX.CRC;
 
 namespace Arsemi {
   /// <summary>
@@ -237,15 +238,22 @@ namespace Arsemi {
 
 
     /// <summary>
-    /// Parses sensorId and value from the next 2 bytes in the serial stream.
+    /// Parses sensorId, value and checksum from the next 3 bytes in the serial stream.
     /// </summary>
     private void ParseNewSample() {
-      if(!_serialMessaging.AvailableBytes(2)) {
+      if(!_serialMessaging.AvailableBytes(3)) {
         return;
       }
 
       byte sensorId = _serialMessaging.ReadByte();
       byte value = _serialMessaging.ReadByte();
+      byte checksum = _serialMessaging.ReadByte();
+
+      byte computedChecksum = SerialMessaging.CRC8(SerialProtocol.SensorCodes.NewSample, sensorId, value);
+
+      if(checksum != computedChecksum) {
+        throw new Exception("HEY! Loss of packages... :c");
+      }
 
       Console.Write("Received sensor data from sensorId: " + sensorId + " with a value of: " + value);
       Console.WriteLine(" | Sensorname: " + AbstractSensor.ParseSensorIdToName(sensorId));

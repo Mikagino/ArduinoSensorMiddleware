@@ -151,6 +151,30 @@ namespace Arsemi {
                 // Console.WriteLine("Still waiting for bytes...");
                 return _serialPort.BytesToRead >= byteCount;
             }
+
+
+            /// <summary>
+            /// CRC-8 checksum generator based on the code by devcoons (Source: https://devcoons.com/crc8/)
+            /// </summary>
+            /// <param name="data"></param>
+            /// <param name="length"></param>
+            /// <returns></returns>
+            public static byte CRC8(params byte[] data) {
+                byte crc = 0x00;
+                for(int i = 0; i < data.Length; i++) {
+                    byte extract = data[i];
+                    for(int tempI = 8; tempI > 0; tempI--) {
+                        byte sum = (byte)((crc ^ extract) & 0x01);
+                        crc = (byte)(crc >> 1);
+                        if(sum != 0) {
+                            crc ^= 0x8C;
+                        }
+                        extract = (byte)(extract >> 1);
+                    }
+                }
+                return crc;
+            }
+
         }
     }
 }

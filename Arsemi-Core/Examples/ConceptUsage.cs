@@ -3,6 +3,7 @@ using Arsemi.IPC;
 using Arsemi.Sensor;
 using Arsemi.Sensor.Event;
 using Arsemi.Sensor.Filter;
+using NullFX.CRC;
 
 namespace Arsemi {
     namespace Examples {
