@@ -1,9 +1,3 @@
-#include "GenericDigitalSensor.h"
-#include "Arduino.h"
-#include "GenericAnalogSensor.h"
-#include "AbstractSensor.h"
-#include "SerialMessaging.h"
-#include "SerialProtocol.h"
 #include "ArsemiArduinoCore.h"
 
 ArsemiArduinoCore::ArsemiArduinoCore(uint8_t maxSensorCount) {

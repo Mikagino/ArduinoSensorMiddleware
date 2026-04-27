@@ -1,8 +1,7 @@
 // Main
-#include "ArsemiArduinoCore.h"
-#include "SensorMAX30102.h"
-#include "SerialProtocol.h"
-#include "SerialMessaging.h"
+#include "src/ArsemiArduinoCore.h"
+#include "src/Sensors/SensorMAX30102.h"
+#include "src/IPC/SerialMessaging.h"
 
 ArsemiArduinoCore arsemi(8);
 int intervalMillis = 2000;

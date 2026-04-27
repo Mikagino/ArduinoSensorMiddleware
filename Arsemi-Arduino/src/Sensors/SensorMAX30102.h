@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include "Arduino.h"
-#include <stdint.h>
+#include <Arduino.h>
 #include "AbstractSensor.h"
-#include <MAX3010x.h>
+#include "MAX3010x/MAX30102.h"
+#include <stdint.h>
 
 class SensorMAX30102 : public AbstractSensor {
 private:

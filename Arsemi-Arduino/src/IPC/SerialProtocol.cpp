@@ -1,5 +1,5 @@
 #include "SerialProtocol.h"
-#include "Wire.h"
+#include <Wire.h>
 
 /// Combines the message code and the parameters to a ready-to-send message for
 /// the serial interface with the microcontroller.

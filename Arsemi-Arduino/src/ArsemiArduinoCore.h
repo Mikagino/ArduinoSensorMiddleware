@@ -1,7 +1,7 @@
 #pragma once
 
-#include "AbstractSensor.h"
-#include "Arduino.h"
+#include "Sensors/AbstractSensor.h"
+#include <Arduino.h>
 #include <stdint.h>
 
 class ArsemiArduinoCore {

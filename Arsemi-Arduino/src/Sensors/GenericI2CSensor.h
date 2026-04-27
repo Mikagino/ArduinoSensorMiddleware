@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include <stdint.h>
 #include "AbstractSensor.h"
 #include <Wire.h>

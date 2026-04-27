@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Arduino.h"
+#include <Arduino.h>
+#include <Wire.h>
 #include <stdint.h>
 
 // Abstraction for setting up multiple sensors in a big array
@@ -11,13 +12,14 @@ protected:
   uint32_t _lastReadMillis = 0; // stores the last time the sensor was read
 
 public:
-  enum SensorTypes{
+  enum SensorTypes {
     GENERIC_ANALOG,
     GENERIC_DIGITAL,
     GENERIC_I2C,
     MAX30102,
   };
-  uint8_t intervalMillis = 100; // interval in which new sensor data is sent over serial
+  uint8_t intervalMillis =
+      100; // interval in which new sensor data is sent over serial
   uint8_t lastValue;
   virtual bool begin() = 0;
   // Checks if the last reading has been interval millis before now
