@@ -1,6 +1,10 @@
 #pragma once
 
+#include "IPC/SerialMessaging.h"
+#include "IPC/SerialProtocol.h"
 #include "Sensors/AbstractSensor.h"
+#include "Sensors/GenericAnalogSensor.h"
+#include "Sensors/GenericDigitalSensor.h"
 #include <Arduino.h>
 #include <stdint.h>
 

@@ -13,10 +13,10 @@ protected:
 
 public:
   enum SensorTypes {
-    GENERIC_ANALOG,
-    GENERIC_DIGITAL,
-    GENERIC_I2C,
-    MAX30102,
+    TYPE_GENERIC_ANALOG,
+    TYPE_GENERIC_DIGITAL,
+    TYPE_GENERIC_I2C,
+    TYPE_MAX30102,
   };
   uint8_t intervalMillis =
       100; // interval in which new sensor data is sent over serial

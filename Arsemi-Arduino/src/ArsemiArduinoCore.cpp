@@ -102,7 +102,7 @@ void ArsemiArduinoCore::ParseAddSensorAction() {
   int parameterCount = Serial.readBytesUntil(SerialProtocol::StartByte, parameters, availableBytes);
 
   switch (sensorType) {
-  case AbstractSensor::SensorTypes::GENERIC_ANALOG: {
+  case AbstractSensor::SensorTypes::TYPE_GENERIC_ANALOG: {
     if(parameterCount < 2) {
       SerialMessaging::write(SerialProtocol::PackageError::InvalidSensorParameters, 2);
     }
@@ -111,7 +111,7 @@ void ArsemiArduinoCore::ParseAddSensorAction() {
     addSensor(analogSensor);
     break;
   }
-  case AbstractSensor::GENERIC_DIGITAL: {
+  case AbstractSensor::TYPE_GENERIC_DIGITAL: {
     if(parameterCount < 2) {
       SerialMessaging::write(SerialProtocol::PackageError::InvalidSensorParameters, 2);
     }

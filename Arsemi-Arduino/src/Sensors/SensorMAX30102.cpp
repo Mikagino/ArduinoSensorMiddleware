@@ -2,7 +2,7 @@
 
 // Returns false on error
 bool SensorMAX30102::begin() {
-  if (sensor.begin()) {
+  if (_sensor.begin()) {
     Serial.println("max30102 started!");
     return true;
   } else {
@@ -13,7 +13,7 @@ bool SensorMAX30102::begin() {
 }
 
 void SensorMAX30102::updateLastValue() {
-  auto sample = sensor.readSample(1000);
+  auto sample = _sensor.readSample(1000);
   // Serial.println(sample.ir);
   // Serial.println(",");
   // Serial.println(sample.red);
