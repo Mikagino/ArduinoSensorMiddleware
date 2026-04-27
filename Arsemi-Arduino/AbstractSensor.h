@@ -11,6 +11,12 @@ protected:
   uint32_t _lastReadMillis = 0; // stores the last time the sensor was read
 
 public:
+  enum SensorTypes{
+    GENERIC_ANALOG,
+    GENERIC_DIGITAL,
+    GENERIC_I2C,
+    MAX30102,
+  };
   uint8_t intervalMillis = 100; // interval in which new sensor data is sent over serial
   uint8_t lastValue;
   virtual bool begin() = 0;
@@ -20,7 +26,6 @@ public:
   virtual bool update();
   // Reads the last value (overwritten for each type of sensor)
   virtual void updateLastValue() = 0;
-  static uint8_t wrapValue(uint32_t value);
   // getter for sensor id
   uint8_t getSensorId() { return _sensorId; }
 };

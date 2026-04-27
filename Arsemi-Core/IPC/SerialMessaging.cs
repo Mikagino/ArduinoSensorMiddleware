@@ -5,14 +5,19 @@ namespace Arsemi {
     namespace IPC {
         public class SerialMessaging {
             private SerialPort? _serialPort;
-            public SerialDataReceivedEventHandler? DataReceived;
             public Action? DataReceivedAction;
             private Action? _waitingAction;
 
 
             public int ReceivedBytesThreshold {
-                set => _serialPort.ReceivedBytesThreshold = value;
-                get => _serialPort.ReceivedBytesThreshold;
+                set {
+                    CheckPort();
+                    _serialPort.ReceivedBytesThreshold = value;
+                }
+                get {
+                    CheckPort();
+                    return _serialPort.ReceivedBytesThreshold;
+                }
             }
 
 
@@ -27,20 +32,8 @@ namespace Arsemi {
                     ReceivedBytesThreshold = receivedBytesThreshold
                 };
 
-                _serialPort.DataReceived += ReadLine; // DEBUG?
+                _serialPort.DataReceived += (_, _) => DataReceivedAction?.Invoke();
                 _serialPort.Open();
-            }
-
-
-            /// <summary>
-            /// TODO: Reads a line from the USB-Port for reading data send from arduino
-            /// </summary>
-            private void ReadLine(object _, SerialDataReceivedEventArgs e) {
-                DataReceived?.Invoke(_, e);
-                DataReceivedAction?.Invoke();
-                // CheckPort();
-                // string arduinoMessage = _serialPort.ReadLine();
-                // Console.WriteLine("Arduino says: " + arduinoMessage);
             }
 
             public string ReadLine() {
@@ -54,7 +47,6 @@ namespace Arsemi {
 
 
             public byte ReadByte() {
-                CheckPort();
                 return (byte)_serialPort.ReadByte();
             }
 
@@ -173,6 +165,34 @@ namespace Arsemi {
                     }
                 }
                 return crc;
+            }
+
+            /// <summary>
+            /// Discards all bytes from the Serial stream until @packageStartByte is reached.
+            /// </summary>
+            /// <param name="packageStartByte"></param>
+            /// <returns>-1 when the package is not yet finished</returns>
+            public int ParsePackageStart(byte packageStartByte = SerialProtocol.PackageStartByte) {
+                if(DiscardUntilValue(packageStartByte)) {
+                    return ReadByte();
+                }
+                return -1;
+            }
+
+
+            /// <summary>
+            /// Reads from Serial until value is reached 
+            /// </summary>
+            /// <param name="value"></param>
+            /// <returns>false when value is not found (stream to short?), true when it is found</returns>
+            private bool DiscardUntilValue(byte value) {
+                while(AvailableBytes()) {
+                    byte message = ReadByte();
+                    if(message == value) {
+                        return true;
+                    }
+                }
+                return false;
             }
 
         }

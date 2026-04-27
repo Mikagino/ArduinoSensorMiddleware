@@ -25,7 +25,7 @@ namespace Arsemi {
     private float[] _testValues = [0, 1, 2, 1, 2, 3, 4, 7, 4, 3];
 
 
-    private byte _queuedActionCode = 0;
+    private int _queuedActionCode = 0;
 
 
     /// <summary>
@@ -159,7 +159,13 @@ namespace Arsemi {
     public void ParseMessage() {
       while(_serialMessaging.AvailableBytes()) {
 
-        ParsePackageStart();
+        if(_queuedActionCode == 0) {
+          _queuedActionCode = _serialMessaging.ParsePackageStart();
+        }
+
+        if(_queuedActionCode == -1) {
+          return;
+        }
 
         switch(_queuedActionCode) {
         /// Codes meant for sending to the microcontroller -> no need to implement
@@ -187,53 +193,6 @@ namespace Arsemi {
           //   throw new NotImplementedException("The action code in the message can't be associated with a command.");
         }
       }
-    }
-
-
-    /// <summary>
-    /// Discards all bytes from the Serial stream until @packageStartByte is reached.
-    /// </summary>
-    /// <param name="packageStartByte"></param>
-    private void ParsePackageStart(byte packageStartByte = SerialProtocol.PackageStartByte) {
-      if(_queuedActionCode == 0) {
-        if(!DiscardUntilValue(packageStartByte)) {
-          return;
-        }
-        _queuedActionCode = _serialMessaging.ReadByte();
-      }
-    }
-
-
-    /// <summary>
-    /// Reads from Serial until value is reached 
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns>false when value is not found (stream to short?), true when it is found</returns>
-    private bool DiscardUntilValue(byte value) {
-      while(_serialMessaging.AvailableBytes()) {
-        byte message = _serialMessaging.ReadByte();
-        if(message == value) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-
-    /// <summary>
-    /// Reads from Serial until a byte that is not equal to @value is read and returns it.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns>-1 when there's no fitting value, next byte after @value</returns>
-    private int DiscardSimilarValues(byte value) {
-      byte result;
-      while(_serialMessaging.AvailableBytes()) {
-        result = _serialMessaging.ReadByte();
-        if(result != value) {
-          return result;
-        }
-      }
-      return -1;
     }
 
 

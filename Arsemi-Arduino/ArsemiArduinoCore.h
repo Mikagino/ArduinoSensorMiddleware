@@ -10,12 +10,14 @@ private:
   AbstractSensor **sensors;
   uint8_t _currentSensorCount;
 
+  int _queuedActionCode;
+
 public:
   enum ERROR { SUCCESS, SENSOR_COUNT_OVERFLOW };
 
   ArsemiArduinoCore(uint8_t maxSensorCount);
   // adds a new sensor to an array for batch calls of functions
-  ArsemiArduinoCore::ERROR addSensor(AbstractSensor *newSensor);
+  ERROR addSensor(AbstractSensor *newSensor);
   // calls begin() on all the sensors added with addSensor()
   void beginAllSensors();
   // calls Deconstructor on all the sensors added with addSensor()
@@ -27,4 +29,8 @@ public:
   // iterates over all sensors and returns the sensors or nullptr when the id is
   // not found
   AbstractSensor *getSensorById(uint8_t sensorId);
+  // Parse a new serial message to the according actions
+  void ParseMessage();
+  // Parse add sensor action (sensorType + intervalMs + parameters[])
+  void ParseAddSensorAction();
 };

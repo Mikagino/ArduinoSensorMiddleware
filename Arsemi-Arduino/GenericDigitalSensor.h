@@ -5,12 +5,12 @@
 #include <stdint.h>
 
 // Generic Analog sensor, works for most simple sensors!
-class GenericAnalogSensor : public AbstractSensor {
+class GenericDigitalSensor : public AbstractSensor {
 private:
   const uint8_t _sensorPin;
 
 public:
-  GenericAnalogSensor(uint8_t sensorPin);
+  GenericDigitalSensor(uint8_t sensorPin);
   bool begin() override;
   void updateLastValue() override;
 };

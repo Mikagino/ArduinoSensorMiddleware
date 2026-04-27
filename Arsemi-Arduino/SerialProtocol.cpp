@@ -1,5 +1,3 @@
-#include "StringSplitter.h"
-
 #include "SerialProtocol.h"
 #include "Wire.h"
 
