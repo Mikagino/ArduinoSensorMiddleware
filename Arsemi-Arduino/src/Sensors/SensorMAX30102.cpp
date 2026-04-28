@@ -1,5 +1,7 @@
 #include "SensorMAX30102.h"
 
+SensorMAX30102::SensorMAX30102() {}
+
 // Returns false on error
 bool SensorMAX30102::begin() {
   if (_sensor.begin()) {
@@ -12,10 +14,11 @@ bool SensorMAX30102::begin() {
   Serial.begin(9600);
 }
 
+/// @brief Reads the last value (overwritten for each type of sensor)
 void SensorMAX30102::updateLastValue() {
-  auto sample = _sensor.readSample(1000);
+  MAX30102Sample sample = _sensor.readSample(1000);
   // Serial.println(sample.ir);
   // Serial.println(",");
   // Serial.println(sample.red);
-  lastValue = (uint8_t)(map(sample.ir, 0, 1024, 1, 255));
+  _lastValue = (uint8_t)(map(sample.ir, 0, 1024, 1, 255));
 }

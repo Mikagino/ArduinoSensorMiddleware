@@ -4,30 +4,32 @@
 #include <Wire.h>
 #include <stdint.h>
 
-// Abstraction for setting up multiple sensors in a big array
-// Polymorphism for more sophisticated sensors
+/// @brief Abstraction for setting up multiple sensors in a big array.
+// Polymorphism for more sophisticated sensors.
 class AbstractSensor {
 protected:
   uint8_t _sensorId = 0;
   uint32_t _lastReadMillis = 0; // stores the last time the sensor was read
+  uint8_t _lastValue;
+  static const uint8_t _parameterByteCount;
 
 public:
   enum SensorTypes {
-    TYPE_GENERIC_ANALOG,
-    TYPE_GENERIC_DIGITAL,
-    TYPE_GENERIC_I2C,
-    TYPE_MAX30102,
+    TYPE_GENERIC_ANALOG = 0,
+    TYPE_GENERIC_DIGITAL = 1,
+    TYPE_GENERIC_I2C = 2,
+    TYPE_MAX30102 = 3,
   };
-  uint8_t intervalMillis =
-      100; // interval in which new sensor data is sent over serial
-  uint8_t lastValue;
+
+  // interval in which new sensor data is sent over serial
+  uint8_t intervalMillis = 100;
   virtual bool begin() = 0;
-  // Checks if the last reading has been interval millis before now
   inline bool checkInterval();
-  // Checks interval and calls updateLastValue() if interval time is over
   virtual bool update();
-  // Reads the last value (overwritten for each type of sensor)
   virtual void updateLastValue() = 0;
-  // getter for sensor id
-  uint8_t getSensorId() { return _sensorId; }
+
+  // Getters for private fields
+  uint8_t inline getSensorId() { return _sensorId; }
+  uint8_t inline getLastValue() { return _lastValue; }
+  static inline uint8_t getParameterByteCount() { return _parameterByteCount; }
 };

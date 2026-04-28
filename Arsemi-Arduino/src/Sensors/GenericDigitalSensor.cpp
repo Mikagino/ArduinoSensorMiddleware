@@ -10,5 +10,5 @@ bool GenericDigitalSensor::begin() {
 
 
 void GenericDigitalSensor::updateLastValue() {
-  lastValue = (uint8_t)map(digitalRead(_sensorPin), 0, 1024, 1, 255);
+  _lastValue = (uint8_t)map(digitalRead(_sensorPin), 0, 1024, 1, 255);
 }
