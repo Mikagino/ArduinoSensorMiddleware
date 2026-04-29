@@ -104,7 +104,7 @@ namespace Arsemi {
             /// Writes bytes over the serial port (way faster than WriteLine if data is serialized)
             /// </summary>
             /// <param name="bytes"></param>
-            public void WriteBytes(byte[] bytes) {
+            public void WriteBytes(params byte[] bytes) {
                 CheckPort();
                 _serialPort.Write(bytes, 0, bytes.Length);
             }

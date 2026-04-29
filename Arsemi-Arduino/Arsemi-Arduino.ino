@@ -18,5 +18,6 @@ void setup() {
 }
 
 void loop() {
+  arsemi.ParseMessage();
   arsemi.updateAllSensors();
 }

@@ -1,8 +1,7 @@
 #include "I2CSensor.h"
 
-I2CSensor::I2CSensor(uint8_t address = 0x00, uint8_t reg = 0x00,
-                     uint8_t bytes = 2, float scale = 1)
-    : _address(address), _reg(reg), _bytes(bytes), _scale(scale) {}
+I2CSensor::I2CSensor(uint8_t address, uint8_t reg, uint8_t bytes)
+    : _address(address), _reg(reg), _bytes(bytes) {}
 
 bool I2CSensor::begin() { return true; }
 

@@ -88,8 +88,13 @@ namespace Arsemi {
     /// <param name="baudRate"></param>
     /// <param name="receivedBytesThreshold"></param>
     public void ConnectMicrocontroller(string? portName = null, int baudRate = SerialProtocol.BaudRate, int receivedBytesThreshold = SerialProtocol.ReceivedBytesThreshold) {
-      portName ??= SerialPort.GetPortNames()[0];
+      if(portName == null) {
+        string[] portNames = SerialPort.GetPortNames();
+        if(portNames.Length == 0) throw new Exception("No microcontroller could be found automatically. Is it connected?");
+        portName = portNames[0];
+      }
       _serialMessaging.Begin(portName, baudRate, receivedBytesThreshold);
+      _serialMessaging.DataReceivedAction += ParseMessage;
     }
 
 
@@ -114,9 +119,8 @@ namespace Arsemi {
     /// DEBUG: Starts a timer for 1000ms and calls ContinueLoop everytime it's finished |
     /// </summary>
     public void StartLoop() {
-      _serialMessaging.WriteBytes(new SerialPackage(SerialProtocol.SystemCodes.WakeMicrocontroller).Serialize());
+      _serialMessaging.WriteBytes(SerialProtocol.SystemCodes.WakeMicrocontroller);
       // _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, Sensors[ArsemiGlobals.Sensors.Heartrate.ToString()].Data.IntervalMS));
-      _serialMessaging.DataReceivedAction += ParseMessage;
     }
 
 

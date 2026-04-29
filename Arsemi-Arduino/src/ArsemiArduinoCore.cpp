@@ -75,7 +75,7 @@ AbstractSensor *ArsemiArduinoCore::getSensorById(uint8_t sensorId) {
 /// actions and invoke associated functions, considering the parameters of the
 /// package
 void ArsemiArduinoCore::ParseMessage() {
-  int availableBytes = Serial.available();
+  uint8_t availableBytes = Serial.available();
   char *discardBuffer = new char[availableBytes];
   while (availableBytes > 0) {
     if (_queuedActionCode == 0) {
@@ -133,19 +133,17 @@ void ArsemiArduinoCore::ParseAddSensorAction() {
   }
 
   case AbstractSensor::TYPE_GENERIC_DIGITAL: {
-    if (HasRequiredParameters(
-            parameterCount,
-            (DigitalSensor::getParameterByteCount() + 1))) {
+    if (HasRequiredParameters(parameterCount,
+                              (DigitalSensor::getParameterByteCount() + 1))) {
       newSensor = new DigitalSensor(parameters[1]);
     }
     break;
   }
 
   case AbstractSensor::SensorTypes::TYPE_GENERIC_I2C: {
-    if (HasRequiredParameters(
-            parameterCount, (I2CSensor::getParameterByteCount() + 1))) {
-      newSensor = new I2CSensor(parameters[1], parameters[2],
-                                       parameters[3], parameters[4]);
+    if (HasRequiredParameters(parameterCount,
+                              (I2CSensor::getParameterByteCount() + 1))) {
+      newSensor = new I2CSensor(parameters[1], parameters[2], parameters[3]);
     }
     break;
   }
