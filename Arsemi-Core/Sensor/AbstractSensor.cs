@@ -62,6 +62,15 @@ namespace Arsemi {
             }
 
 
+            /// <summary>
+            /// Parses the sensor's data into a format for sending over serial, packaged in bytes for minimal size
+            /// </summary>
+            /// <returns>[SensorType, IntervalMS]</returns>
+            public virtual byte[] ParseDataToByteArray() {
+                return [(byte)SensorType, Data.IntervalMS];
+            }
+
+
             public virtual string[] GetDataAsStrings() {
                 return [Data.ID.ToString(), Data.IntervalMS.ToString()];
             }

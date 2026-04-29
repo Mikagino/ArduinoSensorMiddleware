@@ -14,6 +14,15 @@ namespace Arsemi {
                 _reg = reg;
                 _bytes = bytes;
             }
+
+
+            /// <summary>
+            /// Parses the sensor's data into a format for sending over serial, packaged in bytes for minimal size
+            /// </summary>
+            /// <returns>[SensorType, IntervalMS, Adress, Reg, Bytes]</returns>
+            public override byte[] ParseDataToByteArray() {
+                return [(byte)SensorType, Data.IntervalMS, _adress, _reg, _bytes];
+            }
         }
     }
 }
