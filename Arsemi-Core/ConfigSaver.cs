@@ -21,7 +21,7 @@ using System.Collections.Generic;
 namespace ArsemiGlobals {
 ";
         private const string GlobalsFileSensorEnumHeader = @"
-    public enum Sensors {
+    public enum SensorNames {
 ";
         private const string GlobalsFileEventClassHeader = @"
     public class Events {";

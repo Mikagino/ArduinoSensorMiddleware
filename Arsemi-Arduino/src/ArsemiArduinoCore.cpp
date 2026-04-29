@@ -126,8 +126,8 @@ void ArsemiArduinoCore::ParseAddSensorAction() {
   switch (sensorType) {
   case AbstractSensor::SensorTypes::TYPE_GENERIC_ANALOG: {
     if (HasRequiredParameters(parameterCount,
-                              (AbstractSensor::getParameterByteCount() + 1))) {
-      newSensor = new GenericAnalogSensor(parameters[1]);
+                              (AnalogSensor::getParameterByteCount() + 1))) {
+      newSensor = new AnalogSensor(parameters[1]);
     }
     break;
   }
@@ -135,16 +135,16 @@ void ArsemiArduinoCore::ParseAddSensorAction() {
   case AbstractSensor::TYPE_GENERIC_DIGITAL: {
     if (HasRequiredParameters(
             parameterCount,
-            (GenericDigitalSensor::getParameterByteCount() + 1))) {
-      newSensor = new GenericDigitalSensor(parameters[1]);
+            (DigitalSensor::getParameterByteCount() + 1))) {
+      newSensor = new DigitalSensor(parameters[1]);
     }
     break;
   }
 
   case AbstractSensor::SensorTypes::TYPE_GENERIC_I2C: {
     if (HasRequiredParameters(
-            parameterCount, (GenericI2CSensor::getParameterByteCount() + 1))) {
-      newSensor = new GenericI2CSensor(parameters[1], parameters[2],
+            parameterCount, (I2CSensor::getParameterByteCount() + 1))) {
+      newSensor = new I2CSensor(parameters[1], parameters[2],
                                        parameters[3], parameters[4]);
     }
     break;
@@ -152,8 +152,8 @@ void ArsemiArduinoCore::ParseAddSensorAction() {
 
   case AbstractSensor::SensorTypes::TYPE_MAX30102: {
     if (HasRequiredParameters(parameterCount,
-                              (SensorMAX30102::getParameterByteCount() + 1))) {
-      newSensor = new SensorMAX30102();
+                              (MAX30102Sensor::getParameterByteCount() + 1))) {
+      newSensor = new MAX30102Sensor();
     }
     break;
   }

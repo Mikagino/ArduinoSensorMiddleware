@@ -3,10 +3,10 @@
 #include "IPC/SerialMessaging.h"
 #include "IPC/SerialProtocol.h"
 #include "Sensors/AbstractSensor.h"
-#include "Sensors/GenericAnalogSensor.h"
-#include "Sensors/GenericDigitalSensor.h"
-#include "Sensors/GenericI2CSensor.h"
-#include "Sensors/SensorMAX30102.h"
+#include "Sensors/AnalogSensor.h"
+#include "Sensors/DigitalSensor.h"
+#include "Sensors/I2CSensor.h"
+#include "Sensors/MAX30102Sensor.h"
 #include <Arduino.h>
 #include <stdint.h>
 

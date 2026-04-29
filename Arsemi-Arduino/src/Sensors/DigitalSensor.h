@@ -1,9 +1,11 @@
 #pragma once
 
 #include "AbstractSensor.h"
+#include <Arduino.h>
+#include <stdint.h>
 
 // Generic Analog sensor, works for most simple sensors!
-class GenericAnalogSensor : public AbstractSensor {
+class DigitalSensor : public AbstractSensor {
 private:
   const uint8_t _sensorPin;
   static const uint8_t _parameterByteCount = 1;
@@ -11,7 +13,7 @@ private:
 public:
   // TODO: Rework all sensor's constructors to use byte[] and each class parses
   // the bytes themselves
-  GenericAnalogSensor(uint8_t sensorPin);
+  DigitalSensor(uint8_t sensorPin);
   bool begin() override;
   void updateLastValue() override;
 };

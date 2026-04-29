@@ -14,6 +14,16 @@ namespace Arsemi {
             protected static List<uint> _previouslyGeneratedIDs = [];
 
 
+            public enum SensorTypes {
+                EMPTY = 0,
+                TYPE_GENERIC_ANALOG = 1,
+                TYPE_GENERIC_DIGITAL = 2,
+                TYPE_GENERIC_I2C = 3,
+                TYPE_MAX30102 = 4,
+            }
+            public const SensorTypes SensorType = SensorTypes.EMPTY;
+
+
             #region Samples
             public RingBuffer RawBuffer = new();
             public RingBuffer FilteredBuffer = new();

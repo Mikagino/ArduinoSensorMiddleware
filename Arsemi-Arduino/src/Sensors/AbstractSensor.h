@@ -15,10 +15,11 @@ protected:
 
 public:
   enum SensorTypes {
-    TYPE_GENERIC_ANALOG = 0,
-    TYPE_GENERIC_DIGITAL = 1,
-    TYPE_GENERIC_I2C = 2,
-    TYPE_MAX30102 = 3,
+    EMPTY = 0,
+    TYPE_GENERIC_ANALOG = 1,
+    TYPE_GENERIC_DIGITAL = 2,
+    TYPE_GENERIC_I2C = 3,
+    TYPE_MAX30102 = 4,
   };
 
   // interval in which new sensor data is sent over serial

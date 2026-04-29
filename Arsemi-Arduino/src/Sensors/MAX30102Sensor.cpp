@@ -1,9 +1,9 @@
-#include "SensorMAX30102.h"
+#include "MAX30102Sensor.h"
 
-SensorMAX30102::SensorMAX30102() {}
+MAX30102Sensor::MAX30102Sensor() {}
 
 // Returns false on error
-bool SensorMAX30102::begin() {
+bool MAX30102Sensor::begin() {
   if (_sensor.begin()) {
     Serial.println("max30102 started!");
     return true;
@@ -15,7 +15,7 @@ bool SensorMAX30102::begin() {
 }
 
 /// @brief Reads the last value (overwritten for each type of sensor)
-void SensorMAX30102::updateLastValue() {
+void MAX30102Sensor::updateLastValue() {
   MAX30102Sample sample = _sensor.readSample(1000);
   // Serial.println(sample.ir);
   // Serial.println(",");

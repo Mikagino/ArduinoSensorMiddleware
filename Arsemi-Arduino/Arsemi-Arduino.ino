@@ -1,6 +1,5 @@
 // Main
 #include "src/ArsemiArduinoCore.h"
-#include "src/Sensors/SensorMAX30102.h"
 #include "src/IPC/SerialMessaging.h"
 
 ArsemiArduinoCore arsemi(8);
@@ -11,7 +10,7 @@ void setup() {
   SerialMessaging::begin();
   Serial.println("Setup started");
 
-  arsemi.addSensor(new SensorMAX30102());
+  arsemi.addSensor(new MAX30102Sensor());
   arsemi.getSensorById(0)->intervalMillis = 100;
   arsemi.beginAllSensors();
 

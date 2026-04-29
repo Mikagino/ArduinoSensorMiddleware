@@ -1,12 +1,12 @@
-#include "GenericI2CSensor.h"
+#include "I2CSensor.h"
 
-GenericI2CSensor::GenericI2CSensor(uint8_t address = 0x00, uint8_t reg = 0x00,
-                                   uint8_t bytes = 2, float scale = 1)
+I2CSensor::I2CSensor(uint8_t address = 0x00, uint8_t reg = 0x00,
+                     uint8_t bytes = 2, float scale = 1)
     : _address(address), _reg(reg), _bytes(bytes), _scale(scale) {}
 
-bool GenericI2CSensor::begin() { return true; }
+bool I2CSensor::begin() { return true; }
 
-void GenericI2CSensor::updateLastValue() {
+void I2CSensor::updateLastValue() {
   Wire.beginTransmission(_address);
   Wire.write(_reg);
   Wire.endTransmission(false);
