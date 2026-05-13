@@ -80,8 +80,10 @@ namespace Arsemi {
             }
 
 
-            public static string ParseSensorIdToName(uint sensorId) {
-                return ((ArsemiGlobals.Sensors)sensorId).ToString();
+            public static string? ParseSensorIdToName(uint sensorId) {
+                string? result = Enum.GetName((ArsemiGlobals.SensorNames)sensorId);
+                if(result == null) throw new Exception("The sensorID " + sensorId.ToString() + " could not be found in ArsemiGlobals. Did you generate the IDs?");
+                return result;
             }
 
 
@@ -144,9 +146,11 @@ namespace Arsemi {
 
 
             /// <summary>
+            /// TODO: Make it work
             /// Calls CheckCondition() on each event and invokes Actions if conditions are met
             /// </summary>
             public void CheckEventsConditions() {
+                throw new NotImplementedException();
                 foreach(var @event in Events) {
                     if(@event.Value.CheckCondition(RawBuffer)) {
                         ArsemiGlobals.Events.EventMap[@event.Key]()?.Invoke();

@@ -7,8 +7,9 @@ using System.Collections.Generic;
 
 namespace ArsemiGlobals {
 
-    public enum Sensors {
+    public enum SensorNames {
 		Heartrate,
+		Button,
 	}
 
 

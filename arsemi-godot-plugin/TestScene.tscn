@@ -2,8 +2,9 @@
 
 [ext_resource type="Script" uid="uid://c2gydyyiamwah" path="res://Arsemigo.cs" id="1_mncer"]
 [ext_resource type="Texture2D" uid="uid://5ckdugewvt2p" path="res://icon.svg" id="2_cguwc"]
+[ext_resource type="Script" uid="uid://bewgm51ecqngx" path="res://SampleData.cs" id="2_wicfy"]
 
-[node name="TestScene" type="Control" unique_id=1980870391 node_paths=PackedStringArray("DebugLabel", "Icon")]
+[node name="TestScene" type="Control" unique_id=1980870391 node_paths=PackedStringArray("Icon")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,17 +12,41 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_mncer")
-DebugLabel = NodePath("Label")
 Icon = NodePath("TextureRect")
 
-[node name="Label" type="Label" parent="." unique_id=396323848]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -40.0
-offset_bottom = 23.0
-grow_horizontal = 0
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1611806375]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/separation = 15
+
+[node name="Heartrate" type="HBoxContainer" parent="VBoxContainer" unique_id=1128488188 node_paths=PackedStringArray("valueLabel")]
+layout_mode = 2
+script = ExtResource("2_wicfy")
+valueLabel = NodePath("Value")
+
+[node name="Title" type="Label" parent="VBoxContainer/Heartrate" unique_id=396323848]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+text = "Heartrate"
+
+[node name="Value" type="Label" parent="VBoxContainer/Heartrate" unique_id=395848866]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+
+[node name="Button" type="HBoxContainer" parent="VBoxContainer" unique_id=783311608 node_paths=PackedStringArray("valueLabel")]
+layout_mode = 2
+script = ExtResource("2_wicfy")
+valueLabel = NodePath("Value")
+
+[node name="Title" type="Label" parent="VBoxContainer/Button" unique_id=1535733530]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+text = "Button"
+
+[node name="Value" type="Label" parent="VBoxContainer/Button" unique_id=826696831]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=591700303]
 layout_mode = 1

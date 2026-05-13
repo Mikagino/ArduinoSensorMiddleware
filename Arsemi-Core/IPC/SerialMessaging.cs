@@ -38,7 +38,7 @@ namespace Arsemi {
 
             public string ReadLine() {
                 CheckPort();
-                if(_serialPort.BytesToRead < 0) {
+                if(_serialPort?.BytesToRead < 0) {
                     return "";
                 }
 
