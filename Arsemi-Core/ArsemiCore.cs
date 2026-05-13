@@ -1,9 +1,7 @@
-using System.Globalization;
 using System.IO.Ports;
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
-using NullFX.CRC;
 
 namespace Arsemi {
   /// <summary>
@@ -13,7 +11,7 @@ namespace Arsemi {
   /// For more information: TODO<Insert Link>
   /// </summary>
   public class ArsemiCore {
-    [JsonInclude] public Dictionary<string, AbstractSensor> Sensors = [];
+    [JsonInclude] public List<AbstractSensor> Sensors = [];
 
     // IPC
     private readonly MemoryMappedSensorData _memoryMappedSensorData = new("SensorData", 1024);
@@ -46,8 +44,8 @@ namespace Arsemi {
     // /// TODO: Stores sensor values received from the microcontroller in shared memory | 
     // /// NICE TO HAVE: Make timed for each sensor individually -> for performance setting / more control
     // /// </summary>
-    private void StoreSensorData(uint sensorId) {
-      AbstractSensor currentSensor = Sensors[AbstractSensor.ParseSensorIdToName(sensorId)];
+    private void StoreSensorData(int sensorId) {
+      AbstractSensor currentSensor = Sensors[sensorId];
       currentSensor.ApplyFilters();
       _memoryMappedSensorData.Write(currentSensor.Data);
     }
@@ -57,8 +55,9 @@ namespace Arsemi {
     /// TODO: Setup new sensors and store them for later use, call Finish() when the initial sensor setup is done
     /// </summary>
     /// <returns>New sensor for using it in a stacked setup</returns>
-    public AbstractSensor AddSensor(AbstractSensor sensor, string name) {
-      Sensors.Add(name, sensor);
+    public AbstractSensor AddSensor(AbstractSensor sensor) {
+      Sensors.Add(sensor);
+      sensor.Data.ID = (byte)Sensors.Count;
       return sensor;
     }
 
@@ -66,8 +65,8 @@ namespace Arsemi {
     /// <summary>
     /// </summary>
     /// <returns>TODO: Current sensor value based on filters, timings, etc.</returns>
-    public float GetSensorValue(uint sensorID) {
-      return Sensors[AbstractSensor.ParseSensorIdToName(sensorID)].Data.Value;
+    public float GetSensorValue(int sensorId) {
+      return Sensors[sensorId].Data.Value;
       // return _memoryMappedSensorData.ReadAll().Value; //DEBUG
     }
 
@@ -76,8 +75,8 @@ namespace Arsemi {
     /// Sets the interval for the sensor with the sensorName
     /// </summary>
     /// <returns></returns>
-    public void SetInterval(string sensorName, byte milliseconds) {
-      Sensors[sensorName].SetInterval(milliseconds);
+    public void SetInterval(int sensorId, byte milliseconds) {
+      Sensors[sensorId].SetInterval(milliseconds);
     }
 
 
@@ -106,7 +105,7 @@ namespace Arsemi {
     public void FinishSetup() {
       _serialMessaging.WriteBytes(new SerialPackage(SerialProtocol.SetupCodes.ClearConfiguration).Serialize());
 
-      foreach(AbstractSensor sensor in Sensors.Values) {
+      foreach(AbstractSensor sensor in Sensors) {
         _serialMessaging.WriteBytes(new SerialPackage(SerialProtocol.SetupCodes.AddSensor, sensor.GetDataAsBytes()).Serialize());
       }
 
@@ -219,10 +218,10 @@ namespace Arsemi {
       }
 
       Console.Write("Received sensor data from sensorId: " + sensorId + " with a value of: " + value);
-      Console.WriteLine(" | Sensorname: " + AbstractSensor.ParseSensorIdToName(sensorId));
+      Console.WriteLine(" | Sensorname: " + Sensors[sensorId].Data.Name);
       Console.WriteLine("---");
 
-      Sensors[AbstractSensor.ParseSensorIdToName(sensorId)].Data.Value = value;
+      Sensors[sensorId].Data.Value = value;
       _queuedActionCode = 0;
     }
 

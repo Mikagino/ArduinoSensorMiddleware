@@ -5,7 +5,8 @@ namespace Arsemi {
             public byte SensorPin;
 
 
-            public DigitalSensor(byte sensorPin) {
+            public DigitalSensor(string name, byte sensorPin) {
+                Data.Name = name;
                 SensorPin = sensorPin;
             }
 

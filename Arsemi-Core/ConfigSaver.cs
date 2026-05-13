@@ -86,8 +86,8 @@ namespace ArsemiGlobals {
 
             #region Sensor enum
             constantFileText += GlobalsFileSensorEnumHeader;
-            foreach(string sensorName in arsemiCore.Sensors.Keys) {
-                constantFileText += "\t\t" + sensorName + ",\n";
+            foreach(AbstractSensor sensor in arsemiCore.Sensors) {
+                constantFileText += "\t\t" + sensor.Data.Name + " = " + sensor.Data.ID + ",\n";
             }
 
             constantFileText += "\t}\n\n";
@@ -97,7 +97,7 @@ namespace ArsemiGlobals {
             constantFileText += GlobalsFileEventClassHeader;
             string allEvents = "";
             string eventMap = GlobalsFileEventMapHeader;
-            foreach(AbstractSensor sensor in arsemiCore.Sensors.Values) {
+            foreach(AbstractSensor sensor in arsemiCore.Sensors) {
                 foreach(string eventName in sensor.Events.Keys) {
                     allEvents += GlobalsFileEvent + eventName + ";\n";
                     eventMap += "new(\"" + eventName + "\", " + "() => " + eventName + ",\n";

@@ -4,8 +4,8 @@ namespace Arsemi {
             public new const SensorTypes SensorType = SensorTypes.TYPE_MAX30102;
 
 
-            public MAX30102Sensor() {
-
+            public MAX30102Sensor(string name) {
+                Data.Name = name;
             }
 
 

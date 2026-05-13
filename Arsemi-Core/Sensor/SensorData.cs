@@ -7,6 +7,7 @@ namespace Arsemi {
         public struct SensorData() {
             public byte Value = 0;
             [JsonInclude] public byte ID;
+            [JsonInclude] public string Name = "";
             [JsonInclude] public byte IntervalMS;
         }
     }

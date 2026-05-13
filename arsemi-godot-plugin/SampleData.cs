@@ -6,6 +6,6 @@ public partial class SampleData : HBoxContainer {
 
 
     public override void _Process(double delta) {
-        Arsemigo.ArsemiCore.GetSensorValue((uint)sensor);
+        Arsemigo.ArsemiCore.GetSensorValue((int)sensor);
     }
 }

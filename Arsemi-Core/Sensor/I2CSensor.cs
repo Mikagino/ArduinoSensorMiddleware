@@ -9,7 +9,8 @@ namespace Arsemi {
             private byte _bytes;
 
 
-            public I2CSensor(byte address = 0x00, byte reg = 0x00, byte bytes = 2) {
+            public I2CSensor(string name, byte address = 0x00, byte reg = 0x00, byte bytes = 2) {
+                Data.Name = name;
                 _adress = address;
                 _reg = reg;
                 _bytes = bytes;

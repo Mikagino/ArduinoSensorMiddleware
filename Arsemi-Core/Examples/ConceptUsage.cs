@@ -31,7 +31,7 @@ namespace Arsemi {
             /// </summary>
             public static async Task Setup() {
                 _arsemiCore.StartSetup();
-                AbstractSensor hr = _arsemiCore.AddSensor(new MAX30102Sensor(), "Heartrate");
+                AbstractSensor hr = _arsemiCore.AddSensor(new MAX30102Sensor("Heartrate"));
                 AbstractFilter butterworth = new ButterworthFilter(hr, 2);
                 hr.AddFilter(butterworth, "Butterworth")
                     .SetInterval(100);

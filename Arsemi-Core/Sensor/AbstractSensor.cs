@@ -37,15 +37,6 @@ namespace Arsemi {
             }
 
 
-            public AbstractSensor(uint customID = 0) {
-                if(customID != 0) {
-                    Data.ID = GenerateID();
-                }
-
-                _previouslyGeneratedIDs.Add(Data.ID);
-            }
-
-
             /// <summary>
             /// Stores the value read from serial into the shared memory
             /// </summary>
@@ -77,13 +68,6 @@ namespace Arsemi {
 
             public virtual byte[] GetDataAsBytes() {
                 return [Data.ID, Data.IntervalMS];
-            }
-
-
-            public static string? ParseSensorIdToName(uint sensorId) {
-                string? result = Enum.GetName((ArsemiGlobals.SensorNames)sensorId);
-                if(result == null) throw new Exception("The sensorID " + sensorId.ToString() + " could not be found in ArsemiGlobals. Did you generate the IDs?");
-                return result;
             }
 
 
@@ -125,14 +109,6 @@ namespace Arsemi {
             }
 
 
-            /// <summary>
-            /// </summary>
-            /// <returns>Unique number for each new instance of the class (currently simply counting up)</returns>
-            private byte GenerateID() {
-                return (byte)(_previouslyGeneratedIDs.Count + 1);
-            }
-
-
             #region Events
             /// <summary>
             /// Adds event to the dictionary Events
@@ -151,11 +127,11 @@ namespace Arsemi {
             /// </summary>
             public void CheckEventsConditions() {
                 throw new NotImplementedException();
-                foreach(var @event in Events) {
-                    if(@event.Value.CheckCondition(RawBuffer)) {
-                        ArsemiGlobals.Events.EventMap[@event.Key]()?.Invoke();
-                    }
-                }
+                // foreach(var @event in Events) {
+                //     if(@event.Value.CheckCondition(RawBuffer)) {
+                //         ArsemiGlobals.Events.EventMap[@event.Key]()?.Invoke();
+                //     }
+                // }
             }
             #endregion Events
         }
