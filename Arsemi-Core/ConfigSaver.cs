@@ -93,24 +93,24 @@ namespace ArsemiGlobals {
             constantFileText += "\t}\n\n";
             #endregion Sensor enum
 
-            #region Event actions
-            constantFileText += GlobalsFileEventClassHeader;
-            string allEvents = "";
-            string eventMap = GlobalsFileEventMapHeader;
-            foreach(AbstractSensor sensor in arsemiCore.Sensors) {
-                foreach(string eventName in sensor.Events.Keys) {
-                    allEvents += GlobalsFileEvent + eventName + ";\n";
-                    eventMap += "new(\"" + eventName + "\", " + "() => " + eventName + ",\n";
-                }
-            }
-            eventMap += "\t\t\t]\n\t\t);";
+            // #region Event actions
+            // constantFileText += GlobalsFileEventClassHeader;
+            // string allEvents = "";
+            // string eventMap = GlobalsFileEventMapHeader;
+            // foreach(AbstractSensor sensor in arsemiCore.Sensors) {
+            //     foreach(string eventName in sensor.Events.Keys) {
+            //         allEvents += GlobalsFileEvent + eventName + ";\n";
+            //         eventMap += "new(\"" + eventName + "\", " + "() => " + eventName + ",\n";
+            //     }
+            // }
+            // eventMap += "\t\t\t]\n\t\t);";
 
-            constantFileText += allEvents;
-            constantFileText += eventMap + "\n";
-            constantFileText += "\t}\n";
+            // constantFileText += allEvents;
+            // constantFileText += eventMap + "\n";
+            // constantFileText += "\t}\n";
+            // #endregion Event actions
+
             constantFileText += "}";
-            #endregion Event actions
-
             string filePath = Path.Combine(configDirectory + GlobalsFileName);
             File.WriteAllLines(filePath, [constantFileText]);
         }

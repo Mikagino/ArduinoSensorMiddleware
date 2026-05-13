@@ -12,11 +12,4 @@ namespace ArsemiGlobals {
 		Button = 2,
 	}
 
-
-    public class Events {
-        public static Dictionary<string, Func<Action?>> EventMap = new(
-            [
-                			]
-		);
-	}
 }
