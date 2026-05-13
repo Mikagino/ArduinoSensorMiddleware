@@ -11,7 +11,7 @@ namespace Arsemi {
   /// For more information: TODO<Insert Link>
   /// </summary>
   public class ArsemiCore {
-    [JsonInclude] public List<AbstractSensor> Sensors = [];
+    [JsonInclude] public AbstractSensor[] Sensors = [];
 
     // IPC
     private readonly MemoryMappedSensorData _memoryMappedSensorData = new("SensorData", 1024);
@@ -56,8 +56,8 @@ namespace Arsemi {
     /// </summary>
     /// <returns>New sensor for using it in a stacked setup</returns>
     public AbstractSensor AddSensor(AbstractSensor sensor) {
-      Sensors.Add(sensor);
-      sensor.Data.ID = (byte)Sensors.Count;
+      Sensors = [.. Sensors.Append(sensor)];
+      sensor.Data.ID = (byte)Sensors.Length;
       return sensor;
     }
 
@@ -148,7 +148,7 @@ namespace Arsemi {
     /// TODO: Suspends the microcontrollers update loop until StartLoop() is called + threadpooling, wait for all
     /// </summary>
     public async Task StopLoop() {
-      for(int i = 0; i < Sensors.Count; i++) {
+      for(int i = 0; i < Sensors.Length; i++) {
         _ = _timers[i].DisposeAsync();
       }
       _serialMessaging.DataReceivedAction -= ParseMessage;
