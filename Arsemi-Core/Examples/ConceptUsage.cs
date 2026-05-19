@@ -1,9 +1,6 @@
 using System.Text.Json.Serialization;
-using Arsemi.IPC;
 using Arsemi.Sensor;
-using Arsemi.Sensor.Event;
 using Arsemi.Sensor.Filter;
-using NullFX.CRC;
 
 namespace Arsemi {
     namespace Examples {
@@ -40,7 +37,7 @@ namespace Arsemi {
                 _arsemiCore.FinishSetup();
 
                 await ConfigSaver.SaveTo(_arsemiCore, PathToConfigDirectory);
-                await ConfigSaver.GenerateConstants(_arsemiCore, PathToConfigDirectory);
+                await ConfigSaver.GenerateGlobals(_arsemiCore, PathToConfigDirectory);
                 // ArsemiGlobals.Events.Excitement += EventAction;
                 _arsemiCore.StartLoop();
             }

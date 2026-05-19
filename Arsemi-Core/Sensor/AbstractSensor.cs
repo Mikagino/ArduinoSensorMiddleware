@@ -67,7 +67,7 @@ namespace Arsemi {
             }
 
             public virtual byte[] GetDataAsBytes() {
-                return [Data.ID, Data.IntervalMS];
+                return [(byte)(Data.ID + 1), Data.IntervalMS];
             }
 
 

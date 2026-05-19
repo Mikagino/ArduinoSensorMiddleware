@@ -81,7 +81,7 @@ namespace ArsemiGlobals {
         /// <param name="arsemiCore"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static async Task GenerateConstants(ArsemiCore arsemiCore, string configDirectory) {
+        public static async Task GenerateGlobals(ArsemiCore arsemiCore, string configDirectory) {
             string constantFileText = GlobalsFileHeader;
 
             #region Sensor enum

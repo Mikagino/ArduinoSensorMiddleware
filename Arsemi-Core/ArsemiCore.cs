@@ -1,5 +1,7 @@
+using System.ComponentModel;
 using System.IO.Ports;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks.Dataflow;
 using Arsemi.IPC;
 using Arsemi.Sensor;
 
@@ -11,19 +13,31 @@ namespace Arsemi {
   /// For more information: TODO<Insert Link>
   /// </summary>
   public class ArsemiCore {
-    [JsonInclude] public AbstractSensor[] Sensors = [];
+    [JsonInclude] public AbstractSensor[] Sensors;
+    private uint sensorCount = 0;
 
     // IPC
     private readonly MemoryMappedSensorData _memoryMappedSensorData = new("SensorData", 1024);
-    private SerialMessaging _serialMessaging = new();
+    private SerialMessaging _serialMessaging;
 
-    private List<Timer> _timers = [];
 
-    private long _tick = 0; // DEBUG
-    private float[] _testValues = [0, 1, 2, 1, 2, 3, 4, 7, 4, 3];
+    /// <summary>
+    /// Invoked when new data is received with the sensorId as parameter
+    /// </summary>
+    public Action<int, int>? NewDataReceived;
 
 
     private int _queuedActionCode = 0;
+
+
+    /// <summary>
+    /// Construct a new ArsemiCore and initialize arrays according to parameters
+    /// </summary>
+    /// <param name="maximumSensorCount"></param>
+    public ArsemiCore(int maximumSensorCount = 8) {
+      Sensors = new AbstractSensor[maximumSensorCount];
+      _serialMessaging = new();
+    }
 
 
     /// <summary>
@@ -56,8 +70,11 @@ namespace Arsemi {
     /// </summary>
     /// <returns>New sensor for using it in a stacked setup</returns>
     public AbstractSensor AddSensor(AbstractSensor sensor) {
-      Sensors = [.. Sensors.Append(sensor)];
-      sensor.Data.ID = (byte)Sensors.Length;
+      if(sensor == null) throw new Exception("No sensor has been supplied to the function call!");
+      sensor.Data.ID = (byte)(sensorCount);
+      Sensors[sensorCount] = sensor;
+      Console.WriteLine("Added " + sensor.Data.Name + " sensor to index: " + sensorCount);
+      sensorCount++;
       return sensor;
     }
 
@@ -66,8 +83,9 @@ namespace Arsemi {
     /// </summary>
     /// <returns>TODO: Current sensor value based on filters, timings, etc.</returns>
     public float GetSensorValue(int sensorId) {
-      return Sensors[sensorId].Data.Value;
-      // return _memoryMappedSensorData.ReadAll().Value; //DEBUG
+      AbstractSensor sensor = Sensors[sensorId - 1];
+      if(sensor == null) throw new Exception("Sensor with id: " + sensorId + " is null, did you use the ArsemiGlobals or manually picked the index? Preferably use the ArsemiGlobals.");
+      return sensor.Data.Value;
     }
 
 
@@ -105,8 +123,10 @@ namespace Arsemi {
     public void FinishSetup() {
       _serialMessaging.WriteBytes(new SerialPackage(SerialProtocol.SetupCodes.ClearConfiguration).Serialize());
 
-      foreach(AbstractSensor sensor in Sensors) {
-        _serialMessaging.WriteBytes(new SerialPackage(SerialProtocol.SetupCodes.AddSensor, sensor.GetDataAsBytes()).Serialize());
+      for(int i = 0; i < sensorCount; i++) {
+        if(Sensors[i] == null) throw new Exception("Sensor has been deleted somehow...");
+        byte[] addSensorMessage = new SerialPackage(SerialProtocol.SetupCodes.AddSensor, Sensors[i].GetDataAsBytes()).Serialize();
+        _serialMessaging.WriteBytes(addSensorMessage);
       }
 
     }
@@ -144,13 +164,9 @@ namespace Arsemi {
 
 
     /// <summary>
-    /// DisposesAsync() all sensor timers.
-    /// TODO: Suspends the microcontrollers update loop until StartLoop() is called + threadpooling, wait for all
+    /// TODO: Suspends the microcontrollers update loop until StartLoop() is called
     /// </summary>
     public async Task StopLoop() {
-      for(int i = 0; i < Sensors.Length; i++) {
-        _ = _timers[i].DisposeAsync();
-      }
       _serialMessaging.DataReceivedAction -= ParseMessage;
     }
 
@@ -222,6 +238,7 @@ namespace Arsemi {
       Console.WriteLine("---");
 
       Sensors[sensorId].Data.Value = value;
+      NewDataReceived?.Invoke(sensorId, value);
       _queuedActionCode = 0;
     }
 

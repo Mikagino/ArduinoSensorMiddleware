@@ -91,22 +91,18 @@ namespace Arsemi {
 
 
             /// <summary>
-            /// Write a line over the serial port
-            /// </summary>
-            /// <param name="text"></param>
-            public void WriteLine(string text) {
-                CheckPort();
-                _serialPort.WriteLine(text);
-            }
-
-
-            /// <summary>
             /// Writes bytes over the serial port (way faster than WriteLine if data is serialized)
             /// </summary>
             /// <param name="bytes"></param>
-            public void WriteBytes(params byte[] bytes) {
+            /// <returns>Package which has been sent, including </returns>
+            public byte[] WriteBytes(params byte[] bytes) {
                 CheckPort();
-                _serialPort.Write(bytes, 0, bytes.Length);
+                byte[] package = new byte[bytes.Length + 2];
+                Array.Copy(bytes, 0, package, 1, bytes.Length);
+                package[0] = SerialProtocol.PackageStartByte;
+                package[bytes.Length + 1] = CRC8(bytes);
+                _serialPort.Write(package, 0, bytes.Length);
+                return package;
             }
 
 
