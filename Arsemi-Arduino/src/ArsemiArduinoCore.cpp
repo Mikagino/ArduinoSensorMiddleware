@@ -6,13 +6,20 @@ ArsemiArduinoCore::ArsemiArduinoCore(uint8_t maxSensorCount) {
 }
 
 /// adds a new sensor to an array for batch calls of functions
-ArsemiArduinoCore::ERROR
-ArsemiArduinoCore::addSensor(AbstractSensor *newSensor) {
-  if (_currentSensorCount >= maxSensorCount)
-    return ArsemiArduinoCore::SENSOR_COUNT_OVERFLOW;
+void ArsemiArduinoCore::addSensor(AbstractSensor *newSensor) {
+  if (_currentSensorCount >= maxSensorCount) {
+    SerialPackage sensorCountOverflowMessage(
+        SerialProtocol::SystemAction::Error,
+        new uint8_t[SerialProtocol::PackageError::SensorCountOverflow],
+        (uint8_t)2);
+    SerialMessaging::write(sensorCountOverflowMessage);
+  }
   sensors[_currentSensorCount] = newSensor;
   _currentSensorCount++;
-  return ArsemiArduinoCore::SUCCESS;
+
+  SerialPackage SuccessfullyAddedSensorMessage(
+      SerialProtocol::SetupAction::SuccessfullyAddedSensor);
+  SerialMessaging::write(SuccessfullyAddedSensorMessage);
 }
 
 /// calls begin() on all the sensors added with addSensor()
@@ -99,8 +106,10 @@ void ArsemiArduinoCore::ParseMessage() {
       ParseAddSensorAction();
       break;
     default:
-      SerialMessaging::write(SerialProtocol::PackageError::InvalidActionCode,
-                             2);
+      SerialPackage errorPackage(
+          SerialProtocol::SystemAction::Error,
+          new uint8_t[SerialProtocol::PackageError::InvalidActionCode], (uint8_t)2);
+      SerialMessaging::write(errorPackage);
     }
   }
 }
@@ -157,13 +166,16 @@ void ArsemiArduinoCore::ParseAddSensorAction() {
   }
 
   default:
-    SerialMessaging::write(
-        SerialProtocol::PackageError::InvalidSensorParameters, 2);
+    SerialPackage errorPackage(
+        SerialProtocol::SystemAction::Error,
+        new uint8_t[SerialProtocol::PackageError::InvalidSensorParameters], (uint8_t)2);
+        SerialMessaging::write(errorPackage);
     return;
   }
 
   newSensor->intervalMillis = parameters[0];
   addSensor(newSensor);
+  newSensor->begin();
 }
 
 /// @brief Checks if the following parameters (next bytes) are enough, if not it
@@ -173,8 +185,10 @@ void ArsemiArduinoCore::ParseAddSensorAction() {
 bool ArsemiArduinoCore::HasRequiredParameters(uint8_t parameterCount,
                                               uint8_t requiredParameterCount) {
   if (parameterCount < 2) {
-    SerialMessaging::write(
-        SerialProtocol::PackageError::InvalidSensorParameters, 2);
+    SerialPackage errorPackage(
+        SerialProtocol::SystemAction::Error,
+        SerialProtocol::PackageError::InvalidSensorParameters, (uint8_t)2);
+        SerialMessaging::write(errorPackage);
     return false;
   }
   return true;

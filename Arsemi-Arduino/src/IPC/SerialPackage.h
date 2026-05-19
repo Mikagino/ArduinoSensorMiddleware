@@ -13,6 +13,9 @@ public:
       : ActionCode(actionCode), Parameters(parameters),
         ParameterCount(parameterCount) {}
 
+  SerialPackage(uint8_t actionCode)
+      : ActionCode(actionCode) {}
+
   uint8_t *Serialize() {
     uint8_t *result = new uint8_t[ParameterCount + 1];
     result[0] = ActionCode;

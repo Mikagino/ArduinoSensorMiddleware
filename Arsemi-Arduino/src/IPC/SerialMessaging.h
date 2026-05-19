@@ -13,7 +13,7 @@ public:
   // Writes a package via serial, containing StartByte + buffer + CRC-8-Checksum
   static void write(uint8_t *buffer, uint8_t length);
   static void write(const uint8_t *buffer, uint8_t length);
-  static void write(SerialPackage package);
+  static void write(SerialPackage& package);
 
   // CRC-8 checksum generator based on the code by devcoons (Source:
   // https://devcoons.com/crc8/)

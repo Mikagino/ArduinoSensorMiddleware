@@ -42,6 +42,7 @@ public:
   public:
     static const uint8_t ClearConfiguration = Categories::Setup + 1;
     static const uint8_t AddSensor = Categories::Setup + 2;
+    static const uint8_t SuccessfullyAddedSensor = Categories::Setup + 3;
   };
 
   struct SensorAction {
@@ -53,10 +54,9 @@ public:
 #pragma region Errors
   struct PackageError {
   public:
-    static const SerialPackage InvalidActionCode = new SerialPackage(
-        (uint8_t)(SystemAction::Error, Categories::Package + 1), 2);
-    static const SerialPackage InvalidSensorParameters = new SerialPackage(
-        (uint8_t)(SystemAction::Error, Categories::Package + 2), 2);
+    static const uint8_t InvalidActionCode = Categories::Package + 1;
+    static const uint8_t InvalidSensorParameters = Categories::Package + 2;
+    static const uint8_t SensorCountOverflow = Categories::Package + 3;
   };
 #pragma region Errors
 };

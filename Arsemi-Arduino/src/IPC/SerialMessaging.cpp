@@ -19,7 +19,7 @@ void SerialMessaging::write(const uint8_t *buffer, uint8_t length) {
   Serial.write(CRC8(buffer, length));
 }
 
-void SerialMessaging::write(SerialPackage serialPackage) {
+void SerialMessaging::write(SerialPackage& serialPackage) {
   write(serialPackage.Serialize(), serialPackage.ParameterCount);
 }
 
