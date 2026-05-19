@@ -6,7 +6,7 @@
 class AnalogSensor : public AbstractSensor {
 private:
   const uint8_t _sensorPin;
-  static const uint8_t _parameterByteCount = 1;
+  static const uint8_t parameterByteCount = 1;
 
 public:
   // TODO: Rework all sensor's constructors to use byte[] and each class parses

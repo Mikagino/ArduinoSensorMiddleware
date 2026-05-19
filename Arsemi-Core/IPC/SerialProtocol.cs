@@ -34,6 +34,7 @@ namespace Arsemi {
             public struct SetupCodes {
                 public const byte ClearConfiguration = Categories.Setup + 1;
                 public const byte AddSensor = Categories.Setup + 2;
+                public const byte SuccessfullyAddedSensor = Categories.Setup + 3;
             }
 
 

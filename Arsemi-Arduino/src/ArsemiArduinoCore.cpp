@@ -13,6 +13,7 @@ void ArsemiArduinoCore::addSensor(AbstractSensor *newSensor) {
         new uint8_t[SerialProtocol::PackageError::SensorCountOverflow],
         (uint8_t)2);
     SerialMessaging::write(sensorCountOverflowMessage);
+    return;
   }
   sensors[_currentSensorCount] = newSensor;
   _currentSensorCount++;
@@ -82,100 +83,138 @@ AbstractSensor *ArsemiArduinoCore::getSensorById(uint8_t sensorId) {
 /// actions and invoke associated functions, considering the parameters of the
 /// package
 void ArsemiArduinoCore::ParseMessage() {
-  uint8_t availableBytes = Serial.available();
-  char *discardBuffer = new char[availableBytes];
-  while (availableBytes > 0) {
-    if (_queuedActionCode == 0) {
-      Serial.readBytesUntil(SerialProtocol::StartByte, discardBuffer,
-                            availableBytes);
-      _queuedActionCode = Serial.read();
-    }
+  if (Serial.available() == 0)
+    return;
+  while (Serial.available() > 0) {
 
-    if (_queuedActionCode == -1) {
+    _queuedActionCode = readNextActionCode();
+    if (_queuedActionCode == -1)
       return;
-    }
 
     switch (_queuedActionCode) {
     case SerialProtocol::SystemAction::HibernateMicrocontroller:
+      // Serial.println("Hibernate");
+      // TODO
+      _queuedActionCode = -1;
       break;
     case SerialProtocol::SystemAction::WakeMicrocontroller:
+      // Serial.println("Wake");
+      // TODO
+      _queuedActionCode = -1;
       break;
     case SerialProtocol::SetupAction::ClearConfiguration:
+      // Serial.println("Clear");
+      // TODO
+      _queuedActionCode = -1;
       break;
     case SerialProtocol::SetupAction::AddSensor:
+      // Serial.println("AddSensor");
       ParseAddSensorAction();
+      _queuedActionCode = -1;
       break;
     default:
+      // Serial.println("ERROR!");
       SerialPackage errorPackage(
           SerialProtocol::SystemAction::Error,
-          new uint8_t[SerialProtocol::PackageError::InvalidActionCode], (uint8_t)2);
-      SerialMessaging::write(errorPackage);
+          new uint8_t[SerialProtocol::PackageError::InvalidActionCode],
+          (uint8_t)2);
+      _queuedActionCode = -1; // discard "broken" package
     }
+  }
+}
+
+/// @brief Peeks for StartByte and discards everything before it
+/// @returns Action code which follows after the next start byte, -1 when the
+/// buffer is empty after the start byte is reached
+int ArsemiArduinoCore::readNextActionCode() {
+  if (_queuedActionCode == -1) {
+    while (Serial.peek() != SerialProtocol::StartByte && Serial.available()) {
+      Serial.readBytesUntil(SerialProtocol::StartByte, (uint8_t *)nullptr,
+                            Serial.available());
+      if (Serial.available() == 0)
+        return -1;
+    }
+
+    if (Serial.peek() == SerialProtocol::StartByte)
+      Serial.read();
+    else
+      return -1;
+
+    return Serial.read();
   }
 }
 
 /// @brief Parse action "Add Sensor"
 /// Package parameters: (sensorType + intervalMs + constructorParameters[])
 void ArsemiArduinoCore::ParseAddSensorAction() {
-  uint8_t availableBytes = Serial.available();
-  if (availableBytes < 2) {
-    return;
-  }
+  if (queuedPackage[0] == -1)
+    queuedPackage[0] = Serial.read();
 
-  int sensorType = Serial.read();
-  availableBytes = Serial.available();
+  uint8_t availableBytes = Serial.available();
+
+  /// Check if enough parameters for each sensor type are in the serial buffer
+  if (queuedPackage[0] == AbstractSensor::SensorTypes::TYPE_GENERIC_ANALOG &&
+      !HasRequiredParameters(availableBytes,
+                             (AnalogSensor::getParameterByteCount() + 1)))
+    return;
+  else if (queuedPackage[0] ==
+               AbstractSensor::SensorTypes::TYPE_GENERIC_DIGITAL &&
+           !HasRequiredParameters(availableBytes,
+                                  (DigitalSensor::getParameterByteCount() + 1)))
+    return;
+  else if (queuedPackage[0] == AbstractSensor::SensorTypes::TYPE_GENERIC_I2C &&
+           !HasRequiredParameters(availableBytes,
+                                  (I2CSensor::getParameterByteCount() + 1)))
+    return;
+  else if (queuedPackage[0] == AbstractSensor::SensorTypes::TYPE_MAX30102 &&
+           !HasRequiredParameters(
+               availableBytes, (MAX30102Sensor::getParameterByteCount() + 1)))
+    return;
+
+  /// Allocations for the sensor creation
   uint8_t parameters[availableBytes] = {};
   int parameterCount = Serial.readBytesUntil(SerialProtocol::StartByte,
                                              parameters, availableBytes);
-  if (parameterCount < 1) {
-    return;
-  }
   AbstractSensor *newSensor;
 
-  switch (sensorType) {
+  // TODO: check the CRC8
+
+  /// Create new sensor depending on id in queuedPackage[0]
+  switch (queuedPackage[0]) {
   case AbstractSensor::SensorTypes::TYPE_GENERIC_ANALOG: {
-    if (HasRequiredParameters(parameterCount,
-                              (AnalogSensor::getParameterByteCount() + 1))) {
-      newSensor = new AnalogSensor(parameters[1]);
-    }
+    newSensor = new AnalogSensor(parameters[1]);
     break;
   }
 
   case AbstractSensor::TYPE_GENERIC_DIGITAL: {
-    if (HasRequiredParameters(parameterCount,
-                              (DigitalSensor::getParameterByteCount() + 1))) {
-      newSensor = new DigitalSensor(parameters[1]);
-    }
+    newSensor = new DigitalSensor(parameters[1]);
     break;
   }
 
   case AbstractSensor::SensorTypes::TYPE_GENERIC_I2C: {
-    if (HasRequiredParameters(parameterCount,
-                              (I2CSensor::getParameterByteCount() + 1))) {
-      newSensor = new I2CSensor(parameters[1], parameters[2], parameters[3]);
-    }
+    newSensor = new I2CSensor(parameters[1], parameters[2], parameters[3]);
     break;
   }
 
   case AbstractSensor::SensorTypes::TYPE_MAX30102: {
-    if (HasRequiredParameters(parameterCount,
-                              (MAX30102Sensor::getParameterByteCount() + 1))) {
-      newSensor = new MAX30102Sensor();
-    }
+    newSensor = new MAX30102Sensor();
     break;
   }
 
   default:
     SerialPackage errorPackage(
         SerialProtocol::SystemAction::Error,
-        new uint8_t[SerialProtocol::PackageError::InvalidSensorParameters], (uint8_t)2);
-        SerialMessaging::write(errorPackage);
+        new uint8_t[SerialProtocol::PackageError::InvalidSensorParameters],
+        (uint8_t)2);
+    SerialMessaging::write(errorPackage);
     return;
   }
 
   newSensor->intervalMillis = parameters[0];
+
   addSensor(newSensor);
   newSensor->begin();
+  _queuedActionCode = -1;
 }
 
 /// @brief Checks if the following parameters (next bytes) are enough, if not it
@@ -184,11 +223,11 @@ void ArsemiArduinoCore::ParseAddSensorAction() {
 /// @return
 bool ArsemiArduinoCore::HasRequiredParameters(uint8_t parameterCount,
                                               uint8_t requiredParameterCount) {
-  if (parameterCount < 2) {
+  if (parameterCount < requiredParameterCount) {
     SerialPackage errorPackage(
         SerialProtocol::SystemAction::Error,
         SerialProtocol::PackageError::InvalidSensorParameters, (uint8_t)2);
-        SerialMessaging::write(errorPackage);
+    SerialMessaging::write(errorPackage);
     return false;
   }
   return true;

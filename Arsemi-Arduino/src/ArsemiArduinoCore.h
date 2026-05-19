@@ -16,7 +16,11 @@ private:
   AbstractSensor **sensors;
   uint8_t _currentSensorCount;
 
-  int _queuedActionCode;
+  uint8_t availableBytes;
+  int _queuedActionCode = -1;
+  const int queueSize = 8;
+  int* queuedPackage = new int[queueSize];
+  int readNextActionCode();
 
 public:
   enum ERROR { SUCCESS, SENSOR_COUNT_OVERFLOW };

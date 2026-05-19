@@ -13,7 +13,7 @@ protected:
   const uint8_t _reg;
   const uint8_t _bytes;
   float _scale;
-  static const uint8_t _parameterByteCount = 5;
+  static const uint8_t parameterByteCount = 5;
 
 public:
   // TODO: Rework all sensor's constructors to use byte[] and each class parses

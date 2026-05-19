@@ -22,6 +22,7 @@ theme_override_constants/separation = 15
 
 [node name="Heartrate" type="HBoxContainer" parent="VBoxContainer" unique_id=1128488188 node_paths=PackedStringArray("valueLabel")]
 layout_mode = 2
+theme_override_constants/separation = 50
 script = ExtResource("2_wicfy")
 valueLabel = NodePath("Value")
 
@@ -33,11 +34,14 @@ text = "Heartrate"
 [node name="Value" type="Label" parent="VBoxContainer/Heartrate" unique_id=395848866]
 layout_mode = 2
 theme_override_font_sizes/font_size = 50
+text = "-"
 
 [node name="Button" type="HBoxContainer" parent="VBoxContainer" unique_id=783311608 node_paths=PackedStringArray("valueLabel")]
 layout_mode = 2
+theme_override_constants/separation = 50
 script = ExtResource("2_wicfy")
 valueLabel = NodePath("Value")
+sensor = 1
 
 [node name="Title" type="Label" parent="VBoxContainer/Button" unique_id=1535733530]
 layout_mode = 2
@@ -47,6 +51,7 @@ text = "Button"
 [node name="Value" type="Label" parent="VBoxContainer/Button" unique_id=826696831]
 layout_mode = 2
 theme_override_font_sizes/font_size = 50
+text = "-"
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=591700303]
 layout_mode = 1

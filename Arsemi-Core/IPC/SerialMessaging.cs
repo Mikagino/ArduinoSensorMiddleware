@@ -92,6 +92,7 @@ namespace Arsemi {
 
             /// <summary>
             /// Writes bytes over the serial port (way faster than WriteLine if data is serialized)
+            /// TODO: make write package function, this is for single bytes!
             /// </summary>
             /// <param name="bytes"></param>
             /// <returns>Package which has been sent, including </returns>
@@ -101,7 +102,12 @@ namespace Arsemi {
                 Array.Copy(bytes, 0, package, 1, bytes.Length);
                 package[0] = SerialProtocol.PackageStartByte;
                 package[bytes.Length + 1] = CRC8(bytes);
-                _serialPort.Write(package, 0, bytes.Length);
+                _serialPort.Write(package, 0, package.Length);
+                Console.Write("Written: ");
+                foreach(byte b in package) {
+                    Console.Write(b + "-");
+                }
+                Console.Write("\n");
                 return package;
             }
 

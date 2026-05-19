@@ -11,7 +11,7 @@ protected:
   uint8_t _sensorId = 0;
   uint32_t _lastReadMillis = 0; // stores the last time the sensor was read
   uint8_t _lastValue;
-  static const uint8_t _parameterByteCount;
+  static const uint8_t parameterByteCount;
 
 public:
   enum SensorTypes {
@@ -32,5 +32,5 @@ public:
   // Getters for private fields
   uint8_t inline getSensorId() { return _sensorId; }
   uint8_t inline getLastValue() { return _lastValue; }
-  static inline uint8_t getParameterByteCount() { return _parameterByteCount; }
+  static uint8_t getParameterByteCount() { return parameterByteCount; }
 };

@@ -25,6 +25,7 @@ namespace Arsemi {
     /// Invoked when new data is received with the sensorId as parameter
     /// </summary>
     public Action<int, int>? NewDataReceived;
+    public Action<string>? NewMessageReceived;
 
 
     private int _queuedActionCode = 0;
@@ -111,7 +112,7 @@ namespace Arsemi {
         portName = portNames[0];
       }
       _serialMessaging.Begin(portName, baudRate, receivedBytesThreshold);
-      _serialMessaging.DataReceivedAction += ParseMessage;
+      _serialMessaging.DataReceivedAction += ParseMessage; // DEBUG -> later move to start loop
     }
 
 
@@ -174,8 +175,8 @@ namespace Arsemi {
     /// <summary>
     /// Converts a new message from string to package and then matches the action code to the required actions
     /// </summary>
-    /// <exception cref="NotImplementedException"></exception>
     public void ParseMessage() {
+      Console.WriteLine("new message");
       while(_serialMessaging.AvailableBytes()) {
 
         if(_queuedActionCode == 0) {
@@ -199,6 +200,7 @@ namespace Arsemi {
 
         /// Codes meant for receiving from the microcontroller
         case SerialProtocol.SystemCodes.SystemError:
+          Console.WriteLine("ERROR");
           ParseSystemError();
           break;
         case SerialProtocol.SystemCodes.RequestHandshake:
@@ -206,7 +208,13 @@ namespace Arsemi {
         case SerialProtocol.SystemCodes.ReplyHandshake:
           throw new NotImplementedException();
         case SerialProtocol.SensorCodes.NewSample:
+          Console.WriteLine("New sample");
           ParseNewSample();
+          break;
+        // case SerialProtocol.SetupCodes.SuccessfullyAddedSensor:
+        default:
+          Console.WriteLine("Queued action code: " + _queuedActionCode);
+          _queuedActionCode = 0;
           break;
           // default:
           //   throw new NotImplementedException("The action code in the message can't be associated with a command.");
