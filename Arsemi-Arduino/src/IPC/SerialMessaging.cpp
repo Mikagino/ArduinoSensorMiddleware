@@ -23,6 +23,12 @@ void SerialMessaging::write(SerialPackage& serialPackage) {
   write(serialPackage.Serialize(), serialPackage.ParameterCount);
 }
 
+void SerialMessaging::write(const uint8_t actionCode) {
+  uint8_t* package = new uint8_t[1];
+  package[0] = actionCode;
+  write(package, 1);
+}
+
 void SerialMessaging::begin(int baudRate) { Serial.begin(baudRate); }
 
 uint8_t SerialMessaging::CRC8(uint8_t *data, uint8_t length) {
@@ -59,4 +65,14 @@ uint8_t SerialMessaging::CRC8(const uint8_t *data, uint8_t length) {
     data++;
   }
   return crc;
+}
+
+/// @brief Debugging tool to send messages over serial to make serial blink
+/// @param count 
+/// @param delayMillis 
+void SerialMessaging::blink(int count, int delayMillis) {
+  for(int i = 0; i < count; i++){
+    Serial.println("blink");
+    delay(delayMillis);
+  }
 }

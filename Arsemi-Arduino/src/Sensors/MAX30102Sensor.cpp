@@ -2,13 +2,14 @@
 
 MAX30102Sensor::MAX30102Sensor() {}
 
-// Returns false on error
+/// @brief 
+/// @return true when successful, otherwise false 
 bool MAX30102Sensor::begin() {
   if (_sensor.begin()) {
-    Serial.println("max30102 started!");
+    // Serial.println("max30102 started!");
     return true;
   } else {
-    Serial.println("max30102 not found...");
+    // Serial.println("max30102 not found...");
     return false;
   }
   Serial.begin(9600);

@@ -13,8 +13,14 @@ public:
       : ActionCode(actionCode), Parameters(parameters),
         ParameterCount(parameterCount) {}
 
-  SerialPackage(uint8_t actionCode)
-      : ActionCode(actionCode) {}
+  SerialPackage(uint8_t actionCode, uint8_t parameter) {
+    ActionCode = actionCode;
+    Parameters = new uint8_t[1];
+    Parameters[0] = parameter;
+    ParameterCount = 1;
+  }
+
+  SerialPackage(uint8_t actionCode) : ActionCode(actionCode) {}
 
   uint8_t *Serialize() {
     uint8_t *result = new uint8_t[ParameterCount + 1];

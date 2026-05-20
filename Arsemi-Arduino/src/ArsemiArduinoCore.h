@@ -20,7 +20,7 @@ private:
   int _queuedActionCode = -1;
   const int queueSize = 8;
   int* queuedPackage = new int[queueSize];
-  int readNextActionCode();
+  int parseNextActionCode();
 
 public:
   enum ERROR { SUCCESS, SENSOR_COUNT_OVERFLOW };
@@ -32,8 +32,8 @@ public:
   bool updateAllSensors();
   uint8_t getSensorValueById(uint8_t sensorId);
   AbstractSensor *getSensorById(uint8_t sensorId);
-  void ParseMessage();
-  void ParseAddSensorAction();
-  bool HasRequiredParameters(uint8_t parameterCount,
+  void parseMessage();
+  void parseAddSensorAction();
+  bool hasRequiredParameters(uint8_t parameterCount,
                              uint8_t requiredParameterCount);
 };

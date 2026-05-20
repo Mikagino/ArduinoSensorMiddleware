@@ -176,7 +176,11 @@ namespace Arsemi {
     /// Converts a new message from string to package and then matches the action code to the required actions
     /// </summary>
     public void ParseMessage() {
-      Console.WriteLine("new message");
+      foreach(byte b in _serialMessaging.ReadBytes()) {
+        Console.Write(b.ToString());
+        Console.Write("-");
+      }
+      Console.Write("---");
       while(_serialMessaging.AvailableBytes()) {
 
         if(_queuedActionCode == 0) {
@@ -186,6 +190,8 @@ namespace Arsemi {
         if(_queuedActionCode == -1) {
           return;
         }
+
+        Console.WriteLine("new action code!");
 
         switch(_queuedActionCode) {
         /// Codes meant for sending to the microcontroller -> no need to implement

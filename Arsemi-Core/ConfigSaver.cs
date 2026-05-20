@@ -87,6 +87,7 @@ namespace ArsemiGlobals {
             #region Sensor enum
             constantFileText += GlobalsFileSensorEnumHeader;
             foreach(AbstractSensor sensor in arsemiCore.Sensors) {
+                if(sensor == null) break;
                 constantFileText += "\t\t" + sensor.Data.Name + " = " + sensor.Data.ID + ",\n";
             }
 

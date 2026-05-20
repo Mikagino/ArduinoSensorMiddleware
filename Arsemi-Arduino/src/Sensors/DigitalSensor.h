@@ -8,9 +8,10 @@
 class DigitalSensor : public AbstractSensor {
 private:
   const uint8_t _sensorPin;
-  static const uint8_t parameterByteCount = 1;
 
 public:
+  static const uint8_t parameterByteCount = 1;
+
   // TODO: Rework all sensor's constructors to use byte[] and each class parses
   // the bytes themselves
   DigitalSensor(uint8_t sensorPin);

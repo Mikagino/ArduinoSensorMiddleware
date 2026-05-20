@@ -1,5 +1,4 @@
 using System.IO.Ports;
-using System.Numerics;
 
 namespace Arsemi {
     namespace IPC {

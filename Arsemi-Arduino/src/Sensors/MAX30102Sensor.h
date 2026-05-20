@@ -9,9 +9,10 @@
 class MAX30102Sensor : public AbstractSensor {
 private:
   MAX30102 _sensor;
-  static const uint8_t parameterByteCount = 0;
 
 public:
+  static const uint8_t parameterByteCount = 0;
+
   // TODO: Rework all sensor's constructors to use byte[] and each class parses
   // the bytes themselves
   MAX30102Sensor();
