@@ -80,42 +80,51 @@ AbstractSensor *ArsemiArduinoCore::getSensorById(uint8_t sensorId) {
 }
 
 /// @brief Parse a new serial package with its action code to the according
-/// actions and invoke associated functions, considering the parameters of the
-/// package
+/// actions and invoke associated functions, with all parameters of the
+/// package.
 void ArsemiArduinoCore::parseMessage() {
-  if (Serial.available() == 0)
+  if (!SerialMessaging::isPackageAvailable()) {
     return;
+  }
 
-  _queuedActionCode = parseNextActionCode();
+  if (_queuedActionCode == -1) {
+    _queuedActionCode = parseNextActionCode();
+  }
 
-  // SerialMessaging::write(SerialProtocol::SystemAction::Error);
   if (_queuedActionCode == -1) {
     return;
   }
 
-  // SerialMessaging::blink(_queuedActionCode, 100);
-
   switch (_queuedActionCode) {
+  case SerialProtocol::SystemAction::RequestHandshake:
+    SerialMessaging::write(SerialProtocol::SystemAction::ReplyHandshake);
+    _queuedActionCode = -1;
+    break;
+
   case SerialProtocol::SystemAction::HibernateMicrocontroller:
     // Serial.println("Hibernate");
     // TODO
     _queuedActionCode = -1;
     break;
+
   case SerialProtocol::SystemAction::WakeMicrocontroller:
     // Serial.println("Wake");
     // TODO
     _queuedActionCode = -1;
     break;
+
   case SerialProtocol::SetupAction::ClearConfiguration:
     // Serial.println("Clear");
     destroyAllSensors();
     _queuedActionCode = -1;
     break;
+
   case SerialProtocol::SetupAction::AddSensor:
     // Serial.println("AddSensor");
     parseAddSensorAction();
     _queuedActionCode = -1;
     break;
+
   default:
     // Serial.println("ERROR!");
     SerialPackage errorPackage(
@@ -129,13 +138,7 @@ void ArsemiArduinoCore::parseMessage() {
 /// @brief Peeks for StartByte and discards everything until the action code
 /// @returns Action code which follows after the next start byte, otherwise -1
 int ArsemiArduinoCore::parseNextActionCode() {
-  if (_queuedActionCode != -1 && _queuedActionCode != 0) {
-    return _queuedActionCode;
-  }
-
-  // return if there are not enough bytes available in the serial buffer to
-  // contain StartByte and ActionCode
-  if (Serial.available() < 2)
+  if (!SerialMessaging::isPackageAvailable())
     return -1;
 
   if (Serial.peek() == SerialProtocol::StartByte) {
@@ -181,8 +184,8 @@ void ArsemiArduinoCore::parseAddSensorAction() {
 
   /// Allocations for the sensor creation
   uint8_t parameters[availableBytes] = {};
-  int parameterCount = Serial.readBytesUntil(SerialProtocol::StartByte,
-                                             parameters, availableBytes);
+  // int parameterCount = Serial.readBytesUntil(SerialProtocol::StartByte,
+  //                                            parameters, availableBytes);
   AbstractSensor *newSensor;
 
   // TODO: check the CRC8

@@ -1,6 +1,8 @@
 using System.ComponentModel;
+using System.Globalization;
 using System.IO.Ports;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Arsemi.IPC;
 using Arsemi.Sensor;
@@ -28,7 +30,20 @@ namespace Arsemi {
     public Action<string>? NewMessageReceived;
 
 
-    private int _queuedActionCode = 0;
+    private int _queuedActionCode = -1;
+
+    #region Handshake properties
+    private DateTime _handshakeTimeout = DateTime.MinValue;
+
+    public enum HandshakeResult {
+      NONE,
+      WAITING,
+      SUCCESS,
+      TIMEOUT,
+    }
+    private HandshakeResult _handshakeResult = HandshakeResult.NONE;
+    #endregion Handshake properties
+
 
 
     /// <summary>
@@ -100,19 +115,27 @@ namespace Arsemi {
 
 
     /// <summary>
-    /// Connects the microcontroller at the specified serial port.
+    /// Connects the microcontroller at the specified serial port and waits for 2 seconds to give the microcontroller time to reset.
     /// </summary>
     /// <param name="portName">If null the first accessible port is used.</param>
     /// <param name="baudRate"></param>
     /// <param name="receivedBytesThreshold"></param>
-    public void ConnectMicrocontroller(string? portName = null, int baudRate = SerialProtocol.BaudRate, int receivedBytesThreshold = SerialProtocol.ReceivedBytesThreshold) {
+    /// <returns>true if the microcontroller is connected and the port is available, otherwise false</returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<bool> ConnectMicrocontrollerAsync(string? portName = null, int baudRate = SerialProtocol.BaudRate, int receivedBytesThreshold = SerialProtocol.ReceivedBytesThreshold) {
       if(portName == null) {
         string[] portNames = SerialPort.GetPortNames();
         if(portNames.Length == 0) throw new Exception("No microcontroller could be found automatically. Is it connected?");
         portName = portNames[0];
       }
-      _serialMessaging.Begin(portName, baudRate, receivedBytesThreshold);
+      Console.WriteLine("ArSeMi: Try connecting to microcontroller on " + portName);
+      await _serialMessaging.Begin(portName, baudRate, receivedBytesThreshold);
       _serialMessaging.DataReceivedAction += ParseMessage; // DEBUG -> later move to start loop
+
+      bool connected = _serialMessaging.PortAvailable();
+      if(connected) Console.WriteLine("Successfully connected to microcontroller on " + portName);
+      else Console.WriteLine("Error connecting to microcontroller on " + portName + "!");
+      return connected;
     }
 
 
@@ -122,12 +145,12 @@ namespace Arsemi {
     /// DONE: Sends 2 types of setup messages over the serial port (ClearConfiguration, AddSensor for each sensor)
     /// </summary>
     public void FinishSetup() {
-      _serialMessaging.WriteBytes(new SerialPackage(SerialProtocol.SetupCodes.ClearConfiguration).Serialize());
+      _serialMessaging.Write(new SerialPackage(SerialProtocol.SetupCodes.ClearConfiguration).Serialize());
 
       for(int i = 0; i < sensorCount; i++) {
         if(Sensors[i] == null) throw new Exception("Sensor has been deleted somehow...");
         byte[] addSensorMessage = new SerialPackage(SerialProtocol.SetupCodes.AddSensor, Sensors[i].GetDataAsBytes()).Serialize();
-        _serialMessaging.WriteBytes(addSensorMessage);
+        _serialMessaging.Write(addSensorMessage);
       }
 
     }
@@ -139,7 +162,7 @@ namespace Arsemi {
     /// DEBUG: Starts a timer for 1000ms and calls ContinueLoop everytime it's finished |
     /// </summary>
     public void StartLoop() {
-      _serialMessaging.WriteBytes(SerialProtocol.SystemCodes.WakeMicrocontroller);
+      _serialMessaging.Write(SerialProtocol.SystemCodes.WakeMicrocontroller);
       // _timers.Add(new Timer(new TimerCallback(ContinueLoop), this, 0, Sensors[ArsemiGlobals.Sensors.Heartrate.ToString()].Data.IntervalMS));
     }
 
@@ -176,14 +199,14 @@ namespace Arsemi {
     /// Converts a new message from string to package and then matches the action code to the required actions
     /// </summary>
     public void ParseMessage() {
-      foreach(byte b in _serialMessaging.ReadBytes()) {
-        Console.Write(b.ToString());
-        Console.Write("-");
-      }
-      Console.Write("---");
+      // foreach(byte b in _serialMessaging.ReadBytes()) {
+      //   Console.Write(b.ToString());
+      //   Console.Write("-");
+      // }
+      // Console.Write("---");
       while(_serialMessaging.AvailableBytes()) {
 
-        if(_queuedActionCode == 0) {
+        if(_queuedActionCode == -1) {
           _queuedActionCode = _serialMessaging.ParsePackageStart();
         }
 
@@ -191,7 +214,7 @@ namespace Arsemi {
           return;
         }
 
-        Console.WriteLine("new action code!");
+        // Console.WriteLine("new action code!");
 
         switch(_queuedActionCode) {
         /// Codes meant for sending to the microcontroller -> no need to implement
@@ -203,24 +226,28 @@ namespace Arsemi {
         //   throw new NotImplementedException();
         // case SerialProtocol.SetupCodes.AddSensor:
         //   throw new NotImplementedException();
+        // case SerialProtocol.SystemCodes.RequestHandshake:
+        //   throw new NotImplementedException();
 
         /// Codes meant for receiving from the microcontroller
         case SerialProtocol.SystemCodes.SystemError:
-          Console.WriteLine("ERROR");
           ParseSystemError();
           break;
-        case SerialProtocol.SystemCodes.RequestHandshake:
-          throw new NotImplementedException();
+
         case SerialProtocol.SystemCodes.ReplyHandshake:
-          throw new NotImplementedException();
+          _handshakeResult = HandshakeResult.SUCCESS;
+          break;
+
         case SerialProtocol.SensorCodes.NewSample:
           Console.WriteLine("New sample");
           ParseNewSample();
           break;
+
         // case SerialProtocol.SetupCodes.SuccessfullyAddedSensor:
+
         default:
           Console.WriteLine("Queued action code: " + _queuedActionCode);
-          _queuedActionCode = 0;
+          _queuedActionCode = -1;
           break;
           // default:
           //   throw new NotImplementedException("The action code in the message can't be associated with a command.");
@@ -253,7 +280,7 @@ namespace Arsemi {
 
       Sensors[sensorId].Data.Value = value;
       NewDataReceived?.Invoke(sensorId, value);
-      _queuedActionCode = 0;
+      _queuedActionCode = -1;
     }
 
 
@@ -271,7 +298,47 @@ namespace Arsemi {
         Console.WriteLine("Received sensor error code: " + errorCode);
         break;
       }
-      _queuedActionCode = 0;
+      _queuedActionCode = -1;
+    }
+
+
+    #region  Handshake
+    /// <summary>
+    /// Send handshake package over serial
+    /// PC sends message over port and checks if arduino replies, if yes this is the microcontroller with the Arsemi-Arduino script.
+    /// </summary>
+    /// <param name="waitTimeMilliseconds">For how long the method will wait for the handshake</param>
+    /// <returns>SUCCESS when the connected microcontroller responded in time, WAITING if there was a handshake request already, otherwise TIMEOUT</returns>
+    public async Task<HandshakeResult> RequestHandshake(int waitTimeMilliseconds) {
+      if(_handshakeResult == HandshakeResult.WAITING) return HandshakeResult.WAITING;
+
+      SerialPackage requestHandshakePackage = new SerialPackage(SerialProtocol.SystemCodes.RequestHandshake);
+      _serialMessaging.Write(requestHandshakePackage);
+
+      _handshakeResult = HandshakeResult.WAITING;
+      _handshakeTimeout = DateTime.Now.AddMilliseconds(waitTimeMilliseconds);
+      Console.WriteLine("Waiting for handshake reply...");
+      return await WaitForHandshakeReply();
+    }
+
+
+    /// <summary>
+    /// Parse new messages every 50 milliseconds until a new message is received, return if the new message is the handshake
+    /// </summary>
+    /// <returns>SUCCESS when _handshakeResult is set to true in the ParseMessage() due to the handshake reply, otherwise TIMEOUT</returns>
+    private async Task<HandshakeResult> WaitForHandshakeReply() {
+      while(_handshakeTimeout.CompareTo(DateTime.Now) > 0) {
+        if(_handshakeResult == HandshakeResult.SUCCESS) {
+          Console.WriteLine("Received handshake reply!");
+          return HandshakeResult.SUCCESS;
+        }
+      }
+
+      Console.WriteLine("Handshake timeout! Try connecting again on a different port.");
+      return HandshakeResult.TIMEOUT;
     }
   }
+
+  #endregion  Handshake
+
 }

@@ -16,6 +16,8 @@ public:
   static void write(SerialPackage &package);
   static void write(const uint8_t actionCode);
 
+  static bool isPackageAvailable(uint8_t dataLength = 1);
+
   // CRC-8 checksum generator based on the code by devcoons (Source:
   // https://devcoons.com/crc8/)
   static uint8_t CRC8(uint8_t *data, uint8_t length);

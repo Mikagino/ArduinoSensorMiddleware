@@ -14,6 +14,7 @@ void setup() {
 }
 
 void loop() {
+  // SerialMessaging::write(SerialProtocol::SystemAction::ReplyHandshake);
   arsemi.parseMessage();
-  arsemi.updateAllSensors();
+  //arsemi.updateAllSensors();
 }

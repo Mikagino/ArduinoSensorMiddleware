@@ -28,12 +28,13 @@ namespace Arsemi {
             /// </summary>
             public static async Task Setup() {
                 _arsemiCore.StartSetup();
-                AbstractSensor hr = _arsemiCore.AddSensor(new MAX30102Sensor("Heartrate"));
-                AbstractFilter butterworth = new ButterworthFilter(hr, 2);
-                hr.AddFilter(butterworth, "Butterworth")
-                    .SetInterval(100);
+                // AbstractSensor hr = _arsemiCore.AddSensor(new MAX30102Sensor("Heartrate"));
+                // AbstractFilter butterworth = new ButterworthFilter(hr, 2);
+                // hr.AddFilter(butterworth, "Butterworth")
+                //     .SetInterval(100);
                     // .AddEvent(new AboveThresholdEvent(15), "Excitement");
-                _arsemiCore.ConnectMicrocontroller();
+                await _arsemiCore.ConnectMicrocontrollerAsync();
+                await _arsemiCore.RequestHandshake(5000);
                 _arsemiCore.FinishSetup();
 
                 await ConfigSaver.SaveTo(_arsemiCore, PathToConfigDirectory);

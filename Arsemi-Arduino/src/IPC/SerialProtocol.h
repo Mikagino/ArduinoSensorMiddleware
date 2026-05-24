@@ -28,7 +28,7 @@ public:
   //   static const uint8_t ParameterCount;
   // };
 
-#pragma region Action Codes
+  // ACTIONS
   struct SystemAction {
   public:
     static const uint8_t HibernateMicrocontroller = Categories::System + 1;
@@ -49,14 +49,12 @@ public:
   public:
     static const uint8_t NewSample = Categories::Sensor + 1;
   };
-#pragma endregion Action Codes
 
-#pragma region Errors
+  // ERRORS
   struct PackageError {
   public:
     static const uint8_t InvalidActionCode = Categories::Package + 1;
     static const uint8_t InvalidSensorParameters = Categories::Package + 2;
     static const uint8_t SensorCountOverflow = Categories::Package + 3;
   };
-#pragma region Errors
 };
