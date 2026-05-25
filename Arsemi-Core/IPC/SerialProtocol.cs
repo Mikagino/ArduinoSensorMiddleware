@@ -22,7 +22,7 @@ namespace Arsemi {
             // };
 
 
-            public struct SystemCodes {
+            public struct SystemAction {
                 public const byte HibernateMicrocontroller = Categories.System + 1;
                 public const byte WakeMicrocontroller = Categories.System + 2;
                 public const byte SystemError = Categories.System + 3;
@@ -31,14 +31,14 @@ namespace Arsemi {
             }
 
 
-            public struct SetupCodes {
+            public struct SetupAction {
                 public const byte ClearConfiguration = Categories.Setup + 1;
                 public const byte AddSensor = Categories.Setup + 2;
                 public const byte SuccessfullyAddedSensor = Categories.Setup + 3;
             }
 
 
-            public struct SensorCodes {
+            public struct SensorActions {
                 public const byte NewSample = Categories.Sensor + 1;
             }
 
@@ -118,6 +118,24 @@ namespace Arsemi {
             // /// <returns>Ready-to-send message for hibernation of the microcontroller.</returns>
             // public static string SystemError(string message) {
             //     return Combine(SystemCodes.WakeMicrocontroller, message);
+
+            public static string? TryGetActionName(uint actionCode) {
+                string? result = TryGetActionFromStruct(typeof(SystemAction), actionCode);
+                result ??= TryGetActionFromStruct(typeof(SetupAction), actionCode);
+                result ??= TryGetActionFromStruct(typeof(SensorActions), actionCode);
+                return result;
+            }
+
+            private static string? TryGetActionFromStruct(Type type, uint actionCode) {
+                foreach(var property in type.GetFields()) {
+                    byte? value = (byte?)property.GetRawConstantValue();
+                    if(value ==  null) throw new Exception("Not found in " + type.Name);
+                    if(value == actionCode) {
+                        return property.Name;
+                    }
+                }
+                return null;
+            }
         }
     }
 }

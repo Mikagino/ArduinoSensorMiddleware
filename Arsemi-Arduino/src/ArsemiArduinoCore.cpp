@@ -224,6 +224,7 @@ void ArsemiArduinoCore::parseAddSensorAction() {
   newSensor->intervalMillis = parameters[0];
 
   addSensor(newSensor);
+  SerialMessaging::write(SerialProtocol::SetupAction::SuccessfullyAddedSensor);
   newSensor->begin();
   queuedPackage[0] = -1;
 }

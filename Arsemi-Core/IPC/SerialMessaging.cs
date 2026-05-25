@@ -131,11 +131,18 @@ namespace Arsemi {
                 package[0] = SerialProtocol.PackageStartByte;
                 package[bytes.Length + 1] = CRC8(bytes);
                 _serialPort.Write(package, 0, package.Length);
-                Console.Write("Written: ");
-                foreach(byte b in package) {
-                    Console.Write(b + "-");
+
+                // Debug print
+                Console.Write("Sent: [");
+                string? actionName;
+                for(int i = 0; i < package.Length; i++) {
+                    Console.Write(package[i]);
+                    if(i < package.Length - 1) Console.Write(" | ");
                 }
+                actionName = SerialProtocol.TryGetActionName(package[1]);
+                Console.Write("] = " + (actionName ?? "ERROR"));
                 Console.Write("\n");
+
                 return package;
             }
 

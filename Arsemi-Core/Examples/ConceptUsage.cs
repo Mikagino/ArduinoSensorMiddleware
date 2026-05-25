@@ -27,14 +27,12 @@ namespace Arsemi {
             /// Ideally this is done in the GUI and then only AutomaticSetup() called.
             /// </summary>
             public static async Task Setup() {
-                _arsemiCore.StartSetup();
-                // AbstractSensor hr = _arsemiCore.AddSensor(new MAX30102Sensor("Heartrate"));
-                // AbstractFilter butterworth = new ButterworthFilter(hr, 2);
-                // hr.AddFilter(butterworth, "Butterworth")
-                //     .SetInterval(100);
+                AbstractSensor hr = _arsemiCore.AddSensor(new MAX30102Sensor("Heartrate"));
+                AbstractFilter butterworth = new ButterworthFilter(hr, 2);
+                hr.AddFilter(butterworth, "Butterworth")
+                    .SetInterval(100);
                     // .AddEvent(new AboveThresholdEvent(15), "Excitement");
                 await _arsemiCore.ConnectMicrocontrollerAsync();
-                await _arsemiCore.RequestHandshake(5000);
                 _arsemiCore.FinishSetup();
 
                 await ConfigSaver.SaveTo(_arsemiCore, PathToConfigDirectory);
@@ -50,7 +48,6 @@ namespace Arsemi {
             /// Also can be done in the GUI!
             /// </summary>
             public static async Task AutomaticSetup() {
-                _arsemiCore.StartSetup();
                 _arsemiCore = await ConfigSaver.LoadConfigAsync(PathToConfigDirectory);
                 _arsemiCore.FinishSetup();
                 _arsemiCore.StartLoop();
