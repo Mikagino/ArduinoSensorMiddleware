@@ -21,115 +21,40 @@ namespace Arsemi {
             //   static const uint8_t ParameterCount;
             // };
 
+            public static class Action {
+                public struct System {
+                    public const byte HibernateMicrocontroller = Categories.System + 1;
+                    public const byte WakeMicrocontroller = Categories.System + 2;
+                    public const byte SystemError = Categories.System + 3;
+                    public const byte RequestHandshake = Categories.System + 4;
+                    public const byte ReplyHandshake = Categories.System + 5;
+                }
 
-            public struct SystemAction {
-                public const byte HibernateMicrocontroller = Categories.System + 1;
-                public const byte WakeMicrocontroller = Categories.System + 2;
-                public const byte SystemError = Categories.System + 3;
-                public const byte RequestHandshake = Categories.System + 4;
-                public const byte ReplyHandshake = Categories.System + 5;
+
+                public struct Setup {
+                    public const byte ClearConfiguration = Categories.Setup + 1;
+                    public const byte AddSensor = Categories.Setup + 2;
+                    public const byte SuccessfullyAddedSensor = Categories.Setup + 3;
+                }
+
+
+                public struct Sensor {
+                    public const byte NewSample = Categories.Sensor + 1;
+                }
             }
 
-
-            public struct SetupAction {
-                public const byte ClearConfiguration = Categories.Setup + 1;
-                public const byte AddSensor = Categories.Setup + 2;
-                public const byte SuccessfullyAddedSensor = Categories.Setup + 3;
-            }
-
-
-            public struct SensorActions {
-                public const byte NewSample = Categories.Sensor + 1;
-            }
-
-
-            /// <summary>
-            /// Combines the message code and the parameters to a ready-to-send message for the serial interface with the microcontroller.
-            /// TODO: rework to use numbers instead of strings
-            /// </summary>
-            /// <param name="code"></param>
-            /// <param name="parameters"></param>
-            /// <returns></returns>
-            // public static byte[] Serialize(Package package) {
-            //     byte[] result = new byte[2 + package.Parameters.Length];
-            //     result[0] = package.ActionCode;
-            //     result[1] = package.Timestamp;
-            //     if(package.Parameters != null) {
-            //         for(int i = 0; i < package.Parameters.Length; i++) {
-            //             result[2 + i] = package.Parameters[i];
-            //         }
-            //     }
-            //     // result += End;
-            //     return result;
-            // }
-
-            // public static Package Split(byte[] message) {
-            //     if(!message.Contains(':')) {
-            //         return new Package();
-            //     }
-
-            //     string? filteredMessage = FilterUnwantedSymbols(message);
-            //     if(filteredMessage == null) {
-            //         throw new Exception("Couldn't parse Message, may be corrupt: " + message);
-            //     }
-
-            //     string[] split = message.Split(Delimiter);
-            //     Package result = new Package();
-            //     if(!byte.TryParse(split[0], out result.Timestamp)) {
-            //         throw new Exception("Couldn't parse timestamp. Message may be corrupt: " + message);
-            //     }
-            //     if(!byte.TryParse(split[1], out result.ActionCode)) {
-            //         throw new Exception("Couldn't parse action code. Message may be corrupt: " + message);
-            //     }
-            //     result.Parameters = [.. split.Skip(2)];
-            //     return result;
-            // }
-
-
-            /// <summary>
-            /// Filters out unwanted symbols (currently only "?")
-            /// </summary>
-            /// <param name="message"></param>
-            /// <returns>String containing the message without the unwanted symbols</returns>
-            // private static string? FilterUnwantedSymbols(string message) {
-            //     return message.Select(input => input != '?').ToString();
-            // }
-
-            // ############## Maybe add the following functions later? ##############
-
-            // /// <summary>
-            // /// </summary>
-            // /// <returns>Ready-to-send message for hibernation of the microcontroller.</returns>
-            // public static string HibernateMicrocontroller() {
-            //     return Combine(SystemCodes.HibernateMicrocontroller);
-            // }
-
-
-            // /// <summary>
-            // /// </summary>
-            // /// <returns>Ready-to-send message for hibernation of the microcontroller.</returns>
-            // public static string WakeMicrocontroller(float duration) {
-            //     return Combine(SystemCodes.WakeMicrocontroller, duration.ToString());
-            // }
-
-
-            // /// <summary>
-            // /// </summary>
-            // /// <returns>Ready-to-send message for hibernation of the microcontroller.</returns>
-            // public static string SystemError(string message) {
-            //     return Combine(SystemCodes.WakeMicrocontroller, message);
 
             public static string? TryGetActionName(uint actionCode) {
-                string? result = TryGetActionFromStruct(typeof(SystemAction), actionCode);
-                result ??= TryGetActionFromStruct(typeof(SetupAction), actionCode);
-                result ??= TryGetActionFromStruct(typeof(SensorActions), actionCode);
+                string? result = TryGetActionFromStruct(typeof(Action.System), actionCode);
+                result ??= TryGetActionFromStruct(typeof(Action.Setup), actionCode);
+                result ??= TryGetActionFromStruct(typeof(Action.Sensor), actionCode);
                 return result;
             }
 
             private static string? TryGetActionFromStruct(Type type, uint actionCode) {
                 foreach(var property in type.GetFields()) {
                     byte? value = (byte?)property.GetRawConstantValue();
-                    if(value ==  null) throw new Exception("Not found in " + type.Name);
+                    if(value == null) throw new Exception("Not found in " + type.Name);
                     if(value == actionCode) {
                         return property.Name;
                     }

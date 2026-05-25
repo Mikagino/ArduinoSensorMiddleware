@@ -66,10 +66,6 @@ namespace Arsemi {
                 return [Data.ID.ToString(), Data.IntervalMS.ToString()];
             }
 
-            public virtual byte[] GetDataAsBytes() {
-                return [(byte)(Data.ID + 1), Data.IntervalMS];
-            }
-
 
             #region Filters
             /// <summary>

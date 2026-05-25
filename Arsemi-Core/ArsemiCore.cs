@@ -1,4 +1,5 @@
 using System.IO.Ports;
+using System.Net.Sockets;
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
@@ -142,7 +143,7 @@ namespace Arsemi {
     private async Task<ConnectionResult> RequestHandshakeAsync(int waitTimeMilliseconds) {
       if(_handshakeResult == ConnectionResult.WAITING) return ConnectionResult.WAITING;
 
-      SerialPackage requestHandshakePackage = new SerialPackage(SerialProtocol.SystemAction.RequestHandshake);
+      SerialPackage requestHandshakePackage = new SerialPackage(SerialProtocol.Action.System.RequestHandshake);
       _serialMessaging.Write(requestHandshakePackage);
 
       _handshakeResult = ConnectionResult.WAITING;
@@ -176,11 +177,11 @@ namespace Arsemi {
     /// DONE: Sends 2 types of setup messages over the serial port (ClearConfiguration, AddSensor for each sensor)
     /// </summary>
     public void FinishSetup() {
-      _serialMessaging.Write(new SerialPackage(SerialProtocol.SetupAction.ClearConfiguration).Serialize());
+      _serialMessaging.Write(new SerialPackage(SerialProtocol.Action.Setup.ClearConfiguration).Serialize());
 
       for(int i = 0; i < sensorCount; i++) {
         if(Sensors[i] == null) throw new Exception("Sensor has been deleted somehow...");
-        byte[] addSensorMessage = new SerialPackage(SerialProtocol.SetupAction.AddSensor, Sensors[i].GetDataAsBytes()).Serialize();
+        byte[] addSensorMessage = new SerialPackage(SerialProtocol.Action.Setup.AddSensor, Sensors[i].ParseDataToByteArray()).Serialize();
         _serialMessaging.Write(addSensorMessage);
       }
 
@@ -192,7 +193,7 @@ namespace Arsemi {
     /// DONE: Sends WakeMicrocontroller over the serial port which then starts the execution.
     /// </summary>
     public void StartLoop() {
-      _serialMessaging.Write(SerialProtocol.SystemAction.WakeMicrocontroller);
+      _serialMessaging.Write(SerialProtocol.Action.System.WakeMicrocontroller);
     }
 
 
@@ -222,8 +223,8 @@ namespace Arsemi {
         if(_queuedActionCode == -1) {
           return;
         }
+        else Console.WriteLine("New action! = " + _queuedActionCode);
 
-        // Console.WriteLine("new action code!");
 
         switch(_queuedActionCode) {
         /// Codes meant for sending to the microcontroller -> no need to implement
@@ -239,15 +240,15 @@ namespace Arsemi {
         //   throw new NotImplementedException();
 
         /// Codes meant for receiving from the microcontroller
-        case SerialProtocol.SystemAction.SystemError:
+        case SerialProtocol.Action.System.SystemError:
           ParseSystemError();
           break;
 
-        case SerialProtocol.SystemAction.ReplyHandshake:
+        case SerialProtocol.Action.System.ReplyHandshake:
           _handshakeResult = ConnectionResult.SUCCESS;
           break;
 
-        case SerialProtocol.SensorActions.NewSample:
+        case SerialProtocol.Action.Sensor.NewSample:
           Console.WriteLine("New sample");
           ParseNewSample();
           break;
@@ -277,7 +278,7 @@ namespace Arsemi {
       byte value = _serialMessaging.ReadByte();
       byte checksum = _serialMessaging.ReadByte();
 
-      byte computedChecksum = SerialMessaging.CRC8(SerialProtocol.SensorActions.NewSample, sensorId, value);
+      byte computedChecksum = SerialMessaging.CRC8(SerialProtocol.Action.Sensor.NewSample, sensorId, value);
 
       if(checksum != computedChecksum) {
         throw new Exception("HEY! Loss of packages... :c");
@@ -304,7 +305,7 @@ namespace Arsemi {
       byte errorCode = _serialMessaging.ReadByte();
       switch(errorCode) {
       default:
-        Console.WriteLine("Received sensor error code: " + errorCode);
+        Console.WriteLine("Received sensor error code: " + errorCode + " = " + SerialProtocol.TryGetActionName(errorCode));
         break;
       }
       _queuedActionCode = -1;

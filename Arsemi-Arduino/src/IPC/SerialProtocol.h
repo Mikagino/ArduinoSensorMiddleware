@@ -28,33 +28,37 @@ public:
   //   static const uint8_t ParameterCount;
   // };
 
-  // ACTIONS
-  struct SystemAction {
+  class Action {
   public:
-    static const uint8_t HibernateMicrocontroller = Categories::System + 1;
-    static const uint8_t WakeMicrocontroller = Categories::System + 2;
-    static const uint8_t Error = Categories::System + 3;
-    static const uint8_t RequestHandshake = Categories::System + 4;
-    static const uint8_t ReplyHandshake = Categories::System + 5;
+    struct System {
+    public:
+      static const uint8_t HibernateMicrocontroller = Categories::System + 1;
+      static const uint8_t WakeMicrocontroller = Categories::System + 2;
+      static const uint8_t Error = Categories::System + 3;
+      static const uint8_t RequestHandshake = Categories::System + 4;
+      static const uint8_t ReplyHandshake = Categories::System + 5;
+    };
+
+    struct Setup {
+    public:
+      static const uint8_t ClearConfiguration = Categories::Setup + 1;
+      static const uint8_t AddSensor = Categories::Setup + 2;
+      static const uint8_t SuccessfullyAddedSensor = Categories::Setup + 3;
+    };
+
+    struct Sensor {
+    public:
+      static const uint8_t NewSample = Categories::Sensor + 1;
+    };
   };
 
-  struct SetupAction {
+  class Error {
   public:
-    static const uint8_t ClearConfiguration = Categories::Setup + 1;
-    static const uint8_t AddSensor = Categories::Setup + 2;
-    static const uint8_t SuccessfullyAddedSensor = Categories::Setup + 3;
-  };
-
-  struct SensorAction {
-  public:
-    static const uint8_t NewSample = Categories::Sensor + 1;
-  };
-
-  // ERRORS
-  struct PackageError {
-  public:
-    static const uint8_t InvalidActionCode = Categories::Package + 1;
-    static const uint8_t InvalidSensorParameters = Categories::Package + 2;
-    static const uint8_t SensorCountOverflow = Categories::Package + 3;
+    struct Package {
+    public:
+      static const uint8_t InvalidActionCode = Categories::Package + 1;
+      static const uint8_t InvalidSensorParameters = Categories::Package + 2;
+      static const uint8_t SensorCountOverflow = Categories::Package + 3;
+    };
   };
 };

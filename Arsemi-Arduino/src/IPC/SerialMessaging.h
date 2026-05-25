@@ -15,6 +15,7 @@ public:
   static void write(const uint8_t *buffer, uint8_t length);
   static void write(SerialPackage &package);
   static void write(const uint8_t actionCode);
+  static void write(const uint8_t actionCode, const uint8_t parameter);
 
   static bool isPackageAvailable(uint8_t dataLength = 1);
 

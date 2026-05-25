@@ -24,10 +24,13 @@ void SerialMessaging::write(SerialPackage &serialPackage) {
 }
 
 void SerialMessaging::write(const uint8_t actionCode = 1) {
-  uint8_t *package = new uint8_t[1];
-  package[0] = actionCode;
+  uint8_t package[1] = {actionCode};
   write(package, 1);
-  delete package;
+}
+
+void SerialMessaging::write(const uint8_t actionCode, const uint8_t parameter) {
+  uint8_t package[2] = {actionCode, parameter};
+  write(package, 2);
 }
 
 /// @brief Check if at least the minimum bytes required for a package are

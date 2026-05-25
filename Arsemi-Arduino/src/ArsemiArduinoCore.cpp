@@ -5,22 +5,16 @@ ArsemiArduinoCore::ArsemiArduinoCore(uint8_t maxSensorCount) {
   this->maxSensorCount = maxSensorCount;
 }
 
-/// adds a new sensor to an array for batch calls of functions
-void ArsemiArduinoCore::addSensor(AbstractSensor *newSensor) {
+/// @brief adds a new sensor to an array for batch calls of functions
+/// @param newSensor
+/// @return false if the sensor count reaches an overflow, otherwise true
+bool ArsemiArduinoCore::addSensor(AbstractSensor *newSensor) {
   if (_currentSensorCount >= maxSensorCount) {
-    // SerialPackage sensorCountOverflowMessage(
-    //     SerialProtocol::SystemAction::Error,
-    //     new uint8_t[SerialProtocol::PackageError::SensorCountOverflow],
-    //     (uint8_t)2);
-    // SerialMessaging::write(sensorCountOverflowMessage);
-    return;
+    return false;
   }
   sensors[_currentSensorCount] = newSensor;
   _currentSensorCount++;
-
-  // SerialPackage SuccessfullyAddedSensorMessage(
-  //     SerialProtocol::SetupAction::SuccessfullyAddedSensor);
-  // SerialMessaging::write(SuccessfullyAddedSensorMessage);
+  return true;
 }
 
 /// calls begin() on all the sensors added with addSensor()
@@ -43,7 +37,7 @@ void ArsemiArduinoCore::destroyAllSensors() {
 bool ArsemiArduinoCore::updateAllSensors() {
   bool updated = false;
   bool currentlyUpdated;
-  uint8_t package[3] = {SerialProtocol::SensorAction::NewSample, 1, 1};
+  uint8_t package[3] = {SerialProtocol::Action::Sensor::NewSample, 1, 1};
 
   for (int i = 0; i < _currentSensorCount; i++) {
     if (Serial.availableForWrite() < 4) {
@@ -96,30 +90,30 @@ void ArsemiArduinoCore::parseMessage() {
   }
 
   switch (_queuedActionCode) {
-  case SerialProtocol::SystemAction::RequestHandshake:
-    SerialMessaging::write(SerialProtocol::SystemAction::ReplyHandshake);
+  case SerialProtocol::Action::System::RequestHandshake:
+    SerialMessaging::write(SerialProtocol::Action::System::ReplyHandshake);
     _queuedActionCode = -1;
     break;
 
-  case SerialProtocol::SystemAction::HibernateMicrocontroller:
+  case SerialProtocol::Action::System::HibernateMicrocontroller:
     // Serial.println("Hibernate");
     // TODO
     _queuedActionCode = -1;
     break;
 
-  case SerialProtocol::SystemAction::WakeMicrocontroller:
+  case SerialProtocol::Action::System::WakeMicrocontroller:
     // Serial.println("Wake");
     // TODO
     _queuedActionCode = -1;
     break;
 
-  case SerialProtocol::SetupAction::ClearConfiguration:
+  case SerialProtocol::Action::Setup::ClearConfiguration:
     // Serial.println("Clear");
     destroyAllSensors();
     _queuedActionCode = -1;
     break;
 
-  case SerialProtocol::SetupAction::AddSensor:
+  case SerialProtocol::Action::Setup::AddSensor:
     // Serial.println("AddSensor");
     parseAddSensorAction();
     _queuedActionCode = -1;
@@ -128,8 +122,8 @@ void ArsemiArduinoCore::parseMessage() {
   default:
     // Serial.println("ERROR!");
     SerialPackage errorPackage(
-        SerialProtocol::SystemAction::Error,
-        new uint8_t[SerialProtocol::PackageError::InvalidActionCode],
+        SerialProtocol::Action::System::Error,
+        new uint8_t[SerialProtocol::Error::Package::InvalidActionCode],
         (uint8_t)2);
     _queuedActionCode = -1; // discard "broken" package
   }
@@ -152,12 +146,11 @@ int ArsemiArduinoCore::parseNextActionCode() {
   return Serial.read();
 }
 
-/// @brief Parse action "Add Sensor"
-/// Package parameters: (sensorType + intervalMs + constructorParameters[])
+/// @brief Parse action "Add Sensor".
+/// Package parameters: [ sensorType | intervalMs | constructorParameters[] ]
 void ArsemiArduinoCore::parseAddSensorAction() {
-
-  if (queuedPackage[0] == -1)
-    queuedPackage[0] = Serial.read();
+  SerialMessaging::write(
+      SerialProtocol::Action::Setup::SuccessfullyAddedSensor);
 
   uint8_t availableBytes = Serial.available();
 
@@ -213,19 +206,22 @@ void ArsemiArduinoCore::parseAddSensorAction() {
   }
 
   default:
-    // SerialPackage errorPackage(
-    //     SerialProtocol::SystemAction::Error,
-    //     new uint8_t[SerialProtocol::PackageError::InvalidSensorParameters],
-    //     (uint8_t)2);
-    // SerialMessaging::write(errorPackage);
+    SerialMessaging::write(
+        SerialProtocol::Action::System::Error,
+        SerialProtocol::Error::Package::InvalidSensorParameters);
     return;
   }
 
   newSensor->intervalMillis = parameters[0];
 
-  addSensor(newSensor);
-  SerialMessaging::write(SerialProtocol::SetupAction::SuccessfullyAddedSensor);
-  newSensor->begin();
+  if (addSensor(newSensor)) {
+    SerialMessaging::write(
+        SerialProtocol::Action::Setup::SuccessfullyAddedSensor);
+    newSensor->begin();
+  } else
+    SerialMessaging::write(SerialProtocol::Action::System::Error,
+                           SerialProtocol::Error::Package::SensorCountOverflow);
+
   queuedPackage[0] = -1;
 }
 

@@ -26,7 +26,7 @@ public:
   enum ERROR { SUCCESS, SENSOR_COUNT_OVERFLOW };
 
   ArsemiArduinoCore(uint8_t maxSensorCount);
-  void addSensor(AbstractSensor *newSensor);
+  bool addSensor(AbstractSensor *newSensor);
   void beginAllSensors();
   void destroyAllSensors();
   bool updateAllSensors();
