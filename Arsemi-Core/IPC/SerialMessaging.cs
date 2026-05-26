@@ -5,8 +5,6 @@ namespace Arsemi {
         public static class SerialMessaging {
             private static SerialPort? _serialPort;
             public static Action? DataReceivedAction;
-            private static Action? _waitingAction;
-            private static SerialPackage[] _packageBuffer = [];
 
 
             public static int ReceivedBytesThreshold {
@@ -83,36 +81,6 @@ namespace Arsemi {
 
                 return bytes;
             }
-
-
-            /// <summary>
-            /// Reads from Serial until value is reached 
-            /// </summary>
-            /// <param name="value"></param>
-            /// <returns>true when value is found in the stream, otherwise false</returns>
-            private static bool DiscardUntilValue(byte value) {
-                while(AvailableBytes()) {
-                    byte message = ReadByte();
-                    if(message == value) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-
-            /// <summary>
-            /// Discards all bytes from the Serial stream until @packageStartByte is reached.
-            /// </summary>
-            /// <param name="packageStartByte"></param>
-            /// <returns>-1 when the package is not yet finished</returns>
-            public static int ParsePackageStart(byte packageStartByte = SerialProtocol.PackageStartByte) {
-                if(DiscardUntilValue(packageStartByte)) {
-                    return ReadByte();
-                }
-                return -1;
-            }
-
             #endregion Reading
 
 
@@ -159,11 +127,11 @@ namespace Arsemi {
             #endregion Writing
 
 
-
             /// <summary>
             /// TODO: add more checks |
             /// Checks if the serial port is actually created and open
             /// </summary>
+            /// <returns></returns>
             public static bool PortAvailable() {
                 return _serialPort != null && _serialPort.IsOpen;
             }

@@ -39,7 +39,7 @@ dotnet_style_coalesce_expression                                   = true : sugg
 dotnet_style_null_propagation                                      = true : suggestion
 
 # Implicit and explicit types: https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#var
-csharp_style_var_for_built_in_types                                = true : suggestion
+#csharp_style_var_for_built_in_types                                = true : suggestion
 csharp_style_var_when_type_is_apparent                             = true : suggestion
 csharp_style_var_elsewhere                                         = true : suggestion
 
@@ -68,7 +68,7 @@ csharp_style_throw_expression                                      = true : warn
 csharp_style_conditional_delegate_call                             = true : warning
 
 # Code block preferences: https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#code_block
-csharp_prefer_braces                                               = true : warning
+#csharp_prefer_braces                                               = true : warning
 
 # Organize usings: https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#net-formatting-settings
 dotnet_sort_system_directives_first                                = true

@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Style", "IDE0007:Use implicit type", Justification = "<Pending>")]
+//[assembly: SuppressMessage("Style", "IDE0007:Use implicit type", Justification = "<Pending>")]
