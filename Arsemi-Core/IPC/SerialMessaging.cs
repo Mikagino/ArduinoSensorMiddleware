@@ -1,16 +1,15 @@
 using System.IO.Ports;
-using System.Threading.Tasks;
 
 namespace Arsemi {
     namespace IPC {
-        public class SerialMessaging {
-            private SerialPort? _serialPort;
-            public Action? DataReceivedAction;
-            private Action? _waitingAction;
-            private SerialPackage[] _packageBuffer = [];
+        public static class SerialMessaging {
+            private static SerialPort? _serialPort;
+            public static Action? DataReceivedAction;
+            private static Action? _waitingAction;
+            private static SerialPackage[] _packageBuffer = [];
 
 
-            public int ReceivedBytesThreshold {
+            public static int ReceivedBytesThreshold {
                 set {
                     if(!PortAvailable()) return;
                     _serialPort.ReceivedBytesThreshold = value;
@@ -28,7 +27,7 @@ namespace Arsemi {
             /// <param name="portName">Must match exactly with the string found in SerialPort.GetPortNames().</param>
             /// <param name="baudRate">Only change if you changed it also on the Microcontroller!</param>
             /// <param name="receivedBytesThreshold">Action is invoked when the message byte size is higher than this threshold.</param>
-            public async Task Begin(string portName, int baudRate = SerialProtocol.BaudRate, int receivedBytesThreshold = SerialProtocol.ReceivedBytesThreshold) {
+            public static async Task Begin(string portName, int baudRate = SerialProtocol.BaudRate, int receivedBytesThreshold = SerialProtocol.ReceivedBytesThreshold) {
                 _serialPort = new(portName, baudRate) {
                     ReceivedBytesThreshold = receivedBytesThreshold
                 };
@@ -44,7 +43,7 @@ namespace Arsemi {
             /// Reads a single byte from the serial port
             /// </summary>
             /// <returns>byte which has been read</returns>
-            public byte ReadByte() {
+            public static byte ReadByte() {
                 return (byte)_serialPort.ReadByte();
             }
 
@@ -53,7 +52,7 @@ namespace Arsemi {
             /// TODO: Reads all bytes available in the stream
             /// </summary>
             /// <returns></returns>
-            public byte[] ReadBytes() {
+            public static byte[] ReadBytes() {
                 if(!PortAvailable() || !AvailableBytes()) {
                     return [];
                 }
@@ -91,7 +90,7 @@ namespace Arsemi {
             /// </summary>
             /// <param name="value"></param>
             /// <returns>true when value is found in the stream, otherwise false</returns>
-            private bool DiscardUntilValue(byte value) {
+            private static bool DiscardUntilValue(byte value) {
                 while(AvailableBytes()) {
                     byte message = ReadByte();
                     if(message == value) {
@@ -107,7 +106,7 @@ namespace Arsemi {
             /// </summary>
             /// <param name="packageStartByte"></param>
             /// <returns>-1 when the package is not yet finished</returns>
-            public int ParsePackageStart(byte packageStartByte = SerialProtocol.PackageStartByte) {
+            public static int ParsePackageStart(byte packageStartByte = SerialProtocol.PackageStartByte) {
                 if(DiscardUntilValue(packageStartByte)) {
                     return ReadByte();
                 }
@@ -124,7 +123,7 @@ namespace Arsemi {
             /// </summary>
             /// <param name="bytes"></param>
             /// <returns>Every byte of the sent message, including (StartByte + Message + CRC8)</returns>
-            public byte[] Write(params byte[] bytes) {
+            public static byte[] Write(params byte[] bytes) {
                 if(!PortAvailable()) return [];
                 byte[] package = new byte[bytes.Length + 2];
                 Array.Copy(bytes, 0, package, 1, bytes.Length);
@@ -153,7 +152,7 @@ namespace Arsemi {
             /// </summary>
             /// <param name="package">the package to be sent</param>
             /// <returns>serialized package bytes</returns>
-            public byte[] Write(SerialPackage package) {
+            public static byte[] Write(SerialPackage package) {
                 return Write(package.Serialize());
             }
 
@@ -165,7 +164,7 @@ namespace Arsemi {
             /// TODO: add more checks |
             /// Checks if the serial port is actually created and open
             /// </summary>
-            public bool PortAvailable() {
+            public static bool PortAvailable() {
                 return _serialPort != null && _serialPort.IsOpen;
             }
 
@@ -175,7 +174,7 @@ namespace Arsemi {
             /// </summary>
             /// <param name="byteCount"></param>
             /// <returns></returns>
-            public bool AvailableBytes(int byteCount = 1) {
+            public static bool AvailableBytes(int byteCount = 1) {
                 // Console.WriteLine("Still waiting for bytes...");
                 return _serialPort.BytesToRead >= byteCount;
             }
