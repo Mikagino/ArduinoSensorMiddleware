@@ -5,17 +5,9 @@ namespace Arsemi {
         public static class SerialMessaging {
             private static SerialPort? _serialPort;
             public static Action? DataReceivedAction;
-
-
             public static int ReceivedBytesThreshold {
-                set {
-                    if(!PortAvailable()) return;
-                    _serialPort.ReceivedBytesThreshold = value;
-                }
-                get {
-                    if(!PortAvailable()) return -1;
-                    return _serialPort.ReceivedBytesThreshold;
-                }
+                set => _serialPort?.ReceivedBytesThreshold = value;
+                get => (_serialPort != null) ? _serialPort.ReceivedBytesThreshold : -1;
             }
 
 
@@ -40,9 +32,9 @@ namespace Arsemi {
             /// <summary>
             /// Reads a single byte from the serial port
             /// </summary>
-            /// <returns>byte which has been read</returns>
-            public static byte ReadByte() {
-                return (byte)_serialPort.ReadByte();
+            /// <returns>The byte, cast to an int, or -1 if the end of the stream has been read or _serialPort is null.</returns>
+            public static int ReadByte() {
+                return _serialPort == null ? -1 : _serialPort.ReadByte();
             }
 
 
@@ -50,15 +42,16 @@ namespace Arsemi {
             /// TODO: Reads all bytes available in the stream
             /// </summary>
             /// <returns></returns>
-            public static byte[] ReadBytes() {
+            public static int[] ReadBytes() {
                 if(!PortAvailable() || !AvailableBytes()) {
                     return [];
                 }
 
-                // int nextByte;
+                int bytesToRead = _serialPort == null ? 0 : _serialPort.BytesToRead;
+                if(bytesToRead == 0) return [];
 
-                byte[] bytes = new byte[_serialPort.BytesToRead];
-                for(int i = 0; i < _serialPort.BytesToRead; i++) {
+                int[] bytes = new int[bytesToRead];
+                for(int i = 0; i < bytesToRead; i++) {
                     bytes[i] = ReadByte();
                 }
                 // char endline = _serialPort.NewLine.ToCharArray()[0];
@@ -97,7 +90,7 @@ namespace Arsemi {
                 Array.Copy(bytes, 0, package, 1, bytes.Length);
                 package[0] = SerialProtocol.PackageStartByte;
                 package[bytes.Length + 1] = CRC8(bytes);
-                _serialPort.Write(package, 0, package.Length);
+                _serialPort?.Write(package, 0, package.Length);
 
                 // Debug print
                 Console.Write("Sent: [");
@@ -144,7 +137,7 @@ namespace Arsemi {
             /// <returns></returns>
             public static bool AvailableBytes(int byteCount = 1) {
                 // Console.WriteLine("Still waiting for bytes...");
-                return _serialPort.BytesToRead >= byteCount;
+                return _serialPort?.BytesToRead >= byteCount;
             }
 
 
