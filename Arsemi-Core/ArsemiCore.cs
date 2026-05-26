@@ -98,7 +98,7 @@ namespace Arsemi {
     /// DONE: Sends 2 types of setup messages over the serial port (ClearConfiguration, AddSensor for each sensor)
     /// </summary>
     public void FinishSetup() {
-      SerialMessaging.Write(new SerialPackage(SerialProtocol.Action.Setup.ClearConfiguration).Serialize());
+      SerialMessaging.Write(SerialProtocol.Action.Setup.ClearConfiguration);
 
       for(int i = 0; i < sensorCount; i++) {
         if(Sensors[i] == null) throw new Exception("Sensor has been deleted somehow...");

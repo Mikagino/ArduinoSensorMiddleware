@@ -11,6 +11,7 @@ namespace Arsemi {
                 public const byte System = CategorySize * 0;
                 public const byte Setup = CategorySize * 1;
                 public const byte Sensor = CategorySize * 2;
+                public const byte Package = CategorySize * 3;
             }
 
 
@@ -25,7 +26,7 @@ namespace Arsemi {
                 public struct System {
                     public const byte HibernateMicrocontroller = Categories.System + 1;
                     public const byte WakeMicrocontroller = Categories.System + 2;
-                    public const byte SystemError = Categories.System + 3;
+                    public const byte Error = Categories.System + 3;
                     public const byte RequestHandshake = Categories.System + 4;
                     public const byte ReplyHandshake = Categories.System + 5;
                 }
@@ -43,18 +44,35 @@ namespace Arsemi {
                 }
             }
 
-
-            public static string? TryGetActionName(uint actionCode) {
-                string? result = TryGetActionFromStruct(typeof(Action.System), actionCode);
-                result ??= TryGetActionFromStruct(typeof(Action.Setup), actionCode);
-                result ??= TryGetActionFromStruct(typeof(Action.Sensor), actionCode);
-                return result;
+            public class Error {
+                public struct Package {
+                    public const byte InvalidActionCode = Categories.Package + 1;
+                    public const byte InvalidSensorParameters = Categories.Package + 2;
+                    public const byte SensorCountOverflow = Categories.Package + 3;
+                    public const byte InvalidSensorType = Categories.Package + 4;
+                    public const byte NICE = Categories.Package + 5;
+                    public const byte PackageSizeOverflow = Categories.Package + 6;
+                    public const byte InvalidChecksum = Categories.Package + 7;
+                }
             }
 
-            private static string? TryGetActionFromStruct(Type type, uint actionCode) {
+
+            public static string? TryGetActionName(uint actionCode) {
+                string? result = TryGetNameFromStruct(typeof(Action.System), actionCode);
+                result ??= TryGetNameFromStruct(typeof(Action.Setup), actionCode);
+                result ??= TryGetNameFromStruct(typeof(Action.Sensor), actionCode);
+                return result?? "?";
+            }
+
+
+            public static string? TryGetErrorName(uint errorCode) {
+                string? result = TryGetNameFromStruct(typeof(Error.Package), errorCode);
+                return result ?? "?";
+            }
+
+            private static string? TryGetNameFromStruct(Type type, uint actionCode) {
                 foreach(var property in type.GetFields()) {
-                    byte? value = (byte?)property.GetRawConstantValue();
-                    if(value == null) throw new Exception("Not found in " + type.Name);
+                    byte? value = (byte?)property.GetRawConstantValue() ?? throw new Exception("Not found in " + type.Name);
                     if(value == actionCode) {
                         return property.Name;
                     }

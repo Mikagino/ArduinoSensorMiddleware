@@ -123,12 +123,13 @@ namespace Arsemi {
                     //   throw new NotImplementedException();
 
                     /// Codes meant for receiving from the microcontroller
-                    case SerialProtocol.Action.System.SystemError:
+                    case SerialProtocol.Action.System.Error:
                         done = ParseSystemError();
                         break;
 
                     case SerialProtocol.Action.System.ReplyHandshake:
                         _handshakeResult = ConnectionResult.SUCCESS;
+                        CheckNextCRC8Checksum(SerialProtocol.Action.System.ReplyHandshake);
                         _queuedActionCode = -1;
                         break;
 
@@ -153,6 +154,7 @@ namespace Arsemi {
             /// <summary>
             /// Parses sensorId, value and checksum from the next 3 bytes in the serial stream.
             /// </summary>
+            /// <returns>false if the package doesn't have enough bytes, otherwise true (also in case of message corruption to discard the message)</returns>
             private bool ParseNewSample() {
                 if(!SerialMessaging.AvailableBytes(3)) {
                     return false;
@@ -160,13 +162,8 @@ namespace Arsemi {
 
                 byte sensorId = SerialMessaging.ReadByte();
                 byte value = SerialMessaging.ReadByte();
-                byte checksum = SerialMessaging.ReadByte();
 
-                byte computedChecksum = SerialMessaging.CRC8(SerialProtocol.Action.Sensor.NewSample, sensorId, value);
-
-                if(checksum != computedChecksum) {
-                    throw new Exception("HEY! Loss of packages... :c");
-                }
+                CheckNextCRC8Checksum(SerialProtocol.Action.Sensor.NewSample, sensorId, value);
 
                 Console.Write("Received sensor data from sensorId: " + sensorId + " with a value of: " + value);
                 Console.WriteLine(" | Sensorname: " + _arsemiCore.Sensors[sensorId].Data.Name);
@@ -190,8 +187,19 @@ namespace Arsemi {
                 byte errorCode = SerialMessaging.ReadByte();
 
                 switch(errorCode) {
+                case SerialProtocol.Error.Package.InvalidActionCode:
+                    byte invalidCode = SerialMessaging.ReadByte();
+                    CheckNextCRC8Checksum(SerialProtocol.Action.System.Error, errorCode);
+                    Console.WriteLine("Received error: " + errorCode + " = " + SerialProtocol.TryGetErrorName(errorCode) + " -> " + invalidCode);
+                    break;
+                case SerialProtocol.Error.Package.InvalidChecksum:
+                    byte invalidCurrentChecksum = SerialMessaging.ReadByte();
+                    byte invalidComputedChecksum = SerialMessaging.ReadByte();
+                    CheckNextCRC8Checksum(SerialProtocol.Action.System.Error, errorCode);
+                    Console.WriteLine("Received error: " + errorCode + " = " + SerialProtocol.TryGetErrorName(errorCode)
+                                        + " -> " + invalidCurrentChecksum + " != " + invalidComputedChecksum);
+                    break;
                 default:
-                    Console.WriteLine("Received error: " + errorCode + " = " + SerialProtocol.TryGetActionName(errorCode));
                     break;
                 }
 
@@ -225,6 +233,24 @@ namespace Arsemi {
                     return SerialMessaging.ReadByte();
                 }
                 return -1;
+            }
+
+            /// <summary>
+            /// Check if the next checksum byte in the serial buffer is equal to the computed checksum of the data
+            /// </summary>
+            /// <param name="data">data of the package, without StartByte and checksum</param>
+            /// <returns></returns>
+            /// <exception cref="Exception"></exception>
+            private static bool CheckNextCRC8Checksum(params byte[] data) {
+                byte currentCrc8Checksum = SerialMessaging.ReadByte();
+                byte computedCrc8Checksum = SerialMessaging.CRC8(data);
+
+                if(currentCrc8Checksum != computedCrc8Checksum) {
+                    //throw new Exception("HEY! Loss of packages... :c");
+                    Console.WriteLine("Loss of packages in action " + SerialProtocol.TryGetActionName(data[0]) + ", checksum is not the same! -> " + currentCrc8Checksum + " != " + computedCrc8Checksum);
+                    return false;
+                }
+                else return true;
             }
         }
     }

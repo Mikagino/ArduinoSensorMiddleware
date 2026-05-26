@@ -23,7 +23,6 @@ public:
   // https://devcoons.com/crc8/)
   static uint8_t CRC8(uint8_t *data, uint8_t length);
   static uint8_t CRC8(const uint8_t *data, uint8_t length);
-  static uint8_t CRC8(SerialPackage& package);
-
-  static void blink(int count, int delayMillis);
+  static uint8_t CRC8(SerialPackage &package);
+  static uint8_t CRC8(uint8_t actionCode);
 };

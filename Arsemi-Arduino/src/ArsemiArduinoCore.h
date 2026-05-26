@@ -13,6 +13,7 @@ private:
   uint8_t _currentSensorCount;
 
 public:
+  bool execution = false;
   enum ERROR { SUCCESS, SENSOR_COUNT_OVERFLOW };
 
   ArsemiArduinoCore(uint8_t maxSensorCount);

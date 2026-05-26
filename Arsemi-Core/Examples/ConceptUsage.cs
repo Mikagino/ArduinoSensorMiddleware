@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Arsemi.IPC;
 using Arsemi.Sensor;
 using Arsemi.Sensor.Filter;
 

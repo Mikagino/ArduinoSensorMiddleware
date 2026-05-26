@@ -13,7 +13,7 @@ private:
     static const uint8_t System = _categorySize * 0;
     static const uint8_t Setup = _categorySize * 1;
     static const uint8_t Sensor = _categorySize * 2;
-    static const uint8_t Package = _categorySize * 2;
+    static const uint8_t Package = _categorySize * 3;
   };
 
 public:
@@ -60,8 +60,9 @@ public:
       static const uint8_t InvalidSensorParameters = Categories::Package + 2;
       static const uint8_t SensorCountOverflow = Categories::Package + 3;
       static const uint8_t InvalidSensorType = Categories::Package + 4;
-      static const uint8_t PackageSizeOverflow = Categories::Package + 5;
-      static const uint8_t InvalidChecksum = Categories::Package + 6;
+      static const uint8_t NICE = Categories::Package + 5;
+      static const uint8_t PackageSizeOverflow = Categories::Package + 6;
+      static const uint8_t InvalidChecksum = Categories::Package + 7;
     };
   };
 };

@@ -39,6 +39,9 @@ void ArsemiArduinoCore::destroyAllSensors() {
 /// @return true if the sensor has been updated due to the interval being
 /// reached, otherwise false
 bool ArsemiArduinoCore::updateAllSensors() {
+  if (!execution)
+    return false;
+
   bool updated = false;
   bool currentlyUpdated;
   uint8_t package[3] = {SerialProtocol::Action::Sensor::NewSample, 1, 1};

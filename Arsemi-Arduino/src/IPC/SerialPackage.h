@@ -33,7 +33,7 @@ public:
   uint8_t *Serialize() {
     uint8_t *result = new uint8_t[ParameterCount + 1];
     result[0] = ActionCode;
-    memcpy(result + 1, Parameters, sizeof(Parameters[0]) * ParameterCount);
+    memcpy(&(result[1]), Parameters, sizeof(Parameters[0]) * ParameterCount);
     return result;
   }
 
