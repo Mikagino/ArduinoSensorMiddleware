@@ -33,8 +33,10 @@ namespace Arsemi {
             /// Reads a single byte from the serial port
             /// </summary>
             /// <returns>The byte, cast to an int, or -1 if the end of the stream has been read or _serialPort is null.</returns>
-            public static int ReadByte() {
-                return _serialPort == null ? -1 : _serialPort.ReadByte();
+            public static byte ReadByte() {
+                int result = _serialPort == null ? -1 : _serialPort.ReadByte();
+                if(result == -1) throw new Exception("Byte is somehow corrupted (e.g. end of stream, value is not in valid range, ...)");
+                return (byte)result;
             }
 
 

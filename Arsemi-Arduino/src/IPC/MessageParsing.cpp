@@ -79,9 +79,6 @@ int MessageParsing::parseNextActionCode() {
 /// @brief Parse action "Add Sensor".
 /// Package parameters: [ sensorType | intervalMs | constructorParameters[] ]
 void MessageParsing::parseAddSensorAction() {
-  SerialMessaging::write(
-      SerialProtocol::Action::Setup::SuccessfullyAddedSensor);
-
   uint8_t availableBytes = Serial.available();
 
   /// Check if enough parameters for each sensor type are in the serial buffer
