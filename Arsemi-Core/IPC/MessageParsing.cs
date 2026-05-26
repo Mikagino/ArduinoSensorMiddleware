@@ -99,14 +99,15 @@ namespace Arsemi {
 
                     if(_queuedActionCode == -1) {
                         _queuedActionCode = ParsePackageStart();
+                        //if(_queuedActionCode != -1) Console.WriteLine("Received new action = " + _queuedActionCode);
+
                     }
 
                     if(_queuedActionCode == -1) {
                         return;
                     }
 
-                    else Console.WriteLine("New action! = " + _queuedActionCode);
-
+                    bool done = false;
 
                     switch(_queuedActionCode) {
                     /// Codes meant for sending to the microcontroller -> no need to implement
@@ -123,27 +124,28 @@ namespace Arsemi {
 
                     /// Codes meant for receiving from the microcontroller
                     case SerialProtocol.Action.System.SystemError:
-                        ParseSystemError();
+                        done = ParseSystemError();
                         break;
 
                     case SerialProtocol.Action.System.ReplyHandshake:
                         _handshakeResult = ConnectionResult.SUCCESS;
+                        _queuedActionCode = -1;
                         break;
 
                     case SerialProtocol.Action.Sensor.NewSample:
                         Console.WriteLine("New sample");
-                        ParseNewSample();
+                        done = ParseNewSample();
                         break;
 
-                    // case SerialProtocol.SetupCodes.SuccessfullyAddedSensor:
+                    case SerialProtocol.Action.Setup.SuccessfullyAddedSensor:
+                        Console.WriteLine("Successfully added a sensor on the microcontroller.");
+                        break;
 
                     default:
-                        Console.WriteLine("Queued action code: " + _queuedActionCode);
-                        _queuedActionCode = -1;
-                        break;
-                        // default:
-                        //   throw new NotImplementedException("The action code in the message can't be associated with a command.");
+                        throw new NotImplementedException("The action code in the message can't be associated with a command in " + nameof(SerialProtocol));
                     }
+
+                    if(done) _queuedActionCode = -1;
                 }
             }
 
@@ -151,9 +153,9 @@ namespace Arsemi {
             /// <summary>
             /// Parses sensorId, value and checksum from the next 3 bytes in the serial stream.
             /// </summary>
-            private void ParseNewSample() {
+            private bool ParseNewSample() {
                 if(!SerialMessaging.AvailableBytes(3)) {
-                    return;
+                    return false;
                 }
 
                 byte sensorId = SerialMessaging.ReadByte();
@@ -172,30 +174,29 @@ namespace Arsemi {
 
                 _arsemiCore.Sensors[sensorId].Data.Value = value;
                 _arsemiCore.NewDataReceived?.Invoke(sensorId, value);
-                _queuedActionCode = -1;
+                return true;
             }
 
 
             /// <summary>
             /// Matches the different sensor errors to their error messages.
             /// </summary>
-            private void ParseSystemError() {
+            /// <return></return>
+            private bool ParseSystemError() {
                 if(!SerialMessaging.AvailableBytes(1)) {
-                    return;
+                    return false;
                 }
 
                 byte errorCode = SerialMessaging.ReadByte();
 
                 switch(errorCode) {
                 default:
-                    Console.WriteLine("Received sensor error code: " + errorCode + " = " + SerialProtocol.TryGetActionName(errorCode));
+                    Console.WriteLine("Received error: " + errorCode + " = " + SerialProtocol.TryGetActionName(errorCode));
                     break;
                 }
 
-                _queuedActionCode = -1;
+                return true;
             }
-
-
 
 
             /// <summary>

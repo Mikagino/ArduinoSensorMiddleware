@@ -27,11 +27,13 @@ namespace Arsemi {
             /// Ideally this is done in the GUI and then only AutomaticSetup() called.
             /// </summary>
             public static async Task Setup() {
-                AbstractSensor hr = _arsemiCore.AddSensor(new MAX30102Sensor("Heartrate"));
-                AbstractFilter butterworth = new ButterworthFilter(hr, 2);
-                hr.AddFilter(butterworth, "Butterworth")
-                    .SetInterval(100);
-                    // .AddEvent(new AboveThresholdEvent(15), "Excitement");
+                // AbstractSensor hr = _arsemiCore.AddSensor(new MAX30102Sensor("Heartrate"));
+                // AbstractFilter butterworth = new ButterworthFilter(hr, 2);
+                // hr.AddFilter(butterworth, "Butterworth")
+                //     .SetInterval(100);
+                // .AddEvent(new AboveThresholdEvent(15), "Excitement");
+                _arsemiCore.AddSensor(new DigitalSensor("Button", 2))
+                        .SetInterval(100);
                 await _arsemiCore.ConnectMicrocontrollerAsync();
                 _arsemiCore.FinishSetup();
 

@@ -20,3 +20,7 @@ void I2CSensor::updateLastValue() {
 
   _lastValue = value;
 }
+
+bool I2CSensor::parseParameters(uint8_t *parameter, uint8_t parameterCount) {
+  return false;
+}

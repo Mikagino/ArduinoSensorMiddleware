@@ -12,11 +12,11 @@ private:
   AbstractSensor **sensors;
   uint8_t _currentSensorCount;
 
-
 public:
   enum ERROR { SUCCESS, SENSOR_COUNT_OVERFLOW };
 
   ArsemiArduinoCore(uint8_t maxSensorCount);
+  ~ArsemiArduinoCore();
   bool addSensor(AbstractSensor *newSensor);
   void beginAllSensors();
   void destroyAllSensors();

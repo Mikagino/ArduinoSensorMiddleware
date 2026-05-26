@@ -2,8 +2,8 @@
 
 MAX30102Sensor::MAX30102Sensor() {}
 
-/// @brief 
-/// @return true when successful, otherwise false 
+/// @brief
+/// @return true when successful, otherwise false
 bool MAX30102Sensor::begin() {
   if (_sensor.begin()) {
     // Serial.println("max30102 started!");
@@ -22,4 +22,8 @@ void MAX30102Sensor::updateLastValue() {
   // Serial.println(",");
   // Serial.println(sample.red);
   _lastValue = (uint8_t)(map(sample.ir, 0, 1024, 1, 255));
+}
+
+bool MAX30102Sensor::parseParameters(uint8_t *parameter, uint8_t parameterCount) {
+  return parameterCount == parameterByteCount;
 }

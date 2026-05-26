@@ -20,7 +20,7 @@ void SerialMessaging::write(const uint8_t *buffer, uint8_t length) {
 }
 
 void SerialMessaging::write(SerialPackage &serialPackage) {
-  write(serialPackage.Serialize(), serialPackage.ParameterCount);
+  write(serialPackage.Serialize(), serialPackage.ParameterCount + 1);
 }
 
 void SerialMessaging::write(const uint8_t actionCode = 1) {
@@ -86,6 +86,13 @@ uint8_t SerialMessaging::CRC8(const uint8_t *data, uint8_t length) {
     data++;
   }
   return crc;
+}
+
+/// @brief Computes a 8-bit sized checksum from the data with the CRC algorithm
+/// @param package package for which the crc will be calculated
+/// @return 8-bit sized CRC checksum
+uint8_t SerialMessaging::CRC8(SerialPackage &package) {
+  return CRC8(package.Serialize(), package.ParameterCount);
 }
 
 /// @brief Debugging tool to send messages over serial to make serial blink

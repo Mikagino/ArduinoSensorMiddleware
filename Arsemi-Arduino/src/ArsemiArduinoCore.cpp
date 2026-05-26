@@ -5,6 +5,8 @@ ArsemiArduinoCore::ArsemiArduinoCore(uint8_t maxSensorCount) {
   this->maxSensorCount = maxSensorCount;
 }
 
+ArsemiArduinoCore::~ArsemiArduinoCore() { delete sensors; }
+
 /// @brief adds a new sensor to an array for batch calls of functions
 /// @param newSensor
 /// @return false if the sensor count reaches an overflow, otherwise true
@@ -63,8 +65,8 @@ uint8_t ArsemiArduinoCore::getSensorValueById(uint8_t sensorId) {
   return getSensorById(sensorId)->getLastValue();
 }
 
-/// @brief iterates over all sensors and returns the sensors or nullptr when the
-/// id is not found
+/// @brief iterates over all sensors and returns the sensors or nullptr when
+/// the id is not found
 /// @param sensorId
 /// @return The sensor with the according id, otherwise nullptr
 AbstractSensor *ArsemiArduinoCore::getSensorById(uint8_t sensorId) {
