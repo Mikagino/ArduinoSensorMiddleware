@@ -6,7 +6,10 @@ namespace Arsemi {
             private static SerialPort? _serialPort;
             public static Action? DataReceivedAction;
             public static int ReceivedBytesThreshold {
-                set => _serialPort?.ReceivedBytesThreshold = value;
+                set {
+                    if(_serialPort == null) return;
+                    _serialPort.ReceivedBytesThreshold = value;
+                }
                 get => (_serialPort != null) ? _serialPort.ReceivedBytesThreshold : -1;
             }
 
@@ -17,14 +20,13 @@ namespace Arsemi {
             /// <param name="portName">Must match exactly with the string found in SerialPort.GetPortNames().</param>
             /// <param name="baudRate">Only change if you changed it also on the Microcontroller!</param>
             /// <param name="receivedBytesThreshold">Action is invoked when the message byte size is higher than this threshold.</param>
-            public static async Task Begin(string portName, int baudRate = SerialProtocol.BaudRate, int receivedBytesThreshold = SerialProtocol.ReceivedBytesThreshold) {
-                _serialPort = new(portName, baudRate) {
-                    ReceivedBytesThreshold = receivedBytesThreshold
+            public static void Begin(SerialPortInfo serialPortInfo) {
+                _serialPort = new(serialPortInfo.PortName, serialPortInfo.BaudRate) {
+                    ReceivedBytesThreshold = serialPortInfo.ReceivedBytesThreshold
                 };
 
                 _serialPort.DataReceived += (_, _) => DataReceivedAction?.Invoke();
                 _serialPort.Open();
-                await Task.Delay(2000);
             }
 
 

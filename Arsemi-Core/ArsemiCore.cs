@@ -1,3 +1,4 @@
+using System.IO.Ports;
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
@@ -34,11 +35,18 @@ namespace Arsemi {
     }
 
 
+
     /// <summary>
     /// TODO: Loops when program is running (in Program.cs?)
     /// </summary>
     public void Update() {
     }
+
+
+    public async Task<MessageParsing.ConnectionResult> ConnectMicrocontrollerAsync(SerialPortInfo? serialPortInfo = null, int drtResetWaitMs = 2000, int timeoutMs = 5000) {
+      return await _messageParsing.ConnectMicrocontrollerAsync(serialPortInfo, drtResetWaitMs, timeoutMs);
+    }
+
 
 
     // /// <summary>
@@ -84,7 +92,7 @@ namespace Arsemi {
       Sensors[sensorId].SetInterval(milliseconds);
     }
 
-    
+
     /// <summary>
     /// TODO: Sends sensor setup data to microcontroller and starts it's execution  (can this be combined with StartSetup() into one method?)
     /// DONE: Sends 2 types of setup messages over the serial port (ClearConfiguration, AddSensor for each sensor)

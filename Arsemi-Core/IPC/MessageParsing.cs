@@ -7,6 +7,7 @@ namespace Arsemi {
         public class MessageParsing {
             private ArsemiCore _arsemiCore;
             private int _queuedActionCode = -1;
+
             private DateTime _handshakeTimeout = DateTime.MinValue;
             public enum ConnectionResult {
                 NONE,
@@ -26,26 +27,22 @@ namespace Arsemi {
             /// <summary>
             /// Connects the microcontroller at the specified serial port and waits for 2 seconds to give the microcontroller time to reset.
             /// </summary>
-            /// <param name="portName">If null the first accessible port is used.</param>
-            /// <param name="baudRate"></param>
-            /// <param name="receivedBytesThreshold"></param>
-            /// <returns>true if the microcontroller is connected and the port is available, otherwise false</returns>
-            /// <exception cref="Exception"></exception>
-            public async Task<ConnectionResult> ConnectMicrocontrollerAsync(string? portName = null, int baudRate = SerialProtocol.BaudRate, int receivedBytesThreshold = SerialProtocol.ReceivedBytesThreshold, int drtResetWaitMs = 2000, int timeoutMs = 5000) {
-                if(portName == null) {
-                    string[] portNames = SerialPort.GetPortNames();
-                    if(portNames.Length == 0) throw new Exception("No microcontroller could be found automatically. Is it connected?");
-                    portName = portNames[0];
-                }
-                Console.WriteLine("ArSeMi: Try connecting to microcontroller on " + portName);
-                await SerialMessaging.Begin(portName, baudRate, receivedBytesThreshold);
+            /// <param name="serialPortInfo"></param>
+            /// <param name="drtResetWaitMs"></param>
+            /// <param name="timeoutMs"></param>
+            /// <returns>SUCCESS if the microcontroller is connected and the port is available, otherwise false</returns>
+            public async Task<ConnectionResult> ConnectMicrocontrollerAsync(SerialPortInfo? serialPortInfo = null, int drtResetWaitMs = 2000, int timeoutMs = 5000) {
+                serialPortInfo ??= new();
+                Console.WriteLine("ArSeMi: Try connecting to microcontroller on " + serialPortInfo.PortName);
+                SerialMessaging.Begin(serialPortInfo);
+                await Task.Delay(drtResetWaitMs);
                 SerialMessaging.DataReceivedAction += ParseMessage; // DEBUG -> later move to start loop
 
                 bool connected = SerialMessaging.PortAvailable();
-                if(connected) { Console.WriteLine("Successfully connected to microcontroller on " + portName); }
+                if(connected) { Console.WriteLine("Successfully connected to microcontroller on " + serialPortInfo.PortName); }
                 else {
-                    Console.WriteLine("Error connecting to microcontroller on " + portName + "!");
-                    return MessageParsing.ConnectionResult.PORT_ERROR;
+                    Console.WriteLine("Error connecting to microcontroller on " + serialPortInfo.PortName + "!");
+                    return ConnectionResult.PORT_ERROR;
                 }
 
                 return await RequestHandshakeAsync(timeoutMs);
