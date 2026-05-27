@@ -50,9 +50,8 @@ namespace Arsemi {
                     public const byte InvalidSensorParameters = Categories.Package + 2;
                     public const byte SensorCountOverflow = Categories.Package + 3;
                     public const byte InvalidSensorType = Categories.Package + 4;
-                    public const byte NICE = Categories.Package + 5;
-                    public const byte PackageSizeOverflow = Categories.Package + 6;
-                    public const byte InvalidChecksum = Categories.Package + 7;
+                    public const byte PackageSizeOverflow = Categories.Package + 5;
+                    public const byte InvalidChecksum = Categories.Package + 6;
                 }
             }
 

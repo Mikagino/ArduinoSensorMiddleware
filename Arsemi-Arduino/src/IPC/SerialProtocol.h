@@ -60,9 +60,8 @@ public:
       static const uint8_t InvalidSensorParameters = Categories::Package + 2;
       static const uint8_t SensorCountOverflow = Categories::Package + 3;
       static const uint8_t InvalidSensorType = Categories::Package + 4;
-      static const uint8_t NICE = Categories::Package + 5;
-      static const uint8_t PackageSizeOverflow = Categories::Package + 6;
-      static const uint8_t InvalidChecksum = Categories::Package + 7;
+      static const uint8_t PackageSizeOverflow = Categories::Package + 5;
+      static const uint8_t InvalidChecksum = Categories::Package + 6;
     };
   };
 };
