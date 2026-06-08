@@ -25,5 +25,5 @@ void MAX30102Sensor::updateLastValue() {
 }
 
 bool MAX30102Sensor::parseParameters(uint8_t *parameter, uint8_t parameterCount) {
-  return parameterCount == parameterByteCount;
+  return parameterCount == ParameterByteCount;
 }

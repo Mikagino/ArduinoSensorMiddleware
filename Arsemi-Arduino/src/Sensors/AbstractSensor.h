@@ -12,10 +12,8 @@ protected:
   uint32_t _lastReadMillis = 0; // stores the last time the sensor was read
   uint8_t _lastValue;
 
-protected:
-  uint8_t _parameterByteCount;
-
 public:
+  const uint8_t ParameterByteCount;
   enum SensorTypes {
     EMPTY = 0,
     TYPE_GENERIC_ANALOG = 1,
@@ -25,6 +23,7 @@ public:
   };
 
   // interval in which new sensor data is sent over serial
+  AbstractSensor() : ParameterByteCount(0) {}
   uint8_t intervalMillis = 100;
   virtual bool begin() = 0;
   inline bool checkInterval();
@@ -35,5 +34,4 @@ public:
   // Getters for private fields
   uint8_t inline getSensorId() { return _sensorId; }
   uint8_t inline getLastValue() { return _lastValue; }
-  uint8_t inline getParameterByteCount() { return _parameterByteCount; };
 };

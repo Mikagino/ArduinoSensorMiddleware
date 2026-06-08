@@ -9,7 +9,7 @@ void AnalogSensor::updateLastValue() {
 }
 
 bool AnalogSensor::parseParameters(uint8_t *parameter, uint8_t parameterCount) {
-  if (parameterCount != parameterByteCount) {
+  if (parameterCount != ParameterByteCount) {
     return false;
   }
 

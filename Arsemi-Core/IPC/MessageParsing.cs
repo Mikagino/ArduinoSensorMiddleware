@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using System.IO.Ports;
+using BenchmarkDotNet.Attributes;
 
 namespace Arsemi {
 
@@ -55,7 +57,7 @@ namespace Arsemi {
             /// </summary>
             /// <param name="waitTimeMilliseconds">For how long the method will wait for the handshake</param>
             /// <returns>SUCCESS when the connected microcontroller responded in time, WAITING if there was a handshake request already, otherwise TIMEOUT</returns>
-            private async Task<ConnectionResult> RequestHandshakeAsync(int waitTimeMilliseconds) {
+            public async Task<ConnectionResult> RequestHandshakeAsync(int waitTimeMilliseconds) {
                 if(_handshakeResult == ConnectionResult.WAITING) return ConnectionResult.WAITING;
 
                 SerialPackage requestHandshakePackage = new SerialPackage(SerialProtocol.Action.System.RequestHandshake);
@@ -189,7 +191,7 @@ namespace Arsemi {
                 switch(errorCode) {
                 case SerialProtocol.Error.Package.InvalidActionCode:
                     byte invalidCode = SerialMessaging.ReadByte();
-                    CheckNextCRC8Checksum(SerialProtocol.Action.System.Error, errorCode);
+                    CheckNextCRC8Checksum(SerialProtocol.Action.System.Error, errorCode, invalidCode);
                     Console.WriteLine("Received error: " + errorCode + " = " + SerialProtocol.TryGetErrorName(errorCode) + " -> " + invalidCode);
                     break;
                 case SerialProtocol.Error.Package.InvalidChecksum:

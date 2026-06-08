@@ -1,7 +1,10 @@
-using System.IO.Ports;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Running;
 
 namespace Arsemi {
   /// <summary>
@@ -42,7 +45,8 @@ namespace Arsemi {
     public void Update() {
     }
 
-
+    [Benchmark]
+    [Arguments(null, 2000, 5000)]
     public async Task<MessageParsing.ConnectionResult> ConnectMicrocontrollerAsync(SerialPortInfo? serialPortInfo = null, int drtResetWaitMs = 2000, int timeoutMs = 5000) {
       return await _messageParsing.ConnectMicrocontrollerAsync(serialPortInfo, drtResetWaitMs, timeoutMs);
     }
@@ -125,5 +129,11 @@ namespace Arsemi {
       //SerialMessaging.DataReceivedAction -= ParseMessage;
     }
 
+
+
+    public void DebugClass() {
+      BenchmarkSwitcher.FromAssembly(Assembly.GetExecutingAssembly()).Run(null);
+
+    }
   }
 }

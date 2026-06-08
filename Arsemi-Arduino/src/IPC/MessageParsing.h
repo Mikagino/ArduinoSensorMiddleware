@@ -23,8 +23,10 @@ private:
 
 public:
   MessageParsing(ArsemiArduinoCore &newArsemiArduinoCore);
+
   void parseMessage();
   bool parseAddSensorAction();
-  bool checkCrc8Checksum(SerialPackage &package);
-  bool checkCrc8Checksum(uint8_t actionCode);
+
+  bool checkNextCrc8Checksum(SerialPackage &package);
+  bool checkNextCrc8Checksum(uint8_t actionCode);
 };

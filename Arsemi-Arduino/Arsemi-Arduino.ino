@@ -8,11 +8,6 @@ MessageParsing messageParsing(arsemi);
 
 void setup() {
   SerialMessaging::begin();
-
-  // AbstractSensor* sensor = new MAX30102Sensor();
-  // sensor->intervalMillis = 50;
-  // arsemi.addSensor(sensor);
-  // sensor->begin();
 }
 
 void loop() {

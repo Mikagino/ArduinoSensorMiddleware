@@ -6,10 +6,8 @@
 
 // Generic Analog sensor, works for most simple sensors!
 class DigitalSensor : public AbstractSensor {
-protected:
-  uint8_t parameterByteCount = 1;
-
 public:
+  const uint8_t ParameterByteCount = 1;
   uint8_t _sensorPin;
 
   // TODO: Rework all sensor's constructors to use byte[] and each class parses

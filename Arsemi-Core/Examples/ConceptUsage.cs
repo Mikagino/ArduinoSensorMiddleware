@@ -2,6 +2,8 @@ using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
 using Arsemi.Sensor.Filter;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
 
 namespace Arsemi {
     namespace Examples {
@@ -27,7 +29,11 @@ namespace Arsemi {
             /// Sets up each sensor, filters and other settings via code.
             /// Ideally this is done in the GUI and then only AutomaticSetup() called.
             /// </summary>
+            [GlobalSetup]
             public static async Task Setup() {
+                // _arsemiCore.DebugClass();
+                // return;
+                
                 // AbstractSensor hr = _arsemiCore.AddSensor(new MAX30102Sensor("Heartrate"));
                 // AbstractFilter butterworth = new ButterworthFilter(hr, 2);
                 // hr.AddFilter(butterworth, "Butterworth")
@@ -35,11 +41,12 @@ namespace Arsemi {
                 // .AddEvent(new AboveThresholdEvent(15), "Excitement");
                 _arsemiCore.AddSensor(new DigitalSensor("Button", 2))
                         .SetInterval(100);
-                await _arsemiCore.ConnectMicrocontrollerAsync();
+                if(await _arsemiCore.ConnectMicrocontrollerAsync() != MessageParsing.ConnectionResult.SUCCESS)
+                    return;
                 _arsemiCore.FinishSetup();
 
-                await ConfigSaver.SaveTo(_arsemiCore, PathToConfigDirectory);
-                await ConfigSaver.GenerateGlobals(_arsemiCore, PathToConfigDirectory);
+                //await ConfigSaver.SaveTo(_arsemiCore, PathToConfigDirectory);
+                //await ConfigSaver.GenerateGlobals(_arsemiCore, PathToConfigDirectory);
                 // ArsemiGlobals.Events.Excitement += EventAction;
                 _arsemiCore.StartLoop();
             }
