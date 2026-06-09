@@ -1,9 +1,7 @@
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
-using Arsemi.Sensor.Filter;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
 
 namespace Arsemi {
     namespace Examples {
@@ -33,7 +31,7 @@ namespace Arsemi {
             public static async Task Setup() {
                 // _arsemiCore.DebugClass();
                 // return;
-                
+
                 // AbstractSensor hr = _arsemiCore.AddSensor(new MAX30102Sensor("Heartrate"));
                 // AbstractFilter butterworth = new ButterworthFilter(hr, 2);
                 // hr.AddFilter(butterworth, "Butterworth")

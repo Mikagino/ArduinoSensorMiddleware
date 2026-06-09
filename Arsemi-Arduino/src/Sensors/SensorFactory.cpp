@@ -1,5 +1,8 @@
 #include "SensorFactory.h"
 
+/// @brief Construct a new sensor of a specific type
+/// @param type 
+/// @return New sensor instance
 AbstractSensor *SensorFactory::createNewSensor(AbstractSensor::SensorTypes type) {
   switch (type) {
   case AbstractSensor::SensorTypes::TYPE_GENERIC_ANALOG:

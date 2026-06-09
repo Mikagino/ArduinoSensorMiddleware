@@ -37,13 +37,15 @@ public:
       static const uint8_t Error = Categories::System + 3;
       static const uint8_t RequestHandshake = Categories::System + 4;
       static const uint8_t ReplyHandshake = Categories::System + 5;
+      static const uint8_t Debug = Categories::System + 6;
     };
 
     struct Setup {
     public:
       static const uint8_t ClearConfiguration = Categories::Setup + 1;
-      static const uint8_t AddSensor = Categories::Setup + 2;
-      static const uint8_t SuccessfullyAddedSensor = Categories::Setup + 3;
+      static const uint8_t SuccessfullyClearedConfiguration = Categories::Setup + 2;
+      static const uint8_t AddSensor = Categories::Setup + 3;
+      static const uint8_t SuccessfullyAddedSensor = Categories::Setup + 4;
     };
 
     struct Sensor {

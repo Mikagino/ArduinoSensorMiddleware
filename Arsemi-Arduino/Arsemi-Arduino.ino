@@ -8,9 +8,11 @@ MessageParsing messageParsing(arsemi);
 
 void setup() {
   SerialMessaging::begin();
+  //Serial.println("Arsemi started!");
 }
 
 void loop() {
   messageParsing.parseMessage();
   arsemi.updateAllSensors();
+  //delay(100);
 }

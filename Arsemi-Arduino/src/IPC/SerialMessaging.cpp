@@ -3,7 +3,7 @@
 
 /// @brief Send a message over serial with the structure
 /// [StartByte | data | CRC8],
-/// StartByte and CRC8 are added by the function
+/// StartByte and CRC8 are added by the function.
 /// @param data the data to be sent, must include
 /// [ActionCode | Parameters[] optional ]
 /// @param length how many entries has the data array
@@ -34,7 +34,9 @@ void SerialMessaging::write(const uint8_t *data, uint8_t length) {
 /// StartByte and CRC8 are added by the function
 /// @param serialPackage the package to be sent, must include ActionCode
 void SerialMessaging::write(SerialPackage &serialPackage) {
-  write(serialPackage.Serialize(), serialPackage.ParameterCount + 1);
+  uint8_t *serializedPackage = serialPackage.Serialize();
+  write(serializedPackage, serialPackage.getParameterCount() + 1);
+  delete[] serializedPackage;
 }
 
 /// @brief Send a package over serial with the structure
@@ -116,8 +118,8 @@ uint8_t SerialMessaging::CRC8(const uint8_t *data, uint8_t length) {
 /// @return 8-bit sized CRC checksum
 uint8_t SerialMessaging::CRC8(SerialPackage &package) {
   uint8_t *serializedPackage = package.Serialize();
-  uint8_t result = CRC8(serializedPackage, package.ParameterCount + 1);
-  delete serializedPackage;
+  uint8_t result = CRC8(serializedPackage, package.getParameterCount() + 1);
+  delete[] serializedPackage;
   return result;
 }
 
@@ -125,6 +127,6 @@ uint8_t SerialMessaging::CRC8(SerialPackage &package) {
 /// @param package package for which the crc will be calculated
 /// @return 8-bit sized CRC checksum
 uint8_t SerialMessaging::CRC8(uint8_t actionCode) {
-  //uint8_t serializedPackage[1] = {actionCode};
+  // uint8_t serializedPackage[1] = {actionCode};
   return CRC8(&actionCode, 1);
 }

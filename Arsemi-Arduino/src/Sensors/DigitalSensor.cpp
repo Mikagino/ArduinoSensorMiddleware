@@ -8,12 +8,17 @@ void DigitalSensor::updateLastValue() {
   _lastValue = (uint8_t)map(digitalRead(_sensorPin), 0, 1024, 1, 255);
 }
 
-bool DigitalSensor::parseParameters(uint8_t *parameter, uint8_t parameterCount) {
-  if (parameterCount != ParameterByteCount) {
+/// @brief Parse the parameters to each parameter in the constructor
+/// @param parameter All the parameters, the first index being the sensor type
+/// @param parameterCount Count of parameters (should be equal to
+/// getParameterByteCount(), else the parsing won't work)
+/// @return false if not enough parameters, otherwise false
+bool DigitalSensor::parseParameters(SerialPackage& package) {
+  if (package.getParameterCount() != getParameterByteCount() + 1) {
     return false;
   }
 
-  intervalMillis = parameter[0];
-  _sensorPin = parameter[1];
+  intervalMillis = package.getParameter(1);
+  _sensorPin = package.getParameter(2);
   return true;
 }

@@ -29,13 +29,15 @@ namespace Arsemi {
                     public const byte Error = Categories.System + 3;
                     public const byte RequestHandshake = Categories.System + 4;
                     public const byte ReplyHandshake = Categories.System + 5;
+                    public const byte Debug = Categories.System + 6;
                 }
 
 
                 public struct Setup {
                     public const byte ClearConfiguration = Categories.Setup + 1;
-                    public const byte AddSensor = Categories.Setup + 2;
-                    public const byte SuccessfullyAddedSensor = Categories.Setup + 3;
+                    public const byte SuccessfullyClearedConfiguration = Categories.Setup + 2;
+                    public const byte AddSensor = Categories.Setup + 3;
+                    public const byte SuccessfullyAddedSensor = Categories.Setup + 4;
                 }
 
 

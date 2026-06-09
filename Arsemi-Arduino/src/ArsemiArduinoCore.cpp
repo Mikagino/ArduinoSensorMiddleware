@@ -5,7 +5,7 @@ ArsemiArduinoCore::ArsemiArduinoCore(uint8_t maxSensorCount) {
   this->maxSensorCount = maxSensorCount;
 }
 
-ArsemiArduinoCore::~ArsemiArduinoCore() { delete sensors; }
+ArsemiArduinoCore::~ArsemiArduinoCore() { delete[] sensors; }
 
 /// @brief adds a new sensor to an array for batch calls of functions
 /// @param newSensor
@@ -29,8 +29,9 @@ void ArsemiArduinoCore::beginAllSensors() {
 /// @brief Calls Deconstructor on all the sensors added with addSensor()
 void ArsemiArduinoCore::destroyAllSensors() {
   for (int i = 0; i < _currentSensorCount; i++) {
-    sensors[i]->~AbstractSensor();
+    delete sensors[i];
   }
+  _currentSensorCount = 0;
 }
 
 /// @brief Calls update() on all the sensors added with addSensor() and sends

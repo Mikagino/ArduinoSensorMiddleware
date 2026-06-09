@@ -12,6 +12,7 @@ namespace Arsemi {
                 }
                 get => (_serialPort != null) ? _serialPort.ReceivedBytesThreshold : -1;
             }
+            public static Queue<byte> Buffer = [];
 
 
             /// <summary>
@@ -25,12 +26,18 @@ namespace Arsemi {
                     ReceivedBytesThreshold = serialPortInfo.ReceivedBytesThreshold
                 };
 
+                _serialPort.DataReceived += (_, _) => PushAllIntoBuffer();
                 _serialPort.DataReceived += (_, _) => DataReceivedAction?.Invoke();
                 _serialPort.Open();
             }
 
 
             #region Reading
+            private static void PushAllIntoBuffer() {
+                while(AvailableBytes(1))
+                    Buffer.Enqueue(ReadByte());
+            }
+
             /// <summary>
             /// Reads a single byte from the serial port
             /// </summary>

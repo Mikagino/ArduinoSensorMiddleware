@@ -15,12 +15,11 @@ protected:
   float _scale;
 
 public:
-  static const uint8_t ParameterByteCount = 5;
-
   // TODO: Rework all sensor's constructors to use byte[] and each class parses
   // the bytes themselves
   I2CSensor(uint8_t address = 0x00, uint8_t reg = 0x00, uint8_t bytes = 2);
   virtual bool begin() override;
   void updateLastValue() override;
-  bool parseParameters(uint8_t *parameter, uint8_t parameterCount) override;
+  bool parseParameters(SerialPackage& package) override;
+  uint8_t inline getParameterByteCount() override { return 3; }
 };

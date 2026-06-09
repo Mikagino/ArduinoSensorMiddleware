@@ -130,18 +130,35 @@ namespace Arsemi {
                         break;
 
                     case SerialProtocol.Action.System.ReplyHandshake:
-                        _handshakeResult = ConnectionResult.SUCCESS;
-                        CheckNextCRC8Checksum(SerialProtocol.Action.System.ReplyHandshake);
-                        _queuedActionCode = -1;
+                        if(CheckNextCRC8Checksum((byte)_queuedActionCode))
+                            _handshakeResult = ConnectionResult.SUCCESS;
+                        done = true;
                         break;
 
                     case SerialProtocol.Action.Sensor.NewSample:
-                        Console.WriteLine("New sample");
+                        //Console.WriteLine("New sample");
                         done = ParseNewSample();
                         break;
 
                     case SerialProtocol.Action.Setup.SuccessfullyAddedSensor:
-                        Console.WriteLine("Successfully added a sensor on the microcontroller.");
+                        if(CheckNextCRC8Checksum((byte)_queuedActionCode))
+                            Console.WriteLine("Successfully added a sensor on the microcontroller.");
+                        done = true;
+                        break;
+
+                    case SerialProtocol.Action.Setup.SuccessfullyClearedConfiguration:
+                        if(CheckNextCRC8Checksum((byte)_queuedActionCode))
+                            Console.WriteLine("Successfully cleared the configuration on the microcontroller.");
+                        done = true;
+                        break;
+
+                    case SerialProtocol.Action.System.Debug:
+                        byte debugParam = SerialMessaging.ReadByte();
+                        if(CheckNextCRC8Checksum((byte)_queuedActionCode, debugParam)) {
+                            Console.Write("Debug reached! ");
+                            Console.WriteLine(debugParam);
+                        }
+                        done = true;
                         break;
 
                     default:
@@ -197,9 +214,13 @@ namespace Arsemi {
                 case SerialProtocol.Error.Package.InvalidChecksum:
                     byte invalidCurrentChecksum = SerialMessaging.ReadByte();
                     byte invalidComputedChecksum = SerialMessaging.ReadByte();
-                    CheckNextCRC8Checksum(SerialProtocol.Action.System.Error, errorCode);
+                    CheckNextCRC8Checksum(SerialProtocol.Action.System.Error, errorCode, invalidCurrentChecksum, invalidComputedChecksum);
                     Console.WriteLine("Received error: " + errorCode + " = " + SerialProtocol.TryGetErrorName(errorCode)
-                                        + " -> " + invalidCurrentChecksum + " != " + invalidComputedChecksum);
+                                        + " -> " + invalidCurrentChecksum + " != " + invalidComputedChecksum
+                                        );
+                    break;
+                case SerialProtocol.Error.Package.InvalidSensorParameters:
+                    Console.WriteLine("Invalid sensor parameter count...");
                     break;
                 default:
                     break;

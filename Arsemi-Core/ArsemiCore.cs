@@ -109,7 +109,6 @@ namespace Arsemi {
         byte[] addSensorMessage = new SerialPackage(SerialProtocol.Action.Setup.AddSensor, Sensors[i].ParseDataToByteArray()).Serialize();
         SerialMessaging.Write(addSensorMessage);
       }
-
     }
 
 

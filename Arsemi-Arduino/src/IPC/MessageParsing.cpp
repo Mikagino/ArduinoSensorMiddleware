@@ -7,15 +7,18 @@ MessageParsing::MessageParsing(ArsemiArduinoCore &newArsemiArduinoCore)
 /// according actions and invoke associated functions, with all parameters
 /// of the package.
 void MessageParsing::parseMessage() {
-  if (!SerialMessaging::isPackageAvailable()) {
+  if (!SerialMessaging::isPackageAvailable())
     return;
-  }
 
-  if (_queuedActionCode == -1) {
+  if (_queuedActionCode == -1 || _queuedActionCode == 0) {
     _queuedActionCode = parseNextActionCode();
+    // SerialMessaging::write(SerialProtocol::Action::Setup::SuccessfullyAddedSensor);
+    uint8_t pack[2] = {SerialProtocol::Action::System::Debug,
+                       _queuedActionCode};
+    SerialMessaging::write(pack, 2);
   }
 
-  if (_queuedActionCode == -1) {
+  if (_queuedActionCode == -1 || _queuedActionCode == 0) {
     return;
   }
 
@@ -46,11 +49,15 @@ void MessageParsing::parseMessage() {
   case SerialProtocol::Action::Setup::ClearConfiguration:
     if (checkNextCrc8Checksum(_queuedActionCode)) {
       arsemiArduinoCore.destroyAllSensors();
+      SerialMessaging::write(
+          SerialProtocol::Action::Setup::SuccessfullyClearedConfiguration);
     }
     done = true;
     break;
 
   case SerialProtocol::Action::Setup::AddSensor:
+    SerialMessaging::write(
+        SerialProtocol::Action::Setup::SuccessfullyAddedSensor);
     done = parseAddSensorAction();
     break;
 
@@ -59,7 +66,7 @@ void MessageParsing::parseMessage() {
                        SerialProtocol::Error::Package::InvalidActionCode,
                        (uint8_t)_queuedActionCode};
     SerialMessaging::write(data, 3);
-    //_queuedActionCode = -1; // discard package because it's not correct?
+    done = true;
   }
 
   if (done)
@@ -72,18 +79,15 @@ void MessageParsing::parseMessage() {
 /// must be done by another method.
 /// @returns Action code which follows after the next start byte, otherwise -1
 int MessageParsing::parseNextActionCode() {
-  if (!SerialMessaging::isPackageAvailable())
-    return -1;
+  while (SerialMessaging::isPackageAvailable()) {
+    if (Serial.peek() == SerialProtocol::StartByte) {
+      Serial.read(); // discard StartByte
+      return Serial.read();
+    }
 
-  if (Serial.peek() == SerialProtocol::StartByte) {
-    Serial.read(); // discard StartByte
-    return Serial.read();
+    Serial.read(); // discard
   }
-
-  // Discard all until StartByte
-  while (Serial.available() < 3 && Serial.read() != SerialProtocol::StartByte) {
-  }
-  return Serial.read();
+  return -1;
 }
 
 /// @brief Parse action "Add Sensor".
@@ -93,39 +97,42 @@ int MessageParsing::parseNextActionCode() {
 /// enough, otherwise true (it will also return true to discard invalid
 /// packages)
 bool MessageParsing::parseAddSensorAction() {
-  if (!SerialMessaging::isPackageAvailable())
+  if (Serial.available() == 0)
     return false;
 
-  if (queuedPackage.Parameters[0] == 0)
-    queuedPackage.Parameters[0] = Serial.read(); // read sensor type
+  if (queuedPackage.getParameter(0) == 0)
+    queuedPackage.appendParameters(Serial.read(), 1); // read sensor type
 
   if (queuedSensor == nullptr)
     queuedSensor = SensorFactory::createNewSensor(
-        AbstractSensor::SensorTypes(queuedPackage.Parameters[0]));
+        AbstractSensor::SensorTypes(queuedPackage.getParameter(0)));
 
   if (queuedSensor == nullptr)
     SerialMessaging::write(SerialProtocol::Action::System::Error,
                            SerialProtocol::Error::Package::InvalidSensorType);
 
-  if (queuedSensor->ParameterByteCount < Serial.available())
+  if (queuedSensor->getParameterByteCount() > Serial.available()) {
+    SerialMessaging::write(
+        SerialProtocol::Action::System::Error,
+        SerialProtocol::Error::Package::InvalidSensorParameters);
     return false;
+  }
 
-  for (int i = 1; i <= queuedSensor->ParameterByteCount; i++) {
+  for (int i = queuedPackage.getParameterCount();
+       i <= queuedSensor->getParameterByteCount(); i++) {
     if (Serial.peek() == SerialProtocol::StartByte) {
       SerialMessaging::write(
           SerialProtocol::Action::System::Error,
           SerialProtocol::Error::Package::InvalidSensorParameters);
       return true;
     }
-    queuedPackage.Parameters[i] = Serial.read();
-    continue;
+    queuedPackage.appendParameters(Serial.read(), 1);
   }
 
   if (!checkNextCrc8Checksum(queuedPackage))
     return true;
 
-  queuedSensor->parseParameters(queuedPackage.Parameters,
-                                queuedSensor->ParameterByteCount);
+  queuedSensor->parseParameters(queuedPackage);
 
   if (arsemiArduinoCore.addSensor(queuedSensor)) {
     SerialMessaging::write(
@@ -135,7 +142,8 @@ bool MessageParsing::parseAddSensorAction() {
     SerialMessaging::write(SerialProtocol::Action::System::Error,
                            SerialProtocol::Error::Package::SensorCountOverflow);
 
-  queuedPackage.ActionCode = 0;
+  queuedPackage.reset();
+  queuedSensor = nullptr;
   return true;
 }
 
@@ -146,30 +154,33 @@ bool MessageParsing::parseAddSensorAction() {
 /// @return true if calculated checksum is similar to crc8Checksum, otherwise
 /// false
 bool MessageParsing::checkNextCrc8Checksum(SerialPackage &package) {
-  uint8_t currentCrc8Checksum = Serial.read();
+  uint8_t nextCrc8Checksum = Serial.read();
   uint8_t calculatedCrc8Checksum = SerialMessaging::CRC8(package);
-  if (currentCrc8Checksum != calculatedCrc8Checksum) {
-    // uint8_t package[4] = {SerialProtocol::Action::System::Error,
-    //                       SerialProtocol::Error::Package::InvalidChecksum,
-    //                       currentCrc8Checksum, calculatedCrc8Checksum};
-    // SerialMessaging::write(package, 4);
-    SerialMessaging::write(SerialProtocol::Action::System::Error,
-                           SerialProtocol::Error::Package::InvalidChecksum);
+
+  uint8_t *serializedPackage = package.Serialize();
+
+  if (nextCrc8Checksum != calculatedCrc8Checksum) {
+    uint8_t package[4] = {SerialProtocol::Action::System::Error,
+                          SerialProtocol::Error::Package::InvalidChecksum,
+                          nextCrc8Checksum, calculatedCrc8Checksum};
+    SerialMessaging::write(package, 4);
+    // SerialMessaging::write(SerialProtocol::Action::System::Error,
+    //                        SerialProtocol::Error::Package::InvalidChecksum);
     return false;
   }
   return true;
 }
 
 bool MessageParsing::checkNextCrc8Checksum(uint8_t actionCode) {
-  uint8_t currentCrc8Checksum = Serial.read();
+  uint8_t nextCrc8Checksum = Serial.read();
   uint8_t calculatedCrc8Checksum = SerialMessaging::CRC8(actionCode);
-  if (currentCrc8Checksum != calculatedCrc8Checksum) {
-    // uint8_t package[4] = {SerialProtocol::Action::System::Error,
-    //                       SerialProtocol::Error::Package::InvalidChecksum,
-    //                       currentCrc8Checksum, calculatedCrc8Checksum};
-    // SerialMessaging::write(package, 4);
-    SerialMessaging::write(SerialProtocol::Action::System::Error,
-                           SerialProtocol::Error::Package::InvalidChecksum);
+  if (nextCrc8Checksum != calculatedCrc8Checksum) {
+    uint8_t package[4] = {SerialProtocol::Action::System::Error,
+                          SerialProtocol::Error::Package::InvalidChecksum,
+                          nextCrc8Checksum, calculatedCrc8Checksum};
+    SerialMessaging::write(package, 4);
+    // SerialMessaging::write(SerialProtocol::Action::System::Error,
+    //                        SerialProtocol::Error::Package::InvalidChecksum);
     return false;
   }
   return true;

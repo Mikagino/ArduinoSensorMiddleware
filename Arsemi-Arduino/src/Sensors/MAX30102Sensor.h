@@ -11,11 +11,11 @@ private:
   MAX30102 _sensor = MAX30102();
 
 public:
-  const uint8_t ParameterByteCount = 0;
   // TODO: Rework all sensor's constructors to use byte[] and each class parses
   // the bytes themselves
   MAX30102Sensor();
   bool begin() override;
   void updateLastValue() override;
-  bool parseParameters(uint8_t *parameter, uint8_t parameterCount) override;
+  bool parseParameters(SerialPackage& package) override;
+  uint8_t inline getParameterByteCount() override { return 1; }
 };
