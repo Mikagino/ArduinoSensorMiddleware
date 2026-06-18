@@ -1,7 +1,3 @@
-using System.ComponentModel;
-using System.IO.Ports;
-using BenchmarkDotNet.Attributes;
-
 namespace Arsemi {
 
     namespace IPC {
@@ -9,6 +5,9 @@ namespace Arsemi {
         public class MessageParsing {
             private ArsemiCore _arsemiCore;
             private int _queuedActionCode = -1;
+
+            private Mutex _mutex = new(false);
+            private const int MutexTimeoutMs = 1000;
 
             private DateTime _handshakeTimeout = DateTime.MinValue;
             public enum ConnectionResult {
@@ -19,6 +18,7 @@ namespace Arsemi {
                 TIMEOUT,
             }
             private ConnectionResult _handshakeResult = ConnectionResult.NONE;
+
 
 
             public MessageParsing(ArsemiCore arsemiCore) {
@@ -35,7 +35,7 @@ namespace Arsemi {
             /// <returns>SUCCESS if the microcontroller is connected and the port is available, otherwise false</returns>
             public async Task<ConnectionResult> ConnectMicrocontrollerAsync(SerialPortInfo? serialPortInfo = null, int drtResetWaitMs = 2000, int timeoutMs = 5000) {
                 serialPortInfo ??= new();
-                Console.WriteLine("ArSeMi: Try connecting to microcontroller on " + serialPortInfo.PortName);
+                Console.WriteLine("Try connecting to microcontroller on " + serialPortInfo.PortName + "...");
                 SerialMessaging.Begin(serialPortInfo);
                 await Task.Delay(drtResetWaitMs);
                 SerialMessaging.DataReceivedAction += ParseMessage; // DEBUG -> later move to start loop
@@ -91,81 +91,103 @@ namespace Arsemi {
             /// Converts a new message from string to package and then matches the action code to the required actions
             /// </summary>
             public void ParseMessage() {
-
+                _mutex.WaitOne(MutexTimeoutMs);
                 // foreach(byte b in _serialMessaging.ReadBytes()) {
                 //   Console.Write(b.ToString());
                 //   Console.Write("-");
                 // }
                 // Console.Write("---");
-                while(SerialMessaging.AvailableBytes()) {
+                try {
 
-                    if(_queuedActionCode == -1) {
-                        _queuedActionCode = ParsePackageStart();
-                        //if(_queuedActionCode != -1) Console.WriteLine("Received new action = " + _queuedActionCode);
+                    while(SerialMessaging.AvailableBytes()) {
 
-                    }
+                        if(_queuedActionCode == -1) {
+                            _queuedActionCode = ParseNextActionCode();
+                            //if(_queuedActionCode != -1) Console.WriteLine("Received new action = " + _queuedActionCode);
 
-                    if(_queuedActionCode == -1) {
-                        return;
-                    }
-
-                    bool done = false;
-
-                    switch(_queuedActionCode) {
-                    /// Codes meant for sending to the microcontroller -> no need to implement
-                    // case SerialProtocol.SystemCodes.HibernateMicrocontroller:
-                    //   throw new NotImplementedException();
-                    // case SerialProtocol.SystemCodes.WakeMicrocontroller:
-                    //   throw new NotImplementedException();
-                    // case SerialProtocol.SetupCodes.ClearConfiguration:
-                    //   throw new NotImplementedException();
-                    // case SerialProtocol.SetupCodes.AddSensor:
-                    //   throw new NotImplementedException();
-                    // case SerialProtocol.SystemCodes.RequestHandshake:
-                    //   throw new NotImplementedException();
-
-                    /// Codes meant for receiving from the microcontroller
-                    case SerialProtocol.Action.System.Error:
-                        done = ParseSystemError();
-                        break;
-
-                    case SerialProtocol.Action.System.ReplyHandshake:
-                        if(CheckNextCRC8Checksum((byte)_queuedActionCode))
-                            _handshakeResult = ConnectionResult.SUCCESS;
-                        done = true;
-                        break;
-
-                    case SerialProtocol.Action.Sensor.NewSample:
-                        //Console.WriteLine("New sample");
-                        done = ParseNewSample();
-                        break;
-
-                    case SerialProtocol.Action.Setup.SuccessfullyAddedSensor:
-                        if(CheckNextCRC8Checksum((byte)_queuedActionCode))
-                            Console.WriteLine("Successfully added a sensor on the microcontroller.");
-                        done = true;
-                        break;
-
-                    case SerialProtocol.Action.Setup.SuccessfullyClearedConfiguration:
-                        if(CheckNextCRC8Checksum((byte)_queuedActionCode))
-                            Console.WriteLine("Successfully cleared the configuration on the microcontroller.");
-                        done = true;
-                        break;
-
-                    case SerialProtocol.Action.System.Debug:
-                        byte debugParam = SerialMessaging.ReadByte();
-                        if(CheckNextCRC8Checksum((byte)_queuedActionCode, debugParam)) {
-                            Console.Write("Debug reached! ");
-                            Console.WriteLine(debugParam);
                         }
-                        done = true;
-                        break;
 
-                    default:
-                        throw new NotImplementedException("The action code in the message can't be associated with a command in " + nameof(SerialProtocol));
+                        if(_queuedActionCode == -1) {
+                            return;
+                        }
+
+                        bool done = false;
+
+                        switch(_queuedActionCode) {
+                        /// Codes meant for sending to the microcontroller -> no need to implement
+                        // case SerialProtocol.SystemCodes.HibernateMicrocontroller:
+                        //   throw new NotImplementedException();
+                        // case SerialProtocol.SystemCodes.WakeMicrocontroller:
+                        //   throw new NotImplementedException();
+                        // case SerialProtocol.SetupCodes.ClearConfiguration:
+                        //   throw new NotImplementedException();
+                        // case SerialProtocol.SetupCodes.AddSensor:
+                        //   throw new NotImplementedException();
+                        // case SerialProtocol.SystemCodes.RequestHandshake:
+                        //   throw new NotImplementedException();
+
+                        /// Codes meant for receiving from the microcontroller
+                        case SerialProtocol.Action.System.Error:
+                            done = ParseSystemError();
+                            break;
+
+                        case SerialProtocol.Action.System.ReplyHandshake:
+                            if(CheckNextCRC8Checksum((byte)_queuedActionCode))
+                                _handshakeResult = ConnectionResult.SUCCESS;
+                            done = true;
+                            break;
+
+                        case SerialProtocol.Action.Sensor.NewSample:
+                            //Console.WriteLine("New sample");
+                            done = ParseNewSample();
+                            break;
+
+                        case SerialProtocol.Action.Setup.SuccessfullyAddedSensor:
+                            if(!SerialMessaging.AvailableBytes(2))
+                                break;
+                            int param = SerialMessaging.DequeueByte();
+                            if(CheckNextCRC8Checksum((byte)_queuedActionCode, (byte)param))
+                                Console.WriteLine("Successfully added a sensor on the microcontroller. -> " + param);
+                            done = true;
+                            break;
+
+                        case SerialProtocol.Action.Setup.SuccessfullyClearedConfiguration:
+                            if(!SerialMessaging.AvailableBytes(1))
+                                break;
+                            if(CheckNextCRC8Checksum((byte)_queuedActionCode))
+                                Console.WriteLine("Successfully cleared the configuration on the microcontroller.");
+                            done = true;
+                            break;
+
+                        case SerialProtocol.Action.System.Debug:
+                            if(!SerialMessaging.AvailableBytes(2))
+                                break;
+                            byte debugParam = (byte)SerialMessaging.DequeueByte();
+                            if(CheckNextCRC8Checksum((byte)_queuedActionCode, debugParam)) {
+                                Console.Write("Debug reached! ");
+                                Console.WriteLine(debugParam);
+                            }
+                            done = true;
+                            break;
+
+                        case SerialProtocol.Action.System.Heartbeat:
+                            if(CheckNextCRC8Checksum((byte)_queuedActionCode))
+                                Console.WriteLine("*");
+                            done = true;
+                            break;
+
+                        default:
+                            Console.WriteLine("The action code " + _queuedActionCode + " in the message can't be associated with a command in " + nameof(SerialProtocol));
+                            //throw new NotImplementedException("The action code " + _queuedActionCode + " in the message can't be associated with a command in " + nameof(SerialProtocol));
+                            done = true;
+                            break;
+                        }
+
+                        if(done) _queuedActionCode = -1;
                     }
-
-                    if(done) _queuedActionCode = -1;
+                }
+                finally {
+                    _mutex.ReleaseMutex();
                 }
             }
 
@@ -179,8 +201,8 @@ namespace Arsemi {
                     return false;
                 }
 
-                byte sensorId = SerialMessaging.ReadByte();
-                byte value = SerialMessaging.ReadByte();
+                byte sensorId = (byte)SerialMessaging.DequeueByte();
+                byte value = (byte)SerialMessaging.DequeueByte();
 
                 CheckNextCRC8Checksum(SerialProtocol.Action.Sensor.NewSample, sensorId, value);
 
@@ -203,17 +225,17 @@ namespace Arsemi {
                     return false;
                 }
 
-                byte errorCode = SerialMessaging.ReadByte();
+                byte errorCode = (byte)SerialMessaging.DequeueByte();
 
                 switch(errorCode) {
                 case SerialProtocol.Error.Package.InvalidActionCode:
-                    byte invalidCode = SerialMessaging.ReadByte();
+                    byte invalidCode = (byte)SerialMessaging.DequeueByte();
                     CheckNextCRC8Checksum(SerialProtocol.Action.System.Error, errorCode, invalidCode);
                     Console.WriteLine("Received error: " + errorCode + " = " + SerialProtocol.TryGetErrorName(errorCode) + " -> " + invalidCode);
                     break;
                 case SerialProtocol.Error.Package.InvalidChecksum:
-                    byte invalidCurrentChecksum = SerialMessaging.ReadByte();
-                    byte invalidComputedChecksum = SerialMessaging.ReadByte();
+                    byte invalidCurrentChecksum = (byte)SerialMessaging.DequeueByte();
+                    byte invalidComputedChecksum = (byte)SerialMessaging.DequeueByte();
                     CheckNextCRC8Checksum(SerialProtocol.Action.System.Error, errorCode, invalidCurrentChecksum, invalidComputedChecksum);
                     Console.WriteLine("Received error: " + errorCode + " = " + SerialProtocol.TryGetErrorName(errorCode)
                                         + " -> " + invalidCurrentChecksum + " != " + invalidComputedChecksum
@@ -231,29 +253,17 @@ namespace Arsemi {
 
 
             /// <summary>
-            /// Reads from Serial until value is reached 
+            /// Discards all bytes from the Serial stream until StartByte is reached.
             /// </summary>
-            /// <param name="value"></param>
-            /// <returns>true when value is found in the stream, otherwise false</returns>
-            private static bool DiscardUntilValue(byte value) {
-                while(SerialMessaging.AvailableBytes()) {
-                    byte message = SerialMessaging.ReadByte();
-                    if(message == value) {
-                        return true;
+            /// <returns>-1 when the start byte couldn't be parsed because the queue is too short</returns>
+            public static int ParseNextActionCode() {
+                while(SerialMessaging.AvailableBytes(2)) {
+                    if(SerialMessaging.PeekByte() == SerialProtocol.PackageStartByte) {
+                        _ = SerialMessaging.DequeueByte(); // discard StartByte
+                        int actionCode = SerialMessaging.DequeueByte();
+                        return actionCode;
                     }
-                }
-                return false;
-            }
-
-
-            /// <summary>
-            /// Discards all bytes from the Serial stream until @packageStartByte is reached.
-            /// </summary>
-            /// <param name="packageStartByte"></param>
-            /// <returns>-1 when the package is not yet finished</returns>
-            public static int ParsePackageStart(byte packageStartByte = SerialProtocol.PackageStartByte) {
-                if(DiscardUntilValue(packageStartByte)) {
-                    return SerialMessaging.ReadByte();
+                    _ = SerialMessaging.DequeueByte(); // discard
                 }
                 return -1;
             }
@@ -265,7 +275,7 @@ namespace Arsemi {
             /// <returns></returns>
             /// <exception cref="Exception"></exception>
             private static bool CheckNextCRC8Checksum(params byte[] data) {
-                byte currentCrc8Checksum = SerialMessaging.ReadByte();
+                int currentCrc8Checksum = SerialMessaging.DequeueByte();
                 byte computedCrc8Checksum = SerialMessaging.CRC8(data);
 
                 if(currentCrc8Checksum != computedCrc8Checksum) {

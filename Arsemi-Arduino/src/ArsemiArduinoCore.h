@@ -10,7 +10,7 @@ class ArsemiArduinoCore {
 private:
   uint8_t maxSensorCount = 8;
   AbstractSensor **sensors;
-  uint8_t _currentSensorCount;
+  uint8_t _currentSensorCount = 0;
 
 public:
   bool execution = false;

@@ -38,6 +38,7 @@ public:
       static const uint8_t RequestHandshake = Categories::System + 4;
       static const uint8_t ReplyHandshake = Categories::System + 5;
       static const uint8_t Debug = Categories::System + 6;
+      static const uint8_t Heartbeat = Categories::System + 7;
     };
 
     struct Setup {

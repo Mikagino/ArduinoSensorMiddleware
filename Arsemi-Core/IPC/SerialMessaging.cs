@@ -12,78 +12,72 @@ namespace Arsemi {
                 }
                 get => (_serialPort != null) ? _serialPort.ReceivedBytesThreshold : -1;
             }
-            public static Queue<byte> Buffer = [];
+            private static readonly Queue<byte> _buffer = new(64);
+            private static readonly Mutex _mutex = new(false);
 
 
             /// <summary>
             /// Sets up serial communication with the microcontroller with the specified settings.
             /// </summary>
-            /// <param name="portName">Must match exactly with the string found in SerialPort.GetPortNames().</param>
-            /// <param name="baudRate">Only change if you changed it also on the Microcontroller!</param>
-            /// <param name="receivedBytesThreshold">Action is invoked when the message byte size is higher than this threshold.</param>
+            /// <param name="serialPortInfo"></param>
             public static void Begin(SerialPortInfo serialPortInfo) {
                 _serialPort = new(serialPortInfo.PortName, serialPortInfo.BaudRate) {
                     ReceivedBytesThreshold = serialPortInfo.ReceivedBytesThreshold
                 };
 
                 _serialPort.DataReceived += (_, _) => PushAllIntoBuffer();
-                _serialPort.DataReceived += (_, _) => DataReceivedAction?.Invoke();
+                //_serialPort.DataReceived += (_, _) => DataReceivedAction?.Invoke();
                 _serialPort.Open();
             }
 
 
             #region Reading
+            /// <summary>
+            /// Read the first byte from the internal serial queue
+            /// </summary>
+            /// <returns>return -1 when the queue is empty, otherwise the value in the queue</returns>
+            public static int DequeueByte() {
+                if(_buffer.TryDequeue(out byte tempResult))
+                    return tempResult;
+                return -1;
+            }
+
+            /// <summary>
+            /// Peeks the first value of the serial queue
+            /// </summary>
+            /// <returns>return -1 when the queue is empty, otherwise the value in the queue</returns>
+            public static int PeekByte() {
+                if(_buffer.TryPeek(out byte tempResult))
+                    return tempResult;
+                return -1;
+            }
+
+            /// <summary>
+            /// Push all the values in the serial buffer into the internal buffer.
+            /// Locks the mutex until finished. This way all values are pushed in their correct order into the buffer.
+            /// </summary>
             private static void PushAllIntoBuffer() {
-                while(AvailableBytes(1))
-                    Buffer.Enqueue(ReadByte());
+                _mutex.WaitOne(1000);
+                try {
+                    while(_serialPort?.BytesToRead > 0) {
+                        _buffer.Enqueue(ReadByte());
+                        Console.WriteLine(PeekByte());
+                    }
+                }
+                finally {
+                    _mutex.ReleaseMutex();
+                }
+                DataReceivedAction?.Invoke();
             }
 
             /// <summary>
             /// Reads a single byte from the serial port
             /// </summary>
-            /// <returns>The byte, cast to an int, or -1 if the end of the stream has been read or _serialPort is null.</returns>
-            public static byte ReadByte() {
+            /// <returns>The byte, cast to an int</returns>
+            private static byte ReadByte() {
                 int result = _serialPort == null ? -1 : _serialPort.ReadByte();
                 if(result == -1) throw new Exception("Byte is somehow corrupted (e.g. end of stream, value is not in valid range, ...)");
                 return (byte)result;
-            }
-
-
-            /// <summary>
-            /// TODO: Reads all bytes available in the stream
-            /// </summary>
-            /// <returns></returns>
-            public static int[] ReadBytes() {
-                if(!PortAvailable() || !AvailableBytes()) {
-                    return [];
-                }
-
-                int bytesToRead = _serialPort == null ? 0 : _serialPort.BytesToRead;
-                if(bytesToRead == 0) return [];
-
-                int[] bytes = new int[bytesToRead];
-                for(int i = 0; i < bytesToRead; i++) {
-                    bytes[i] = ReadByte();
-                }
-                // char endline = _serialPort.NewLine.ToCharArray()[0];
-
-                // // for(int i = 0; i < _serialPort.BytesToRead; i++) {
-                // //     nextByte = _serialPort.ReadByte();
-                // //     // string? a = _serialPort.ReadLine();
-                // //     // Console.WriteLine(a);
-                // //     if(nextByte == -1 || nextByte == endline) {
-                // //         break;
-                // //     }
-                // //     bytes.Add((byte)nextByte);
-                // //     Console.WriteLine((byte)nextByte);
-                // // }
-                // _serialPort.Read(bytes, 0, _serialPort.BytesToRead);
-                // foreach(byte b in bytes) {
-                //     Console.Write(b.ToString() + ", ");
-                // }
-                // Console.WriteLine("\n---");
-
-                return bytes;
             }
             #endregion Reading
 
@@ -142,13 +136,13 @@ namespace Arsemi {
 
 
             /// <summary>
-            /// Checks if a count of "byteCount" bytes are available in the buffer where.
+            /// Checks if a count of "byteCount" bytes are available in the buffer.
             /// </summary>
             /// <param name="byteCount"></param>
             /// <returns></returns>
             public static bool AvailableBytes(int byteCount = 1) {
                 // Console.WriteLine("Still waiting for bytes...");
-                return _serialPort?.BytesToRead >= byteCount;
+                return _buffer.Count >= byteCount;
             }
 
 

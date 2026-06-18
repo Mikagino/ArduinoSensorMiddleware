@@ -4,7 +4,7 @@ namespace Arsemi {
         public static class SerialProtocol {
             private const byte CategorySize = 32;
             public const int BaudRate = 9600;
-            public const int ReceivedBytesThreshold = 3;
+            public const int ReceivedBytesThreshold = 1;
             public const byte PackageStartByte = 0;
 
             private struct Categories {
@@ -30,6 +30,7 @@ namespace Arsemi {
                     public const byte RequestHandshake = Categories.System + 4;
                     public const byte ReplyHandshake = Categories.System + 5;
                     public const byte Debug = Categories.System + 6;
+                    public const byte Heartbeat = Categories.System + 7;
                 }
 
 

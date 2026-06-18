@@ -7,6 +7,8 @@
 
 class SerialMessaging {
 private:
+  static const long timeoutMs = 1000;
+
 public:
   // calls Serial.begin() with specified baudrate
   static void begin(int baudRate = SerialProtocol::BaudRate);

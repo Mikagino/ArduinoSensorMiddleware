@@ -8,6 +8,14 @@
 /// [ActionCode | Parameters[] optional ]
 /// @param length how many entries has the data array
 void SerialMessaging::write(uint8_t *data, uint8_t length) {
+  long startTime = millis();
+  do {
+    if (millis() - startTime > timeoutMs) {
+      return;
+    }
+    delayMicroseconds(50);
+  } while (Serial.availableForWrite() < length + 2);
+
   Serial.write(SerialProtocol::StartByte);
   for (int i = 0; i < length; i++) {
     Serial.write(data[i]);
@@ -16,12 +24,21 @@ void SerialMessaging::write(uint8_t *data, uint8_t length) {
 }
 
 /// @brief Send a message over serial with the structure
-/// [StartByte | data | CRC8],
-/// StartByte and CRC8 are added by the function
+///  [StartByte | data | CRC8],
+/// StartByte and CRC8 are added by the function. Waits until there is space
+/// available in the serial buffer or until timeoutMs is reached.
 /// @param data the data to be sent, must include
 /// [ActionCode | Parameters[] optional]
 /// @param length how many entries has the data array
 void SerialMessaging::write(const uint8_t *data, uint8_t length) {
+  long startTime = millis();
+  do {
+    // if (millis() - startTime > timeoutMs) {
+    //   return;
+    // }
+    delayMicroseconds(50);
+  } while (Serial.availableForWrite() < length + 2);
+  
   Serial.write(SerialProtocol::StartByte);
   for (int i = 0; i < length; i++) {
     Serial.write(data[i]);

@@ -5,6 +5,8 @@
 
 ArsemiArduinoCore arsemi(8);
 MessageParsing messageParsing(arsemi);
+// long lastUpdate = 0;
+// long updateIntervalMs = 2000;
 
 void setup() {
   SerialMessaging::begin();
@@ -14,5 +16,9 @@ void setup() {
 void loop() {
   messageParsing.parseMessage();
   arsemi.updateAllSensors();
-  //delay(100);
+  
+  // if(millis() - lastUpdate > updateIntervalMs) {
+  //   lastUpdate = millis();
+  //   SerialMessaging::write(SerialProtocol::Action::System::Heartbeat);
+  // }
 }

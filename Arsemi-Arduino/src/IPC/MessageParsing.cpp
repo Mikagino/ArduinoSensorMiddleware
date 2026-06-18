@@ -12,7 +12,6 @@ void MessageParsing::parseMessage() {
 
   if (_queuedActionCode == -1 || _queuedActionCode == 0) {
     _queuedActionCode = parseNextActionCode();
-    // SerialMessaging::write(SerialProtocol::Action::Setup::SuccessfullyAddedSensor);
     uint8_t pack[2] = {SerialProtocol::Action::System::Debug,
                        _queuedActionCode};
     SerialMessaging::write(pack, 2);
@@ -48,16 +47,14 @@ void MessageParsing::parseMessage() {
 
   case SerialProtocol::Action::Setup::ClearConfiguration:
     if (checkNextCrc8Checksum(_queuedActionCode)) {
-      arsemiArduinoCore.destroyAllSensors();
       SerialMessaging::write(
           SerialProtocol::Action::Setup::SuccessfullyClearedConfiguration);
+      arsemiArduinoCore.destroyAllSensors();
     }
     done = true;
     break;
 
   case SerialProtocol::Action::Setup::AddSensor:
-    SerialMessaging::write(
-        SerialProtocol::Action::Setup::SuccessfullyAddedSensor);
     done = parseAddSensorAction();
     break;
 
@@ -97,8 +94,15 @@ int MessageParsing::parseNextActionCode() {
 /// enough, otherwise true (it will also return true to discard invalid
 /// packages)
 bool MessageParsing::parseAddSensorAction() {
+  // SerialMessaging::write(
+  //     SerialProtocol::Action::Setup::SuccessfullyAddedSensor, 2);
+  // SerialMessaging::write(
+  //     SerialProtocol::Action::Setup::SuccessfullyAddedSensor, 3);
+
   if (Serial.available() == 0)
     return false;
+
+  SerialMessaging::write(SerialProtocol::Action::System::Debug, 69);
 
   if (queuedPackage.getParameter(0) == 0)
     queuedPackage.appendParameters(Serial.read(), 1); // read sensor type
