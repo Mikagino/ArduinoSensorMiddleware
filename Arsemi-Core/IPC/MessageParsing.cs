@@ -1,13 +1,17 @@
+using System.Threading.Tasks;
+
 namespace Arsemi {
 
     namespace IPC {
 
         public class MessageParsing {
             private ArsemiCore _arsemiCore;
-            private int _queuedActionCode = -1;
+
+            private SerialPackage _queuedPackage = new();
 
             private Mutex _mutex = new(false);
-            private const int MutexTimeoutMs = 1000;
+            private SemaphoreSlim _semaphore = new(0, 1);
+            private const int ParsingTimeoutMs = 1000;
 
             private DateTime _handshakeTimeout = DateTime.MinValue;
             public enum ConnectionResult {
@@ -38,7 +42,7 @@ namespace Arsemi {
                 Console.WriteLine("Try connecting to microcontroller on " + serialPortInfo.PortName + "...");
                 SerialMessaging.Begin(serialPortInfo);
                 await Task.Delay(drtResetWaitMs);
-                SerialMessaging.DataReceivedAction += ParseMessage; // DEBUG -> later move to start loop
+                SerialMessaging.DataReceivedAction += () => ParseMessage(); // DEBUG -> later move to start loop
 
                 bool connected = SerialMessaging.PortAvailable();
                 if(connected) { Console.WriteLine("Successfully connected to microcontroller on " + serialPortInfo.PortName); }
@@ -90,30 +94,29 @@ namespace Arsemi {
             /// <summary>
             /// Converts a new message from string to package and then matches the action code to the required actions
             /// </summary>
-            public void ParseMessage() {
-                _mutex.WaitOne(MutexTimeoutMs);
-                // foreach(byte b in _serialMessaging.ReadBytes()) {
-                //   Console.Write(b.ToString());
-                //   Console.Write("-");
-                // }
-                // Console.Write("---");
-                try {
+            public async Task ParseMessage() {
+                if(await _semaphore.WaitAsync(ParsingTimeoutMs)) {
+                    return; // failed to acquire, other thread will handle the message parsing
+                }
 
+                try {
                     while(SerialMessaging.AvailableBytes()) {
 
-                        if(_queuedActionCode == -1) {
-                            _queuedActionCode = ParseNextActionCode();
-                            //if(_queuedActionCode != -1) Console.WriteLine("Received new action = " + _queuedActionCode);
-
+                        // Parse action code
+                        if(_queuedPackage.Empty) {
+                            int queuedActionCode = ParseNextActionCode();
+                            if(queuedActionCode == -1)
+                                break;
+                            _queuedPackage.ActionCode = (byte)queuedActionCode;
                         }
 
-                        if(_queuedActionCode == -1) {
-                            return;
-                        }
+                        var k = SerialMessaging._buffer; // DEBUG
+                        if(!_queuedPackage.Done)
+                            await ParseNextParametersAsync();
 
                         bool done = false;
 
-                        switch(_queuedActionCode) {
+                        switch(_queuedPackage.ActionCode) {
                         /// Codes meant for sending to the microcontroller -> no need to implement
                         // case SerialProtocol.SystemCodes.HibernateMicrocontroller:
                         //   throw new NotImplementedException();
@@ -132,9 +135,8 @@ namespace Arsemi {
                             break;
 
                         case SerialProtocol.Action.System.ReplyHandshake:
-                            if(CheckNextCRC8Checksum((byte)_queuedActionCode))
+                            if(CheckCRC8Checksum(_queuedPackage))
                                 _handshakeResult = ConnectionResult.SUCCESS;
-                            done = true;
                             break;
 
                         case SerialProtocol.Action.Sensor.NewSample:
@@ -143,51 +145,76 @@ namespace Arsemi {
                             break;
 
                         case SerialProtocol.Action.Setup.SuccessfullyAddedSensor:
-                            if(!SerialMessaging.AvailableBytes(2))
-                                break;
-                            int param = SerialMessaging.DequeueByte();
-                            if(CheckNextCRC8Checksum((byte)_queuedActionCode, (byte)param))
+                            if(_queuedPackage.Parameters.Count != 1)
+                                throw new Exception("Error parsing Message...");
+                            int param = _queuedPackage.Parameters[0];
+                            if(CheckCRC8Checksum(_queuedPackage))
                                 Console.WriteLine("Successfully added a sensor on the microcontroller. -> " + param);
-                            done = true;
                             break;
 
                         case SerialProtocol.Action.Setup.SuccessfullyClearedConfiguration:
                             if(!SerialMessaging.AvailableBytes(1))
                                 break;
-                            if(CheckNextCRC8Checksum((byte)_queuedActionCode))
+                            if(CheckCRC8Checksum(_queuedPackage))
                                 Console.WriteLine("Successfully cleared the configuration on the microcontroller.");
-                            done = true;
                             break;
 
                         case SerialProtocol.Action.System.Debug:
-                            if(!SerialMessaging.AvailableBytes(2))
+                            if(_queuedPackage.Parameters.Count != 1)
                                 break;
-                            byte debugParam = (byte)SerialMessaging.DequeueByte();
-                            if(CheckNextCRC8Checksum((byte)_queuedActionCode, debugParam)) {
+                            byte debugParam = _queuedPackage.Parameters[0];
+                            if(CheckCRC8Checksum(_queuedPackage)) {
                                 Console.Write("Debug reached! ");
                                 Console.WriteLine(debugParam);
                             }
-                            done = true;
                             break;
 
                         case SerialProtocol.Action.System.Heartbeat:
-                            if(CheckNextCRC8Checksum((byte)_queuedActionCode))
+                            if(CheckCRC8Checksum(_queuedPackage))
                                 Console.WriteLine("*");
-                            done = true;
                             break;
 
                         default:
-                            Console.WriteLine("The action code " + _queuedActionCode + " in the message can't be associated with a command in " + nameof(SerialProtocol));
+                            Console.WriteLine("The action code " + _queuedPackage.ActionCode + " in the message can't be associated with a command in " + nameof(SerialProtocol));
                             //throw new NotImplementedException("The action code " + _queuedActionCode + " in the message can't be associated with a command in " + nameof(SerialProtocol));
-                            done = true;
                             break;
                         }
 
-                        if(done) _queuedActionCode = -1;
+                        if(_queuedPackage.Done)
+                            _queuedPackage.Reset();
                     }
                 }
                 finally {
-                    _mutex.ReleaseMutex();
+                    _queuedPackage.Reset();
+                    _semaphore.Release();
+                }
+            }
+
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <returns></returns>
+            private async Task ParseNextParametersAsync() {
+                if(_queuedPackage.Done) return;
+                for(int i = 0; ; i++) {
+                    int nextByte = SerialMessaging.PeekByte();
+                    if(nextByte == SerialProtocol.PackageStartByte) {
+                        _queuedPackage.Crc8 = _queuedPackage.Parameters.Last();
+                        _queuedPackage.Parameters.RemoveAt(_queuedPackage.Parameters.Count - 1);
+                        _queuedPackage.Done = true;
+                        SerialMessaging.DequeueByte(); // discard end of package
+                        Console.Write("Received: [ 0 | " + _queuedPackage.ActionCode + " | ");
+                        for(int j = 0; j < _queuedPackage.Parameters.Count; j++) {
+                            Console.Write(_queuedPackage.Parameters[j] + " | ");
+                        }
+                        Console.WriteLine(_queuedPackage.Crc8 + " | 0]");
+                        return;
+                    }
+                    else if(nextByte != -1) {
+                        _queuedPackage.AppendParameter((byte)SerialMessaging.DequeueByte());
+                    }
+                    await Task.Delay(50);
                 }
             }
 
@@ -197,14 +224,14 @@ namespace Arsemi {
             /// </summary>
             /// <returns>false if the package doesn't have enough bytes, otherwise true (also in case of message corruption to discard the message)</returns>
             private bool ParseNewSample() {
-                if(!SerialMessaging.AvailableBytes(3)) {
-                    return false;
+                if(_queuedPackage.Parameters.Count != 2) {
+                    throw new Exception("Error parsing package, wrong count of parameters...");
                 }
 
-                byte sensorId = (byte)SerialMessaging.DequeueByte();
-                byte value = (byte)SerialMessaging.DequeueByte();
+                CheckCRC8Checksum(_queuedPackage);
 
-                CheckNextCRC8Checksum(SerialProtocol.Action.Sensor.NewSample, sensorId, value);
+                byte sensorId = _queuedPackage.Parameters[0];
+                byte value = _queuedPackage.Parameters[1];
 
                 Console.Write("Received sensor data from sensorId: " + sensorId + " with a value of: " + value);
                 Console.WriteLine(" | Sensorname: " + _arsemiCore.Sensors[sensorId].Data.Name);
@@ -221,25 +248,28 @@ namespace Arsemi {
             /// </summary>
             /// <return></return>
             private bool ParseSystemError() {
-                if(!SerialMessaging.AvailableBytes(1)) {
-                    return false;
+                if(_queuedPackage.Parameters.Count < 2) {
+                    throw new Exception("Error parsing package, not enough parameters...");
                 }
 
-                byte errorCode = (byte)SerialMessaging.DequeueByte();
+                byte errorCode = _queuedPackage.Parameters[0];
 
                 switch(errorCode) {
                 case SerialProtocol.Error.Package.InvalidActionCode:
-                    byte invalidCode = (byte)SerialMessaging.DequeueByte();
-                    CheckNextCRC8Checksum(SerialProtocol.Action.System.Error, errorCode, invalidCode);
-                    Console.WriteLine("Received error: " + errorCode + " = " + SerialProtocol.TryGetErrorName(errorCode) + " -> " + invalidCode);
+                    if(_queuedPackage.Parameters.Count != 3) {
+                        return true; // discard package
+                    }
+                    CheckCRC8Checksum(_queuedPackage);
+                    Console.WriteLine("Received error: " + errorCode + " = " + SerialProtocol.TryGetErrorName(errorCode) +
+                                        " -> " + _queuedPackage.Parameters[1]);
                     break;
                 case SerialProtocol.Error.Package.InvalidChecksum:
-                    byte invalidCurrentChecksum = (byte)SerialMessaging.DequeueByte();
-                    byte invalidComputedChecksum = (byte)SerialMessaging.DequeueByte();
-                    CheckNextCRC8Checksum(SerialProtocol.Action.System.Error, errorCode, invalidCurrentChecksum, invalidComputedChecksum);
+                    if(_queuedPackage.Parameters.Count != 4) {
+                        return true; // discard package
+                    }
+                    CheckCRC8Checksum(_queuedPackage);
                     Console.WriteLine("Received error: " + errorCode + " = " + SerialProtocol.TryGetErrorName(errorCode)
-                                        + " -> " + invalidCurrentChecksum + " != " + invalidComputedChecksum
-                                        );
+                                        + " -> " + _queuedPackage.Parameters[1] + " != " + _queuedPackage.Parameters[2]);
                     break;
                 case SerialProtocol.Error.Package.InvalidSensorParameters:
                     Console.WriteLine("Invalid sensor parameter count...");
@@ -274,13 +304,13 @@ namespace Arsemi {
             /// <param name="data">data of the package, without StartByte and checksum</param>
             /// <returns></returns>
             /// <exception cref="Exception"></exception>
-            private static bool CheckNextCRC8Checksum(params byte[] data) {
-                int currentCrc8Checksum = SerialMessaging.DequeueByte();
-                byte computedCrc8Checksum = SerialMessaging.CRC8(data);
+            private static bool CheckCRC8Checksum(SerialPackage package) {
+                int currentCrc8Checksum = package.Crc8;
+                byte computedCrc8Checksum = SerialMessaging.CRC8(package.Serialize(0, package.Parameters.Count - 1));
 
                 if(currentCrc8Checksum != computedCrc8Checksum) {
                     //throw new Exception("HEY! Loss of packages... :c");
-                    Console.WriteLine("Loss of packages in action " + SerialProtocol.TryGetActionName(data[0]) + ", checksum is not the same! -> " + currentCrc8Checksum + " != " + computedCrc8Checksum);
+                    Console.WriteLine("Loss of packages in action " + SerialProtocol.TryGetActionName(package.ActionCode) + ", checksum is not the same! -> " + currentCrc8Checksum + " != " + computedCrc8Checksum);
                     return false;
                 }
                 else return true;

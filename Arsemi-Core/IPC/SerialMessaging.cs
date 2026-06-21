@@ -12,7 +12,7 @@ namespace Arsemi {
                 }
                 get => (_serialPort != null) ? _serialPort.ReceivedBytesThreshold : -1;
             }
-            private static readonly Queue<byte> _buffer = new(64);
+            public static readonly Queue<byte> _buffer = new(64);
             private static readonly Mutex _mutex = new(false);
 
 
@@ -45,11 +45,11 @@ namespace Arsemi {
             /// <summary>
             /// Peeks the first value of the serial queue
             /// </summary>
-            /// <returns>return -1 when the queue is empty, otherwise the value in the queue</returns>
+            /// <returns>return -1 when the queue is empty, otherwise the first value in the queue</returns>
             public static int PeekByte() {
-                if(_buffer.TryPeek(out byte tempResult))
-                    return tempResult;
-                return -1;
+                if(_buffer.Count == 0)
+                    return -1;
+                return _buffer.Peek();
             }
 
             /// <summary>
@@ -91,9 +91,11 @@ namespace Arsemi {
             /// <returns>Every byte of the sent message, including (StartByte + Message + CRC8)</returns>
             public static byte[] Write(params byte[] bytes) {
                 if(!PortAvailable()) return [];
-                byte[] package = new byte[bytes.Length + 2];
+                int byteCount = bytes.Length + 3;
+                byte[] package = new byte[byteCount];
                 Array.Copy(bytes, 0, package, 1, bytes.Length);
                 package[0] = SerialProtocol.PackageStartByte;
+                package[byteCount - 1] = SerialProtocol.PackageStartByte;
                 package[bytes.Length + 1] = CRC8(bytes);
                 _serialPort?.Write(package, 0, package.Length);
 

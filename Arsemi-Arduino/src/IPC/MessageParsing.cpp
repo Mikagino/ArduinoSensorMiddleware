@@ -12,9 +12,9 @@ void MessageParsing::parseMessage() {
 
   if (_queuedActionCode == -1 || _queuedActionCode == 0) {
     _queuedActionCode = parseNextActionCode();
-    uint8_t pack[2] = {SerialProtocol::Action::System::Debug,
-                       _queuedActionCode};
-    SerialMessaging::write(pack, 2);
+    // uint8_t pack[2] = {SerialProtocol::Action::System::Debug,
+    //                    _queuedActionCode};
+    // SerialMessaging::write(pack, 2);
   }
 
   if (_queuedActionCode == -1 || _queuedActionCode == 0) {
@@ -102,7 +102,7 @@ bool MessageParsing::parseAddSensorAction() {
   if (Serial.available() == 0)
     return false;
 
-  SerialMessaging::write(SerialProtocol::Action::System::Debug, 69);
+  // SerialMessaging::write(SerialProtocol::Action::System::Debug, 69);
 
   if (queuedPackage.getParameter(0) == 0)
     queuedPackage.appendParameters(Serial.read(), 1); // read sensor type

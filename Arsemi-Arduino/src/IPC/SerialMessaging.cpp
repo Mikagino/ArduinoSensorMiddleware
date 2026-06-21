@@ -10,9 +10,9 @@
 void SerialMessaging::write(uint8_t *data, uint8_t length) {
   long startTime = millis();
   do {
-    if (millis() - startTime > timeoutMs) {
-      return;
-    }
+    // if (millis() - startTime > timeoutMs) {
+    //   return;
+    // }
     delayMicroseconds(50);
   } while (Serial.availableForWrite() < length + 2);
 
@@ -21,6 +21,7 @@ void SerialMessaging::write(uint8_t *data, uint8_t length) {
     Serial.write(data[i]);
   }
   Serial.write(CRC8(data, length));
+  Serial.write(SerialProtocol::StartByte);
 }
 
 /// @brief Send a message over serial with the structure
@@ -34,16 +35,17 @@ void SerialMessaging::write(const uint8_t *data, uint8_t length) {
   long startTime = millis();
   do {
     // if (millis() - startTime > timeoutMs) {
-    //   return;
-    // }
-    delayMicroseconds(50);
-  } while (Serial.availableForWrite() < length + 2);
-  
-  Serial.write(SerialProtocol::StartByte);
-  for (int i = 0; i < length; i++) {
-    Serial.write(data[i]);
-  }
-  Serial.write(CRC8(data, length));
+      //   return;
+      // }
+      delayMicroseconds(50);
+    } while (Serial.availableForWrite() < length + 2);
+    
+    Serial.write(SerialProtocol::StartByte);
+    for (int i = 0; i < length; i++) {
+      Serial.write(data[i]);
+    }
+    Serial.write(CRC8(data, length));
+    Serial.write(SerialProtocol::StartByte);
 }
 
 /// @brief Send a package over serial with the structure
