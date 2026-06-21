@@ -15,38 +15,40 @@ void MessageParsing::parseMessage() {
     // uint8_t pack[2] = {SerialProtocol::Action::System::Debug,
     //                    _queuedActionCode};
     // SerialMessaging::write(pack, 2);
+    if (_queuedActionCode == -1 || _queuedActionCode == 0) {
+      return;
+    }
   }
 
-  if (_queuedActionCode == -1 || _queuedActionCode == 0) {
-    return;
-  }
+  if (!queuedPackage.Done)
+    parseParameters();
 
   bool done = false;
 
   switch (_queuedActionCode) {
   case SerialProtocol::Action::System::RequestHandshake:
-    if (checkNextCrc8Checksum(_queuedActionCode)) {
+    if (checkCrc8Checksum(queuedPackage)) {
       SerialMessaging::write(SerialProtocol::Action::System::ReplyHandshake);
     }
     done = true;
     break;
 
   case SerialProtocol::Action::System::HibernateMicrocontroller:
-    if (checkNextCrc8Checksum(_queuedActionCode)) {
+    if (checkCrc8Checksum(queuedPackage)) {
       arsemiArduinoCore.execution = false;
     }
     done = true;
     break;
 
   case SerialProtocol::Action::System::WakeMicrocontroller:
-    if (checkNextCrc8Checksum(_queuedActionCode)) {
+    if (checkCrc8Checksum(queuedPackage)) {
       arsemiArduinoCore.execution = true;
     }
     done = true;
     break;
 
   case SerialProtocol::Action::Setup::ClearConfiguration:
-    if (checkNextCrc8Checksum(_queuedActionCode)) {
+    if (checkCrc8Checksum(queuedPackage)) {
       SerialMessaging::write(
           SerialProtocol::Action::Setup::SuccessfullyClearedConfiguration);
       arsemiArduinoCore.destroyAllSensors();
@@ -70,21 +72,37 @@ void MessageParsing::parseMessage() {
     _queuedActionCode = -1;
 }
 
-/// @brief Peeks for StartByte and discards everything until the action code.
-/// Packages are only done if they contain [StartByte + ActionCode + CRC8], thus
-/// this method waits for 3 bytes in the stream. Further checks and processing
-/// must be done by another method.
+/// @brief Peeks for PackageDelimiter and discards everything until the action
+/// code. Packages are only done if they contain [PackageDelimiter + ActionCode
+/// + CRC8], thus this method waits for 3 bytes in the stream. Further checks
+/// and processing must be done by another method.
 /// @returns Action code which follows after the next start byte, otherwise -1
 int MessageParsing::parseNextActionCode() {
   while (SerialMessaging::isPackageAvailable()) {
-    if (Serial.peek() == SerialProtocol::StartByte) {
-      Serial.read(); // discard StartByte
+    if (Serial.peek() == SerialProtocol::PackageDelimiter) {
+      Serial.read(); // discard PackageDelimiter
       return Serial.read();
     }
 
     Serial.read(); // discard
   }
   return -1;
+}
+
+/// @brief Parse the package parameters from the message into queuedPackage
+void MessageParsing::parseParameters() {
+  for (int i = 0;; i++) {
+    int nextByte = Serial.peek();
+    if (nextByte == SerialProtocol::PackageDelimiter) {
+      queuedPackage.Crc8 = queuedPackage.getLastParameter();
+      queuedPackage.removeLastParameters();
+      queuedPackage.Done = true;
+      Serial.read(); // discard PackageDelimiter at end of package
+      return;
+    } else if (nextByte != -1) {
+      queuedPackage.appendParameters(Serial.read(), 1);
+    }
+  }
 }
 
 /// @brief Parse action "Add Sensor".
@@ -94,47 +112,30 @@ int MessageParsing::parseNextActionCode() {
 /// enough, otherwise true (it will also return true to discard invalid
 /// packages)
 bool MessageParsing::parseAddSensorAction() {
-  // SerialMessaging::write(
-  //     SerialProtocol::Action::Setup::SuccessfullyAddedSensor, 2);
-  // SerialMessaging::write(
-  //     SerialProtocol::Action::Setup::SuccessfullyAddedSensor, 3);
-
-  if (Serial.available() == 0)
-    return false;
+  if (queuedPackage.getParameterCount() < 2)
+    return true; // TODO: Error message (currently only discards the corrupt
+                 // package)
 
   // SerialMessaging::write(SerialProtocol::Action::System::Debug, 69);
 
-  if (queuedPackage.getParameter(0) == 0)
-    queuedPackage.appendParameters(Serial.read(), 1); // read sensor type
-
-  if (queuedSensor == nullptr)
+  if (queuedSensor == nullptr) {
     queuedSensor = SensorFactory::createNewSensor(
         AbstractSensor::SensorTypes(queuedPackage.getParameter(0)));
 
-  if (queuedSensor == nullptr)
-    SerialMessaging::write(SerialProtocol::Action::System::Error,
-                           SerialProtocol::Error::Package::InvalidSensorType);
+    if (queuedSensor == nullptr)
+      SerialMessaging::write(SerialProtocol::Action::System::Error,
+                             SerialProtocol::Error::Package::InvalidSensorType);
+  }
 
-  if (queuedSensor->getParameterByteCount() > Serial.available()) {
+  if (queuedSensor->getParameterByteCount() != queuedPackage.getParameterCount()) {
     SerialMessaging::write(
         SerialProtocol::Action::System::Error,
         SerialProtocol::Error::Package::InvalidSensorParameters);
     return false;
   }
 
-  for (int i = queuedPackage.getParameterCount();
-       i <= queuedSensor->getParameterByteCount(); i++) {
-    if (Serial.peek() == SerialProtocol::StartByte) {
-      SerialMessaging::write(
-          SerialProtocol::Action::System::Error,
-          SerialProtocol::Error::Package::InvalidSensorParameters);
-      return true;
-    }
-    queuedPackage.appendParameters(Serial.read(), 1);
-  }
-
-  if (!checkNextCrc8Checksum(queuedPackage))
-    return true;
+  if (!checkCrc8Checksum(queuedPackage))
+    return true; // TODO: Error message
 
   queuedSensor->parseParameters(queuedPackage);
 
@@ -157,32 +158,17 @@ bool MessageParsing::parseAddSensorAction() {
 /// @param package package to be checked
 /// @return true if calculated checksum is similar to crc8Checksum, otherwise
 /// false
-bool MessageParsing::checkNextCrc8Checksum(SerialPackage &package) {
-  uint8_t nextCrc8Checksum = Serial.read();
-  uint8_t calculatedCrc8Checksum = SerialMessaging::CRC8(package);
+bool MessageParsing::checkCrc8Checksum(SerialPackage &package) {
+  uint8_t nextCrc8Checksum = queuedPackage.Crc8;
+  uint8_t calculatedCrc8Checksum = SerialMessaging::CRC8(queuedPackage);
 
-  uint8_t *serializedPackage = package.Serialize();
+  // uint8_t *serializedPackage = package.Serialize();
 
   if (nextCrc8Checksum != calculatedCrc8Checksum) {
-    uint8_t package[4] = {SerialProtocol::Action::System::Error,
-                          SerialProtocol::Error::Package::InvalidChecksum,
-                          nextCrc8Checksum, calculatedCrc8Checksum};
-    SerialMessaging::write(package, 4);
-    // SerialMessaging::write(SerialProtocol::Action::System::Error,
-    //                        SerialProtocol::Error::Package::InvalidChecksum);
-    return false;
-  }
-  return true;
-}
-
-bool MessageParsing::checkNextCrc8Checksum(uint8_t actionCode) {
-  uint8_t nextCrc8Checksum = Serial.read();
-  uint8_t calculatedCrc8Checksum = SerialMessaging::CRC8(actionCode);
-  if (nextCrc8Checksum != calculatedCrc8Checksum) {
-    uint8_t package[4] = {SerialProtocol::Action::System::Error,
-                          SerialProtocol::Error::Package::InvalidChecksum,
-                          nextCrc8Checksum, calculatedCrc8Checksum};
-    SerialMessaging::write(package, 4);
+    uint8_t errorPackage[4] = {SerialProtocol::Action::System::Error,
+                               SerialProtocol::Error::Package::InvalidChecksum,
+                               nextCrc8Checksum, calculatedCrc8Checksum};
+    SerialMessaging::write(errorPackage, 4);
     // SerialMessaging::write(SerialProtocol::Action::System::Error,
     //                        SerialProtocol::Error::Package::InvalidChecksum);
     return false;

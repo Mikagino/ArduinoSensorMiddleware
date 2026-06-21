@@ -61,7 +61,6 @@ namespace Arsemi {
                 try {
                     while(_serialPort?.BytesToRead > 0) {
                         _buffer.Enqueue(ReadByte());
-                        Console.WriteLine(PeekByte());
                     }
                 }
                 finally {

@@ -153,8 +153,6 @@ namespace Arsemi {
                             break;
 
                         case SerialProtocol.Action.Setup.SuccessfullyClearedConfiguration:
-                            if(!SerialMessaging.AvailableBytes(1))
-                                break;
                             if(CheckCRC8Checksum(_queuedPackage))
                                 Console.WriteLine("Successfully cleared the configuration on the microcontroller.");
                             break;
@@ -196,7 +194,6 @@ namespace Arsemi {
             /// </summary>
             /// <returns></returns>
             private async Task ParseNextParametersAsync() {
-                if(_queuedPackage.Done) return;
                 for(int i = 0; ; i++) {
                     int nextByte = SerialMessaging.PeekByte();
                     if(nextByte == SerialProtocol.PackageStartByte) {
@@ -214,7 +211,7 @@ namespace Arsemi {
                     else if(nextByte != -1) {
                         _queuedPackage.AppendParameter((byte)SerialMessaging.DequeueByte());
                     }
-                    await Task.Delay(50);
+                    await Task.Delay(5);
                 }
             }
 

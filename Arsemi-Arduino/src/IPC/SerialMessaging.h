@@ -12,7 +12,7 @@ private:
 public:
   // calls Serial.begin() with specified baudrate
   static void begin(int baudRate = SerialProtocol::BaudRate);
-  // Writes a package via serial, containing StartByte + buffer + CRC-8-Checksum
+  // Writes a package via serial, containing PackageDelimiter + buffer + CRC-8-Checksum
   static void write(uint8_t *buffer, uint8_t length);
   static void write(const uint8_t *buffer, uint8_t length);
   static void write(SerialPackage &package);

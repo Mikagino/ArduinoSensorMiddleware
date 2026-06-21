@@ -19,7 +19,7 @@ private:
 public:
   static const uint16_t BaudRate = 9600;
   static const uint8_t MaximumSubPackageCount = 8;
-  static const uint8_t StartByte = 0;
+  static const uint8_t PackageDelimiter = 0;
 
   // TODO: use package for each command?
   // struct CommandStructure {

@@ -10,6 +10,8 @@ public:
   static const uint8_t MaximumParameterCount = 64 / 4;
   static const uint8_t MaximumPackageSize = MaximumParameterCount + 3;
   uint8_t ActionCode = 0;
+  uint8_t Crc8 = 0;
+  bool Done = false;
 
 private:
   uint8_t parameters[MaximumParameterCount] = {};
@@ -57,6 +59,8 @@ public:
   }
 
   uint8_t getParameter(uint8_t index) { return parameters[index]; }
+  uint8_t getLastParameter() { return parameters[parameterCount - 1]; }
+  void removeLastParameters(uint8_t count = 1) { parameterCount -= count; }
   uint8_t getParameterCount() { return parameterCount; }
 
   uint8_t operator[](int index) {
@@ -64,7 +68,7 @@ public:
       return ActionCode;
     return parameters[index];
   }
-  
+
   void reset() {
     ActionCode = 0;
     parameterCount = 0;

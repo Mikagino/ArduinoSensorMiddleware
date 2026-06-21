@@ -25,8 +25,8 @@ public:
   MessageParsing(ArsemiArduinoCore &newArsemiArduinoCore);
 
   void parseMessage();
+  void parseParameters();
   bool parseAddSensorAction();
 
-  bool checkNextCrc8Checksum(SerialPackage &package);
-  bool checkNextCrc8Checksum(uint8_t actionCode);
+  bool checkCrc8Checksum(SerialPackage &package);
 };

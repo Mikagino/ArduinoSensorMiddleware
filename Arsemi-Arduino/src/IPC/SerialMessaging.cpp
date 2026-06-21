@@ -2,8 +2,8 @@
 #include "SerialProtocol.h"
 
 /// @brief Send a message over serial with the structure
-/// [StartByte | data | CRC8],
-/// StartByte and CRC8 are added by the function.
+/// [PackageDelimiter | data | CRC8],
+/// PackageDelimiter and CRC8 are added by the function.
 /// @param data the data to be sent, must include
 /// [ActionCode | Parameters[] optional ]
 /// @param length how many entries has the data array
@@ -16,17 +16,17 @@ void SerialMessaging::write(uint8_t *data, uint8_t length) {
     delayMicroseconds(50);
   } while (Serial.availableForWrite() < length + 2);
 
-  Serial.write(SerialProtocol::StartByte);
+  Serial.write(SerialProtocol::PackageDelimiter);
   for (int i = 0; i < length; i++) {
     Serial.write(data[i]);
   }
   Serial.write(CRC8(data, length));
-  Serial.write(SerialProtocol::StartByte);
+  Serial.write(SerialProtocol::PackageDelimiter);
 }
 
 /// @brief Send a message over serial with the structure
-///  [StartByte | data | CRC8],
-/// StartByte and CRC8 are added by the function. Waits until there is space
+///  [PackageDelimiter | data | CRC8],
+/// PackageDelimiter and CRC8 are added by the function. Waits until there is space
 /// available in the serial buffer or until timeoutMs is reached.
 /// @param data the data to be sent, must include
 /// [ActionCode | Parameters[] optional]
@@ -40,17 +40,17 @@ void SerialMessaging::write(const uint8_t *data, uint8_t length) {
       delayMicroseconds(50);
     } while (Serial.availableForWrite() < length + 2);
     
-    Serial.write(SerialProtocol::StartByte);
+    Serial.write(SerialProtocol::PackageDelimiter);
     for (int i = 0; i < length; i++) {
       Serial.write(data[i]);
     }
     Serial.write(CRC8(data, length));
-    Serial.write(SerialProtocol::StartByte);
+    Serial.write(SerialProtocol::PackageDelimiter);
 }
 
 /// @brief Send a package over serial with the structure
-/// [StartByte | data | CRC8],
-/// StartByte and CRC8 are added by the function
+/// [PackageDelimiter | data | CRC8],
+/// PackageDelimiter and CRC8 are added by the function
 /// @param serialPackage the package to be sent, must include ActionCode
 void SerialMessaging::write(SerialPackage &serialPackage) {
   uint8_t *serializedPackage = serialPackage.Serialize();
@@ -59,8 +59,8 @@ void SerialMessaging::write(SerialPackage &serialPackage) {
 }
 
 /// @brief Send a package over serial with the structure
-/// [StartByte | data | CRC8],
-/// StartByte and CRC8 are added by the function
+/// [PackageDelimiter | data | CRC8],
+/// PackageDelimiter and CRC8 are added by the function
 /// @param actionCode the action to be sent
 void SerialMessaging::write(const uint8_t actionCode = 1) {
   uint8_t package[1] = {actionCode};
@@ -68,8 +68,8 @@ void SerialMessaging::write(const uint8_t actionCode = 1) {
 }
 
 /// @brief Send a package over serial with the structure
-/// [StartByte | data | CRC8],
-/// StartByte and CRC8 are added by the function
+/// [PackageDelimiter | data | CRC8],
+/// PackageDelimiter and CRC8 are added by the function
 /// @param actionCode the action to be sent,
 /// @param parameter the parameter sent after the action code
 void SerialMessaging::write(const uint8_t actionCode, const uint8_t parameter) {
@@ -78,7 +78,7 @@ void SerialMessaging::write(const uint8_t actionCode, const uint8_t parameter) {
 }
 
 /// @brief Check if at least the minimum bytes required for a package are
-/// available [StartByte, Data, CRC8]
+/// available [PackageDelimiter, Data, CRC8]
 /// @param dataLength how many data bytes the package should have (action code +
 /// params)
 /// @return
