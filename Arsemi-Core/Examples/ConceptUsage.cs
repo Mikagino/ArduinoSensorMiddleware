@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
+using Arsemi.Sensor.Event;
 using BenchmarkDotNet.Attributes;
 
 namespace Arsemi {
@@ -11,9 +12,16 @@ namespace Arsemi {
         public static class ConceptUsage {
             [JsonInclude] private static ArsemiCore _arsemiCore = new();
             public const string PathToConfigDirectory = "/home/mika/Downloads/ArsemiConfig/";
+            public static Action? HeartrushAction;
 
 
             public static async Task Main() {
+                string stringPack = "1067:32:13";
+                var size = sizeof(char) * stringPack.Length;
+                byte[] binPack = [SerialProtocol.Action.System.Error, SerialProtocol.Error.Package.InvalidActionCode];
+                size = sizeof(byte) * binPack.Length;
+                byte[] safeBinPack = [SerialProtocol.PackageStartByte, SerialProtocol.Action.System.Error, SerialProtocol.Error.Package.InvalidActionCode, 20, SerialProtocol.PackageStartByte];
+                size = sizeof(byte) * safeBinPack.Length;
                 await Setup(); // Alternative: AutomaticSetup()
                 bool exiting = false;
                 while(!exiting) {
@@ -37,8 +45,10 @@ namespace Arsemi {
                 // hr.AddFilter(butterworth, "Butterworth")
                 //     .SetInterval(100);
                 // .AddEvent(new AboveThresholdEvent(15), "Excitement");
+
                 _arsemiCore.AddSensor(new DigitalSensor("Button", 2))
-                        .SetInterval(100);
+                        .SetInterval(100)
+                        .AddEvent(new AboveThresholdEvent(10, HeartrushAction));
                 if(await _arsemiCore.ConnectMicrocontrollerAsync() != MessageParsing.ConnectionResult.SUCCESS)
                     return;
                 _arsemiCore.FinishSetup();

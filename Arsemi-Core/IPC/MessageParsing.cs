@@ -236,6 +236,7 @@ namespace Arsemi {
 
                 _arsemiCore.Sensors[sensorId].Data.Value = value;
                 _arsemiCore.NewDataReceived?.Invoke(sensorId, value);
+                _arsemiCore.Sensors[sensorId].CheckEventsConditions();
                 return true;
             }
 

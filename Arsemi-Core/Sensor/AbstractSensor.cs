@@ -8,7 +8,7 @@ namespace Arsemi {
         public class AbstractSensor : ISensor {
             [JsonInclude] public SensorData Data = new();
             [JsonInclude] public Dictionary<string, AbstractFilter> Filters = [];
-            [JsonInclude] public Dictionary<string, AbstractEvent> Events = [];
+            [JsonInclude] public List<EventCondition> Events = [];
 
 
             protected static List<uint> _previouslyGeneratedIDs = [];
@@ -109,25 +109,21 @@ namespace Arsemi {
             /// <summary>
             /// Adds event to the dictionary Events
             /// </summary>
-            public AbstractSensor AddEvent(AbstractEvent eventType, string name) {
+            public AbstractSensor AddEvent(EventCondition eventCondition) {
                 Events ??= [];
 
-                Events.Add(name, eventType);
+                Events.Add(eventCondition);
                 return this;
             }
 
 
             /// <summary>
-            /// TODO: Make it work
-            /// Calls CheckCondition() on each event and invokes Actions if conditions are met
+            /// Calls CheckCondition() on each event and invokes Actions if conditions are met.
             /// </summary>
             public void CheckEventsConditions() {
-                throw new NotImplementedException();
-                // foreach(var @event in Events) {
-                //     if(@event.Value.CheckCondition(RawBuffer)) {
-                //         ArsemiGlobals.Events.EventMap[@event.Key]()?.Invoke();
-                //     }
-                // }
+                foreach(var @event in Events) {
+                    @event.CheckCondition(RawBuffer);
+                }
             }
             #endregion Events
         }
