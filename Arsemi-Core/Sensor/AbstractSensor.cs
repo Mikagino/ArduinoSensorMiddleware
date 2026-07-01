@@ -7,8 +7,11 @@ namespace Arsemi {
     namespace Sensor {
         public class AbstractSensor : ISensor {
             [JsonInclude] public SensorData Data = new();
-            [JsonInclude] public Dictionary<string, AbstractFilter> Filters = [];
-            [JsonInclude] public Dictionary<string, Predicate<RingBuffer>> Events = [];
+            [JsonInclude] public Dictionary<string, AbstractFilter> Filters = [];  // TODO: rework like events to store names into enum (can be added at compile time)
+            [JsonInclude] public Dictionary<string, Predicate<RingBuffer>> Events = []; // TODO: rework like events to store names into enum (can be added at compile time)
+
+
+            public Action<EventData>? EventReceived;
 
 
             protected static List<uint> _previouslyGeneratedIDs = [];
@@ -62,11 +65,6 @@ namespace Arsemi {
             }
 
 
-            public virtual string[] GetDataAsStrings() {
-                return [Data.ID.ToString(), Data.IntervalMS.ToString()];
-            }
-
-
             #region Filters
             /// <summary>
             /// Adds a specific filter to the filterstack (all of them will be executed) and adjusts the size of the sample arrays.
@@ -109,6 +107,9 @@ namespace Arsemi {
             /// <summary>
             /// Adds event to the dictionary Events
             /// </summary>
+            /// <param name="name"></param>
+            /// <param name="eventCondition">Condition to check against</param>
+            /// <returns></returns>
             public AbstractSensor AddEvent(string name, Predicate<RingBuffer> eventCondition) {
                 Events ??= [];
 

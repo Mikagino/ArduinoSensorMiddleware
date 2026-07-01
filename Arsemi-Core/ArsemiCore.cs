@@ -2,8 +2,8 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
+using Arsemi.Sensor.Event;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 
 namespace Arsemi {
@@ -26,6 +26,7 @@ namespace Arsemi {
     /// </summary>
     public Action<int, int>? NewDataReceived;
     public Action<string>? NewMessageReceived;
+    public Action<EventData>? EventReceived;
 
 
     /// <summary>
@@ -70,7 +71,7 @@ namespace Arsemi {
     /// <returns>New sensor for using it in a stacked setup</returns>
     public AbstractSensor AddSensor(AbstractSensor sensor) {
       if(sensor == null) throw new Exception("No sensor has been supplied to the function call!");
-      sensor.Data.ID = (byte)(sensorCount);
+      sensor.Data.ID = (byte)sensorCount;
       Sensors[sensorCount] = sensor;
       Console.WriteLine("Added " + sensor.Data.Name + " sensor to index: " + sensorCount);
       sensorCount++;
@@ -118,6 +119,9 @@ namespace Arsemi {
     /// </summary>
     public void StartLoop() {
       SerialMessaging.Write(SerialProtocol.Action.System.WakeMicrocontroller);
+      foreach(AbstractSensor sensor in Sensors) {
+        sensor.EventReceived += EventReceived.Invoke;
+      }
     }
 
 
@@ -126,13 +130,13 @@ namespace Arsemi {
     /// </summary>
     public async Task StopLoop() {
       //SerialMessaging.DataReceivedAction -= ParseMessage;
+      EventReceived = null;
     }
 
 
 
     public void DebugClass() {
       BenchmarkSwitcher.FromAssembly(Assembly.GetExecutingAssembly()).Run(null);
-
     }
   }
 }

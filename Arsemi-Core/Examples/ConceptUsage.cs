@@ -15,6 +15,8 @@ namespace Arsemi {
             public const string PathToConfigDirectory = "/home/mika/Downloads/ArsemiConfig/";
             public static Action? HeartrushAction;
 
+            private static string _heartrushEventName = "Heartrush";
+
 
             public static async Task Main() {
                 string stringPack = "1067:32:13";
@@ -49,7 +51,7 @@ namespace Arsemi {
 
                 _arsemiCore.AddSensor(new DigitalSensor("Button", 2))
                         .SetInterval(100)
-                        .AddEvent("Heartrush", rb => EventCondition.AboveThreshold(rb, 10));
+                        .AddEvent(_heartrushEventName, rb => EventCondition.AboveThreshold(rb, 50));
                 if(await _arsemiCore.ConnectMicrocontrollerAsync() != MessageParsing.ConnectionResult.SUCCESS)
                     return;
                 _arsemiCore.FinishSetup();
@@ -58,6 +60,7 @@ namespace Arsemi {
                 //await ConfigSaver.GenerateGlobals(_arsemiCore, PathToConfigDirectory);
                 // ArsemiGlobals.Events.Excitement += EventAction;
                 _arsemiCore.StartLoop();
+                _arsemiCore.EventReceived += HandleEvent;
             }
 
 
@@ -86,10 +89,10 @@ namespace Arsemi {
 
 
             /// <summary>
-            /// When an event is emitted by the
+            /// When an event is emitted
             /// </summary>
-            public static void EventAction() {
-                Console.WriteLine("Event action function called!");
+            public static void HandleEvent(EventData eventData) {
+                Console.WriteLine("Event: " + eventData.Name + " has been invoked by sensor: " + eventData.Sensor?.Data.Name + ".");
             }
 
 

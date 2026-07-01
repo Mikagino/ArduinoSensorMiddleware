@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Arsemi.Utilities;
 
 namespace Arsemi {
