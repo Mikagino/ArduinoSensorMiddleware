@@ -1,0 +1,11 @@
+tag_prefix = "v"
+
+[changelog]
+template = "remote"
+remote = "github.com"
+owner = "Mikagino"
+repository = "ArduinoSensorMiddleware"
+
+[[changelog.authors]]
+signature = "Mikagino"
+username = "Mikagino"
