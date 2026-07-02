@@ -91,7 +91,7 @@ int MessageParsing::parseNextActionCode() {
 
 /// @brief Parse the package parameters from the message into queuedPackage
 void MessageParsing::parseParameters() {
-  for (int i = 0;; i++) {
+  for (int i = queuedPackage.getParameterCount();; i++) {
     int nextByte = Serial.peek();
     if (nextByte == SerialProtocol::PackageDelimiter) {
       queuedPackage.Crc8 = queuedPackage.getLastParameter();
@@ -121,13 +121,16 @@ bool MessageParsing::parseAddSensorAction() {
   if (queuedSensor == nullptr) {
     queuedSensor = SensorFactory::createNewSensor(
         AbstractSensor::SensorTypes(queuedPackage.getParameter(0)));
+    SerialMessaging::write(SerialProtocol::Action::System::Debug,
+                           queuedPackage.getParameter(0));
 
     if (queuedSensor == nullptr)
       SerialMessaging::write(SerialProtocol::Action::System::Error,
                              SerialProtocol::Error::Package::InvalidSensorType);
   }
 
-  if (queuedSensor->getParameterByteCount() != queuedPackage.getParameterCount()) {
+  if (queuedSensor->getParameterByteCount() !=
+      queuedPackage.getParameterCount()) {
     SerialMessaging::write(
         SerialProtocol::Action::System::Error,
         SerialProtocol::Error::Package::InvalidSensorParameters);

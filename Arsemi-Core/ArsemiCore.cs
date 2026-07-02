@@ -119,6 +119,8 @@ namespace Arsemi {
     /// </summary>
     public void StartLoop() {
       SerialMessaging.Write(SerialProtocol.Action.System.WakeMicrocontroller);
+      if(EventReceived == null) return;
+      
       foreach(AbstractSensor sensor in Sensors) {
         sensor.EventReceived += EventReceived.Invoke;
       }
