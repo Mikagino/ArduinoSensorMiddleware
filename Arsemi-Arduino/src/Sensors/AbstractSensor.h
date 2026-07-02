@@ -24,13 +24,14 @@ public:
   };
 
   // interval in which new sensor data is sent over serial
-  AbstractSensor(){}
+  AbstractSensor() {}
+  ~AbstractSensor() {}
   uint8_t intervalMillis = 100;
   virtual bool begin() = 0;
   inline bool checkInterval();
   virtual bool update();
   virtual void updateLastValue() = 0;
-  virtual bool parseParameters(SerialPackage& package) = 0;
+  virtual bool parseParameters(SerialPackage &package) = 0;
 
   // Getters for private fields
   uint8_t inline getSensorId() { return _sensorId; }

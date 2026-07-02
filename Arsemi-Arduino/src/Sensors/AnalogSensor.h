@@ -8,6 +8,7 @@ public:
   uint8_t _sensorPin;
 
   AnalogSensor(uint8_t sensorPin = 1);
+  ~AnalogSensor() {}
   bool begin() override;
   void updateLastValue() override;
   bool parseParameters(SerialPackage &package) override;

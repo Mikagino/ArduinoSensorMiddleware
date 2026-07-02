@@ -18,8 +18,9 @@ public:
   // TODO: Rework all sensor's constructors to use byte[] and each class parses
   // the bytes themselves
   I2CSensor(uint8_t address = 0x00, uint8_t reg = 0x00, uint8_t bytes = 2);
+  ~I2CSensor() {}
   virtual bool begin() override;
   void updateLastValue() override;
-  bool parseParameters(SerialPackage& package) override;
+  bool parseParameters(SerialPackage &package) override;
   uint8_t inline getParameterByteCount() override { return 3; }
 };
