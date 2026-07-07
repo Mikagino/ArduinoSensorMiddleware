@@ -28,15 +28,15 @@ namespace Arsemi {
 
 
             #region Samples
-            public RingBuffer RawBuffer = new();
-            public RingBuffer FilteredBuffer = new();
+            public RingBuffer RawSamples = new();
+            public RingBuffer FilteredSamples = new();
             #endregion Samples
 
 
             public void PushNewValue(byte x, byte y) {
-                RawBuffer.Push(x, y);
+                RawSamples.Push(x, y);
                 ApplyFilters();
-                Data.Value = FilteredBuffer[0].Y;
+                Data.Value = FilteredSamples[0].Y;
             }
 
 
@@ -74,9 +74,9 @@ namespace Arsemi {
                 Filters ??= [];
 
                 Filters.Add(name, filter);
-                if(RawBuffer.Length < filter.SampleRange) {
-                    RawBuffer.Resize(filter.SampleRange);
-                    FilteredBuffer.Resize(filter.SampleRange);
+                if(RawSamples.Length < filter.SampleRange) {
+                    RawSamples.Resize(filter.SampleRange);
+                    FilteredSamples.Resize(filter.SampleRange);
                 }
                 return this;
             }
@@ -84,15 +84,18 @@ namespace Arsemi {
 
             /// <summary>
             /// TODO: Applies all the filters to the currently stored sensor data.
+            /// <para>1. Apply each filter, sequentially according to their order in the array Filters</para>
+            /// <para>2. Set FilteredSamples to the filtered values of the last filter or raw samples if no filters are applied</para>
             /// </summary>
             public void ApplyFilters() {
-                FilteredBuffer.Push(RawBuffer[0]);
-                AbstractFilter filter;
+                RingBuffer lastSamples = RawSamples;
+                AbstractFilter? filter = null;
                 for(int i = 0; i < Filters.Count; i++) {
                     filter = Filters.ElementAt(i).Value;
-                    filter.EvaluateConstants();
-                    FilteredBuffer[0] = filter.FilterValue(RawBuffer, FilteredBuffer);
+                    filter.FilterValue(lastSamples);
+                    lastSamples = filter.FilteredSamples;
                 }
+                FilteredSamples = filter == null ? RawSamples : filter.FilteredSamples;
             }
             #endregion Filters
 
@@ -123,7 +126,7 @@ namespace Arsemi {
             /// </summary>
             public void CheckEventsConditions() {
                 foreach(var @event in Events) {
-                    @event.Value.Invoke(RawBuffer);
+                    @event.Value.Invoke(RawSamples);
                 }
             }
             #endregion Events

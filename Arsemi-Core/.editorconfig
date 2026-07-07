@@ -41,7 +41,7 @@ dotnet_style_null_propagation                                      = true : sugg
 # Implicit and explicit types: https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#var
 #csharp_style_var_for_built_in_types                                = true : suggestion
 csharp_style_var_when_type_is_apparent                             = true : suggestion
-csharp_style_var_elsewhere                                         = true : suggestion
+#csharp_style_var_elsewhere                                         = true : suggestion
 
 # Expression-bodied members: https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#expression_bodied_members
 csharp_style_expression_bodied_methods                             = false

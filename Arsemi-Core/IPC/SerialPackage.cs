@@ -30,12 +30,18 @@ namespace Arsemi {
                 Empty = false;
             }
 
-
+            /// <summary>
+            /// Serializes the package into an array of bytes. Layout: [Action Code | Parameters]. Won't contain the Crc8.
+            /// </summary>
+            /// <param name="from">Inclusive start from which index to serialize. Keep at 0 if you want to serialize from the beginning.</param>
+            /// <param name="to">Exclusive end to which index to serialize. Keep at 0 if you want to serialize until the end.</param>
+            /// <returns>Byte array of the serialized package</returns>
             public byte[] Serialize(int from = 0, int to = 0) {
-                byte[] result = new byte[1 + Parameters.Count];
-                result[0] = ActionCode;
+                if(to == 0) to = Parameters.Count + 1;
+                byte[] result = new byte[to - from];
+                if(from == 0) result[0] = ActionCode;
                 if(Parameters != null) {
-                    for(int i = from; i < (to == 0 ? Parameters.Count : to); i++) {
+                    for(int i = from; i < Math.Min(to - 1, Parameters.Count); i++) {
                         result[1 + i] = Parameters[i];
                     }
                 }

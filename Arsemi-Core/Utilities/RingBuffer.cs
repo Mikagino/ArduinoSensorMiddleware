@@ -28,6 +28,10 @@ namespace Arsemi {
 
             }
 
+            public RingBuffer(int size) {
+                Resize(size);
+            }
+
 
             /// <summary>
             /// Copy constructor that copies all data from source to target.
@@ -119,6 +123,17 @@ namespace Arsemi {
             /// </summary>
             /// <param name="offset"></param>
             public void MoveIndex(int offset = 0) => _currentIndex = CycleRingIndex(offset);
+
+
+            /// <summary>
+            /// Sets all the values in the ring buffer to 0
+            /// </summary>
+            public void Reset() {
+                for(int i = 0; i < Length; i++) {
+                    _buffer[i].X = 0;
+                    _buffer[i].Y = 0;
+                }
+            }
         }
     }
 }

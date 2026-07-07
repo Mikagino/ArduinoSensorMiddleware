@@ -8,17 +8,19 @@
 /// [ActionCode | Parameters[] optional ]
 /// @param length how many entries has the data array
 void SerialMessaging::write(uint8_t *data, uint8_t length) {
-  long startTime = millis();
   do {
-    // if (millis() - startTime > timeoutMs) {
-    //   return;
-    // }
     delayMicroseconds(50);
   } while (Serial.availableForWrite() < length + 2);
 
   Serial.write(SerialProtocol::PackageDelimiter);
   for (int i = 0; i < length; i++) {
-    Serial.write(data[i]);
+    if (data[i] == 0) {
+      // Package paring error mitigation if the value is 0 (invalid because 0 is
+      // reserved for the Package delimiter)
+      Serial.write(255);
+    } else {
+      Serial.write(data[i]);
+    }
   }
   Serial.write(CRC8(data, length));
   Serial.write(SerialProtocol::PackageDelimiter);
@@ -26,26 +28,28 @@ void SerialMessaging::write(uint8_t *data, uint8_t length) {
 
 /// @brief Send a message over serial with the structure
 ///  [PackageDelimiter | data | CRC8],
-/// PackageDelimiter and CRC8 are added by the function. Waits until there is space
-/// available in the serial buffer or until timeoutMs is reached.
+/// PackageDelimiter and CRC8 are added by the function. Waits until there is
+/// space available in the serial buffer or until timeoutMs is reached.
 /// @param data the data to be sent, must include
 /// [ActionCode | Parameters[] optional]
 /// @param length how many entries has the data array
 void SerialMessaging::write(const uint8_t *data, uint8_t length) {
-  long startTime = millis();
   do {
-    // if (millis() - startTime > timeoutMs) {
-      //   return;
-      // }
-      delayMicroseconds(50);
-    } while (Serial.availableForWrite() < length + 2);
-    
-    Serial.write(SerialProtocol::PackageDelimiter);
-    for (int i = 0; i < length; i++) {
+    delayMicroseconds(50);
+  } while (Serial.availableForWrite() < length + 2);
+
+  Serial.write(SerialProtocol::PackageDelimiter);
+  for (int i = 0; i < length; i++) {
+    if (data[i] == 0) {
+      // Package paring error mitigation if the value is 0 (invalid because 0 is
+      // reserved for the Package delimiter)
+      Serial.write(255);
+    } else {
       Serial.write(data[i]);
     }
-    Serial.write(CRC8(data, length));
-    Serial.write(SerialProtocol::PackageDelimiter);
+  }
+  Serial.write(CRC8(data, length));
+  Serial.write(SerialProtocol::PackageDelimiter);
 }
 
 /// @brief Send a package over serial with the structure
@@ -54,7 +58,7 @@ void SerialMessaging::write(const uint8_t *data, uint8_t length) {
 /// @param serialPackage the package to be sent, must include ActionCode
 void SerialMessaging::write(SerialPackage &serialPackage) {
   uint8_t *serializedPackage = serialPackage.Serialize();
-  write(serializedPackage, serialPackage.getParameterCount() + 1);
+  write(serializedPackage, serialPackage.getLength());
   delete[] serializedPackage;
 }
 
@@ -78,12 +82,12 @@ void SerialMessaging::write(const uint8_t actionCode, const uint8_t parameter) {
 }
 
 /// @brief Check if at least the minimum bytes required for a package are
-/// available [PackageDelimiter, Data, CRC8]
+/// available [PackageDelimiter, Data, CRC8, PackageDelimiter]
 /// @param dataLength how many data bytes the package should have (action code +
 /// params)
 /// @return
 bool SerialMessaging::isPackageAvailable(uint8_t dataLength) {
-  return Serial.available() >= (2 + dataLength);
+  return Serial.available() >= (3 + dataLength);
 }
 
 void SerialMessaging::begin(int baudRate) { Serial.begin(baudRate); }
@@ -137,7 +141,7 @@ uint8_t SerialMessaging::CRC8(const uint8_t *data, uint8_t length) {
 /// @return 8-bit sized CRC checksum
 uint8_t SerialMessaging::CRC8(SerialPackage &package) {
   uint8_t *serializedPackage = package.Serialize();
-  uint8_t result = CRC8(serializedPackage, package.getParameterCount() + 1);
+  uint8_t result = CRC8(serializedPackage, package.getParameterCount() + 2);
   delete[] serializedPackage;
   return result;
 }

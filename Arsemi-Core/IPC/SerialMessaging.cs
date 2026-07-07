@@ -12,7 +12,7 @@ namespace Arsemi {
                 }
                 get => (_serialPort != null) ? _serialPort.ReceivedBytesThreshold : -1;
             }
-            public static readonly Queue<byte> _buffer = new(64);
+            public static readonly Queue<byte> Buffer = new(64);
             private static readonly Mutex _mutex = new(false);
 
 
@@ -37,7 +37,7 @@ namespace Arsemi {
             /// </summary>
             /// <returns>return -1 when the queue is empty, otherwise the value in the queue</returns>
             public static int DequeueByte() {
-                if(_buffer.TryDequeue(out byte tempResult))
+                if(Buffer.TryDequeue(out byte tempResult))
                     return tempResult;
                 return -1;
             }
@@ -47,9 +47,9 @@ namespace Arsemi {
             /// </summary>
             /// <returns>return -1 when the queue is empty, otherwise the first value in the queue</returns>
             public static int PeekByte() {
-                if(_buffer.Count == 0)
+                if(Buffer.Count == 0)
                     return -1;
-                return _buffer.Peek();
+                return Buffer.Peek();
             }
 
             /// <summary>
@@ -60,7 +60,7 @@ namespace Arsemi {
                 _mutex.WaitOne(1000);
                 try {
                     while(_serialPort?.BytesToRead > 0) {
-                        _buffer.Enqueue(ReadByte());
+                        Buffer.Enqueue(ReadByte());
                     }
                 }
                 finally {
@@ -143,7 +143,7 @@ namespace Arsemi {
             /// <returns></returns>
             public static bool AvailableBytes(int byteCount = 1) {
                 // Console.WriteLine("Still waiting for bytes...");
-                return _buffer.Count >= byteCount;
+                return Buffer.Count >= byteCount;
             }
 
 

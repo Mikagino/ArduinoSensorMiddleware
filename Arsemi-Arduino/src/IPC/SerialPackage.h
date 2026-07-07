@@ -16,13 +16,15 @@ public:
 private:
   uint8_t parameters[MaximumParameterCount] = {};
   uint8_t parameterCount = 0;
+  uint8_t length = 0;
 
 public:
   // Constructors
   SerialPackage() {}
 
   SerialPackage(uint8_t actionCode, uint8_t *parameters, uint8_t parameterCount)
-      : ActionCode(actionCode), parameterCount(parameterCount) {
+      : ActionCode(actionCode), parameterCount(parameterCount),
+        length(1 + parameterCount) {
     appendParameters(parameters, parameterCount);
   }
 
@@ -30,17 +32,24 @@ public:
     ActionCode = actionCode;
     parameters[0] = parameter;
     parameterCount = 1;
+    length = 2;
   }
 
-  SerialPackage(uint8_t actionCode) : ActionCode(actionCode) {}
+  SerialPackage(uint8_t actionCode) : ActionCode(actionCode), length(1) {}
+
+  // Last parameter
+  uint8_t getLastParameter() { return parameters[parameterCount - 1]; }
+  uint8_t popLastParameter();
+  void removeLastParameters(uint8_t count = 1);
 
   uint8_t getParameter(uint8_t index) { return parameters[index]; }
-  uint8_t getLastParameter() { return parameters[parameterCount - 1]; }
-  void removeLastParameters(uint8_t count = 1) { parameterCount -= count; }
   uint8_t getParameterCount() { return parameterCount; }
+  /// @return Total length of the package, including action code and crc8
+  uint8_t getLength() { return length; }
   bool appendParameters(uint8_t *addedParameters, uint8_t addedParameterCount);
   bool appendParameters(uint8_t addedParameter);
   uint8_t operator[](int index);
   uint8_t *Serialize();
   void reset();
+  inline bool isFull() { return parameterCount >= MaximumParameterCount; }
 };

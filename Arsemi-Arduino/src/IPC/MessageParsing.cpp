@@ -49,9 +49,9 @@ void MessageParsing::parseMessage() {
 
   case SerialProtocol::Action::Setup::ClearConfiguration:
     if (checkCrc8Checksum(queuedPackage)) {
+      arsemiArduinoCore.destroyAllSensors();
       SerialMessaging::write(
           SerialProtocol::Action::Setup::SuccessfullyClearedConfiguration);
-      arsemiArduinoCore.destroyAllSensors();
     }
     done = true;
     break;
@@ -89,20 +89,23 @@ int MessageParsing::parseNextActionCode() {
   return -1;
 }
 
-/// @brief Parse the package parameters from the message into queuedPackage
+/// @brief Parse the package parameters from the message into queuedPackage.
+/// Writes PackageSizeOverflow when the queuedPackagesParameters are full.
 void MessageParsing::parseParameters() {
-  for (int i = queuedPackage.getParameterCount();; i++) {
+  while (!queuedPackage.isFull()) {
     int nextByte = Serial.peek();
     if (nextByte == SerialProtocol::PackageDelimiter) {
-      queuedPackage.Crc8 = queuedPackage.getLastParameter();
-      queuedPackage.removeLastParameters();
+      queuedPackage.Crc8 = queuedPackage.popLastParameter();
       queuedPackage.Done = true;
       Serial.read(); // discard PackageDelimiter at end of package
       return;
     } else if (nextByte != -1) {
-      queuedPackage.appendParameters(Serial.read(), 1);
+      queuedPackage.appendParameters(Serial.read());
     }
   }
+
+  SerialMessaging::write(SerialProtocol::Action::System::Error,
+                         SerialProtocol::Error::Package::PackageSizeOverflow);
 }
 
 /// @brief Parse action "Add Sensor".
@@ -162,8 +165,8 @@ bool MessageParsing::parseAddSensorAction() {
 /// @return true if calculated checksum is similar to crc8Checksum, otherwise
 /// false
 bool MessageParsing::checkCrc8Checksum(SerialPackage &package) {
-  uint8_t nextCrc8Checksum = queuedPackage.Crc8;
-  uint8_t calculatedCrc8Checksum = SerialMessaging::CRC8(queuedPackage);
+  uint8_t nextCrc8Checksum = package.Crc8;
+  uint8_t calculatedCrc8Checksum = SerialMessaging::CRC8(package);
 
   // uint8_t *serializedPackage = package.Serialize();
 

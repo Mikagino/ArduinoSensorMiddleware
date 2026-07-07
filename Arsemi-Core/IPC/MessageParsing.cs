@@ -110,7 +110,7 @@ namespace Arsemi {
                             _queuedPackage.ActionCode = (byte)queuedActionCode;
                         }
 
-                        var k = SerialMessaging._buffer; // DEBUG
+                        var k = SerialMessaging.Buffer; // DEBUG
                         if(!_queuedPackage.Done)
                             await ParseNextParametersAsync();
 
@@ -246,7 +246,7 @@ namespace Arsemi {
             /// </summary>
             /// <return></return>
             private bool ParseSystemError() {
-                if(_queuedPackage.Parameters.Count < 2) {
+                if(_queuedPackage.Parameters.Count < 1) {
                     throw new Exception("Error parsing package, not enough parameters...");
                 }
 
@@ -262,7 +262,7 @@ namespace Arsemi {
                                         " -> " + _queuedPackage.Parameters[1]);
                     break;
                 case SerialProtocol.Error.Package.InvalidChecksum:
-                    if(_queuedPackage.Parameters.Count != 4) {
+                    if(_queuedPackage.Parameters.Count != 3) {
                         return true; // discard package
                     }
                     CheckCRC8Checksum(_queuedPackage);
@@ -303,12 +303,12 @@ namespace Arsemi {
             /// <returns></returns>
             /// <exception cref="Exception"></exception>
             private static bool CheckCRC8Checksum(SerialPackage package) {
-                int currentCrc8Checksum = package.Crc8;
-                byte computedCrc8Checksum = SerialMessaging.CRC8(package.Serialize(0, package.Parameters.Count - 1));
+                byte[] serializedPackage = package.Serialize();
+                byte computedCrc8Checksum = SerialMessaging.CRC8(serializedPackage);
 
-                if(currentCrc8Checksum != computedCrc8Checksum) {
+                if(package.Crc8 != computedCrc8Checksum) {
                     //throw new Exception("HEY! Loss of packages... :c");
-                    Console.WriteLine("Loss of packages in action " + SerialProtocol.TryGetActionName(package.ActionCode) + ", checksum is not the same! -> " + currentCrc8Checksum + " != " + computedCrc8Checksum);
+                    Console.WriteLine("Loss of packages in action " + SerialProtocol.TryGetActionName(package.ActionCode) + ", checksum is not the same! -> " + package.Crc8 + "(package) != " + computedCrc8Checksum + "(computed)");
                     return false;
                 }
                 else return true;

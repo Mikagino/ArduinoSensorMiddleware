@@ -7,8 +7,9 @@ namespace Arsemi {
                 public virtual int SampleRange => 0;
                 public bool Enabled = true;
                 public string Name = "";
-                public abstract void EvaluateConstants();
-                public abstract RingBuffer.Vector2_8bit FilterValue(Utilities.RingBuffer rawSamples, Utilities.RingBuffer filteredSamples);
+                public RingBuffer FilteredSamples = new(2);
+
+                public abstract void FilterValue(RingBuffer rawSamples);
             }
         }
     }
