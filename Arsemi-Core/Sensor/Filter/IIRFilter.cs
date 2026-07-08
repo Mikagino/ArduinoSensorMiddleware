@@ -19,6 +19,8 @@ namespace Arsemi {
                 private readonly float _a2;
                 private readonly float _b1;
                 private readonly float _b2;
+                public const float Sqrt2 = 1.414213562f;
+
 
 
                 /// <summary>
@@ -30,7 +32,7 @@ namespace Arsemi {
                 /// <param name="frequency"></param>
                 public IIRFilter(float samplingRate, float frequency) {
                     float wc = MathF.Tan(frequency * MathF.PI / samplingRate);
-                    float k1 = 1.414213562f * wc;
+                    float k1 = Sqrt2 * wc;
                     float k2 = wc * wc;
                     _a0 = k2 / (1 + k1 + k2);
                     _a1 = 2 * _a0;
@@ -47,22 +49,19 @@ namespace Arsemi {
                 /// three parameters indicates a notch filter
                 /// equation obtained here http://dspguide.com/ch19/3.htm
                 /// </summary>
-                /// <param name="samplingrate"></param>
+                /// <param name="samplingRate"></param>
                 /// <param name="frequency"></param>
                 /// <param name="bandwidth"></param>
-                public IIRFilter(float samplingrate, float frequency, float bandwidth) {
-                    float f = frequency / samplingrate;
-                    float r = 1 - 3 * (bandwidth / samplingrate);
-                    float k = (1 - 2 * r * MathF.Cos(2 * MathF.PI * f) + r * r) / (2 - 2 * MathF.Cos(2 * MathF.PI * f));
-                    _a0 = k;
-                    _a1 = -2 * k * MathF.Cos(2 * MathF.PI * f);
-                    _a2 = k;
-                    _b1 = 2 * r * MathF.Cos(2 * MathF.PI * f);
+                public IIRFilter(float samplingRate, float frequency, float bandwidth) {
+                    float f = frequency / samplingRate;
+                    float r = 1 - 3 * (bandwidth / samplingRate);
+                    _a0 = (1 - 2 * r * MathF.Cos(MathF.Tau * f) + r * r) / (2 - 2 * MathF.Cos(MathF.Tau * f));
+                    _a1 = -2 * _a0 * MathF.Cos(MathF.Tau * f);
+                    _a2 = _a0;
+                    _b1 = 2 * r * MathF.Cos(MathF.Tau * f);
                     _b2 = -r * r;
-
-                    FilteredSamples.Reset();
                 }
-                
+
 
                 /// <summary>
                 /// Five parameters indicate a generic filter. 
@@ -70,7 +69,8 @@ namespace Arsemi {
                 /// Easy way to find these parameters is using R's "signal" package butter function, and convert parameters like this: 
                 /// <para>samplingRate: 500 (in Hz)</para>
                 /// <para>cutoff: 1 (in Hz)</para>
-                /// <para>order: 2 (nyquist: samplingRate/2) </para>
+                /// <para>order: 2</para>
+                /// <para>(nyquist: samplingRate/2) </para>
                 /// <para>W: cutoff/nyquist </para>
                 /// <para>bf: signal::butter(order, W, type = "high")
                 ///     a0: bf$b[1] / bf$a[1]
@@ -91,8 +91,6 @@ namespace Arsemi {
                     _a2 = a2in;
                     _b1 = b1in;
                     _b2 = b2in;
-
-                    FilteredSamples.Reset();
                 }
 
 
@@ -109,8 +107,8 @@ namespace Arsemi {
                 /// <param name="rawSamples"></param>
                 public override void FilterValue(RingBuffer rawSamples) {
                     byte y = (byte)(_a0 * rawSamples[0].Y +
-                                    _a1 * rawSamples[0].Y +
-                                    _a2 * rawSamples[1].Y +
+                                    _a1 * rawSamples[1].Y +
+                                    _a2 * rawSamples[2].Y +
                                     _b1 * FilteredSamples[0].Y +
                                     _b2 * FilteredSamples[1].Y);
 

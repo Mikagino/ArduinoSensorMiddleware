@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Arsemi.IPC;
 using Arsemi.Sensor;
 using Arsemi.Sensor.Event;
+using Arsemi.Sensor.Filter;
 using Arsemi.Utilities;
 using BenchmarkDotNet.Attributes;
 
@@ -51,7 +52,8 @@ namespace Arsemi {
 
                 _arsemiCore.AddSensor(new DigitalSensor("Button", 2))
                         .SetInterval(100)
-                        .AddEvent(_heartrushEventName, rb => EventCondition.AboveThreshold(rb, 50));
+                        .AddEvent(_heartrushEventName, rb => EventCondition.AboveThreshold(rb, 50))
+                        .AddFilter(FilterAliases.ButterworthHighPassFilter(100, 10), "Highpass");
                 if(await _arsemiCore.ConnectMicrocontrollerAsync() != MessageParsing.ConnectionResult.SUCCESS)
                     return;
                 _arsemiCore.FinishSetup();
