@@ -10,12 +10,9 @@ void MessageParsing::parseMessage() {
   if (!SerialMessaging::isPackageAvailable())
     return;
 
-  if (_queuedActionCode == -1 || _queuedActionCode == 0) {
-    _queuedActionCode = parseNextActionCode();
-    // uint8_t pack[2] = {SerialProtocol::Action::System::Debug,
-    //                    _queuedActionCode};
-    // SerialMessaging::write(pack, 2);
-    if (_queuedActionCode == -1 || _queuedActionCode == 0) {
+  if (queuedPackage.ActionCode == 0) {
+    parseNextActionCode();
+    if (queuedPackage.ActionCode == 0) {
       return;
     }
   }
@@ -25,7 +22,7 @@ void MessageParsing::parseMessage() {
 
   bool done = false;
 
-  switch (_queuedActionCode) {
+  switch (queuedPackage.ActionCode) {
   case SerialProtocol::Action::System::RequestHandshake:
     if (checkCrc8Checksum(queuedPackage)) {
       SerialMessaging::write(SerialProtocol::Action::System::ReplyHandshake);
@@ -63,30 +60,31 @@ void MessageParsing::parseMessage() {
   default:
     uint8_t data[3] = {SerialProtocol::Action::System::Error,
                        SerialProtocol::Error::Package::InvalidActionCode,
-                       (uint8_t)_queuedActionCode};
+                       queuedPackage.ActionCode};
     SerialMessaging::write(data, 3);
     done = true;
   }
 
   if (done)
-    _queuedActionCode = -1;
+    queuedPackage.reset();
 }
 
 /// @brief Peeks for PackageDelimiter and discards everything until the action
 /// code. Packages are only done if they contain [PackageDelimiter + ActionCode
 /// + CRC8], thus this method waits for 3 bytes in the stream. Further checks
 /// and processing must be done by another method.
-/// @returns Action code which follows after the next start byte, otherwise -1
-int MessageParsing::parseNextActionCode() {
+/// @returns Action code which follows after the next start byte, otherwise 0
+void MessageParsing::parseNextActionCode() {
   while (SerialMessaging::isPackageAvailable()) {
     if (Serial.peek() == SerialProtocol::PackageDelimiter) {
       Serial.read(); // discard PackageDelimiter
-      return Serial.read();
+      uint8_t actionCode = Serial.read();
+      queuedPackage.ActionCode = (actionCode == -1 ? 0 : actionCode);
     }
 
     Serial.read(); // discard
   }
-  return -1;
+  return 0;
 }
 
 /// @brief Parse the package parameters from the message into queuedPackage.
@@ -98,10 +96,15 @@ void MessageParsing::parseParameters() {
       queuedPackage.Crc8 = queuedPackage.popLastParameter();
       queuedPackage.Done = true;
       Serial.read(); // discard PackageDelimiter at end of package
+      SerialMessaging::write(SerialProtocol::Action::System::Debug,
+                             queuedPackage.Crc8);
       return;
-    } else if (nextByte != -1) {
-      queuedPackage.appendParameters(Serial.read());
-    }
+    } else if (nextByte == -1)
+      continue;
+
+    queuedPackage.appendParameters(nextByte);
+    Serial.read(); // discard next byte
+
   }
 
   SerialMessaging::write(SerialProtocol::Action::System::Error,
@@ -165,18 +168,15 @@ bool MessageParsing::parseAddSensorAction() {
 /// @return true if calculated checksum is similar to crc8Checksum, otherwise
 /// false
 bool MessageParsing::checkCrc8Checksum(SerialPackage &package) {
-  uint8_t nextCrc8Checksum = package.Crc8;
   uint8_t calculatedCrc8Checksum = SerialMessaging::CRC8(package);
 
   // uint8_t *serializedPackage = package.Serialize();
 
-  if (nextCrc8Checksum != calculatedCrc8Checksum) {
+  if (package.Crc8 != calculatedCrc8Checksum) {
     uint8_t errorPackage[4] = {SerialProtocol::Action::System::Error,
                                SerialProtocol::Error::Package::InvalidChecksum,
-                               nextCrc8Checksum, calculatedCrc8Checksum};
+                               package.Crc8, calculatedCrc8Checksum};
     SerialMessaging::write(errorPackage, 4);
-    // SerialMessaging::write(SerialProtocol::Action::System::Error,
-    //                        SerialProtocol::Error::Package::InvalidChecksum);
     return false;
   }
   return true;

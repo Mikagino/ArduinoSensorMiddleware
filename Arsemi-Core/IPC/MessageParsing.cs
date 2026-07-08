@@ -307,7 +307,6 @@ namespace Arsemi {
                 byte computedCrc8Checksum = SerialMessaging.CRC8(serializedPackage);
 
                 if(package.Crc8 != computedCrc8Checksum) {
-                    //throw new Exception("HEY! Loss of packages... :c");
                     Console.WriteLine("Loss of packages in action " + SerialProtocol.TryGetActionName(package.ActionCode) + ", checksum is not the same! -> " + package.Crc8 + "(package) != " + computedCrc8Checksum + "(computed)");
                     return false;
                 }

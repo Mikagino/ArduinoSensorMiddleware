@@ -52,7 +52,7 @@ bool SerialPackage::appendParameters(uint8_t addedParameter) {
   if (parameterCount + 1 > MaximumParameterCount)
     return false;
   parameters[parameterCount] = addedParameter;
-  length = length - parameterCount + 1;
+  length += 1;
   parameterCount += 1;
   return true;
 }

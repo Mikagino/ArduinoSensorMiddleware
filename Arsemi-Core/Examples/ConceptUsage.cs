@@ -17,6 +17,7 @@ namespace Arsemi {
             public static Action? HeartrushAction;
 
             private static string _heartrushEventName = "Heartrush";
+            private static string _buttonPressEventName = "ButtonPress";
 
 
             public static async Task Main() {
@@ -51,17 +52,20 @@ namespace Arsemi {
                 // .AddEvent(new AboveThresholdEvent(15), "Excitement");
 
                 _arsemiCore.AddSensor(new DigitalSensor("Button", 2))
-                        .SetInterval(100)
-                        .AddEvent(_heartrushEventName, rb => EventCondition.AboveThreshold(rb, 50))
+                        .SetInterval(50)
+                        .AddEvent(_buttonPressEventName, rb => EventCondition.AboveThreshold(rb, 0));
+                _arsemiCore.AddSensor(new MAX30102Sensor("Heartrate"))
+                        .SetInterval(50)
+                        .AddEvent(_buttonPressEventName, rb => EventCondition.BelowThreshold(rb, 50))
                         .AddFilter(FilterAliases.ButterworthHighPassFilter(100, 10), "Highpass");
                 if(await _arsemiCore.ConnectMicrocontrollerAsync() != MessageParsing.ConnectionResult.SUCCESS)
                     return;
-                _arsemiCore.FinishSetup();
+                //_arsemiCore.FinishSetup();
 
                 //await ConfigSaver.SaveTo(_arsemiCore, PathToConfigDirectory);
                 //await ConfigSaver.GenerateGlobals(_arsemiCore, PathToConfigDirectory);
                 // ArsemiGlobals.Events.Excitement += EventAction;
-                _arsemiCore.StartLoop();
+                //_arsemiCore.StartLoop();
                 _arsemiCore.EventReceived += HandleEvent;
             }
 

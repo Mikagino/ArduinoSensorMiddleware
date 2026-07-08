@@ -13,19 +13,18 @@
 
 class MessageParsing {
 private:
-  int _queuedActionCode = -1;
   /// @brief The currently queuedPackage for waiting for the other parameters
   SerialPackage queuedPackage = SerialPackage();
   AbstractSensor *queuedSensor;
   ArsemiArduinoCore &arsemiArduinoCore;
 
-  int parseNextActionCode();
+  void parseNextActionCode();
+  void parseParameters();
 
 public:
   MessageParsing(ArsemiArduinoCore &newArsemiArduinoCore);
 
   void parseMessage();
-  void parseParameters();
   bool parseAddSensorAction();
 
   bool checkCrc8Checksum(SerialPackage &package);
