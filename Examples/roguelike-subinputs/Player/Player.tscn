@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://bkvc83u310o3y"]
+
+[ext_resource type="Script" uid="uid://cmkgn1t3rndsj" path="res://Player/PlayerMovement.cs" id="1_3qydi"]
+[ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Solider_Walk.tres" id="3_tok1r"]
+[ext_resource type="Script" uid="uid://bwktpkefwg7jk" path="res://Player/WeaponManager.cs" id="4_ddoul"]
+[ext_resource type="Resource" uid="uid://b144uh2tbjlkx" path="res://Weapon/Premade/Pistol.tres" id="4_vlldt"]
+[ext_resource type="PackedScene" uid="uid://xl7ejxu8na5x" path="res://Weapon/WeaponItem.tscn" id="5_8g4oa"]
+[ext_resource type="Script" uid="uid://rqfylrdov5k0" path="res://Player/PickupComponent.cs" id="6_6ysni"]
+[ext_resource type="PackedScene" uid="uid://r1mnsamnabah" path="res://Weapon/Bullet/BulletItem.tscn" id="6_vlldt"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6ysni"]
+radius = 13.0
+height = 36.0
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_lbj6w"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_tok1r")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_lbj6w"]
+radius = 42.0119
+
+[node name="Player" type="CharacterBody2D" unique_id=1414438830 node_paths=PackedStringArray("_sprite")]
+script = ExtResource("1_3qydi")
+_sprite = NodePath("Sprite")
+
+[node name="Hitbox" type="CollisionShape2D" parent="." unique_id=415844736]
+shape = SubResource("CapsuleShape2D_6ysni")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=846960333]
+unique_name_in_owner = true
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_lbj6w")
+
+[node name="WeaponManager" type="Sprite2D" parent="." unique_id=2066974191]
+offset = Vector2(25, 5)
+script = ExtResource("4_ddoul")
+CurrentWeapon = ExtResource("4_vlldt")
+_weaponItemScene = ExtResource("5_8g4oa")
+_bulletScene = ExtResource("6_vlldt")
+metadata/_custom_type_script = "uid://bwktpkefwg7jk"
+
+[node name="DroppedWeapons" type="Node" parent="WeaponManager" unique_id=501964102]
+unique_name_in_owner = true
+
+[node name="BulletContainer" type="Node" parent="WeaponManager" unique_id=1632397852]
+unique_name_in_owner = true
+
+[node name="PickupArea" type="Area2D" parent="." unique_id=1606841001]
+script = ExtResource("6_6ysni")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupArea" unique_id=791627112]
+shape = SubResource("CircleShape2D_lbj6w")

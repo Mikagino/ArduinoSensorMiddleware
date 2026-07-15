@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WeaponResource" format=3 uid="uid://b144uh2tbjlkx"]
+
+[ext_resource type="Script" uid="uid://00wxi1npq0nn" path="res://Weapon/WeaponResource.cs" id="1_a851r"]
+[ext_resource type="Texture2D" uid="uid://djy6y7jp7tv1s" path="res://Weapon/free-guns-pixel-art/Pistol-1.png" id="1_bxph8"]
+[ext_resource type="Texture2D" uid="uid://cqueue4hu53oq" path="res://Weapon/Bullet/BasicBulletIcon.tres" id="1_wka6e"]
+
+[resource]
+script = ExtResource("1_a851r")
+WeaponIcon = ExtResource("1_bxph8")
+BulletIcon = ExtResource("1_wka6e")
+metadata/_custom_type_script = "uid://00wxi1npq0nn"

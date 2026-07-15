@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://xl7ejxu8na5x"]
+
+[ext_resource type="Texture2D" uid="uid://djy6y7jp7tv1s" path="res://Weapon/free-guns-pixel-art/Pistol-1.png" id="1_s2w46"]
+[ext_resource type="Script" uid="uid://bb5m6niku04hd" path="res://Weapon/WeaponItem.cs" id="1_xonlb"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_lbj6w"]
+radius = 20.024984
+
+[node name="WeaponItem" type="Sprite2D" unique_id=1029278073]
+texture = ExtResource("1_s2w46")
+script = ExtResource("1_xonlb")
+
+[node name="PickupArea" type="Area2D" parent="." unique_id=637826547]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupArea" unique_id=723253411]
+shape = SubResource("CircleShape2D_lbj6w")
