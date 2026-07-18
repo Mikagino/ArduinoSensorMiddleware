@@ -64,18 +64,16 @@ namespace Player {
             }
             if(@event.IsActionPressed(Constants.Inputs.Shoot)) {
                 _shooting = true;
-                // _weaponManager.Shoot(Bullet.BulletSourceType.Player);
             }
             if(@event.IsActionReleased(Constants.Inputs.Shoot)) {
                 _shooting = false;
-                // _weaponManager.Shoot(Bullet.BulletSourceType.Player);
             }
         }
 
 
         private void Die() {
             GD.Print("YOU DIED!!!");
-            QueueFree();
+            // QueueFree();
         }
     }
 }

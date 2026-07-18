@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://b6m17e2fp6pkh"]
+
+[ext_resource type="Script" uid="uid://dh60ouqkt8slg" path="res://Player/PlayerUI/PlayerUI.cs" id="1_h8npq"]
+[ext_resource type="Texture2D" uid="uid://ducahncdsocuf" path="res://Weapon/free-guns-pixel-art/Amo8.png" id="1_qbo8c"]
+
+[node name="PlayerUI" type="Control" unique_id=653240842]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_h8npq")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1305954679]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+
+[node name="HealthBar" type="ProgressBar" parent="MarginContainer" unique_id=229835898]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+mouse_filter = 2
+step = 1.0
+value = 100.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1728771249]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer" unique_id=1008024494]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+texture = ExtResource("1_qbo8c")
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="MarginContainer/HBoxContainer" unique_id=1367058748]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "10"

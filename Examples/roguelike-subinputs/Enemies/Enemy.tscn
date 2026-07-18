@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://mrhg30a6816q" path="res://Entities/HitboxComponent.cs" id="2_jcwuj"]
 [ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.tres" id="2_wdetw"]
 [ext_resource type="PackedScene" uid="uid://cnxa2035pqvhu" path="res://Entities/WeaponManager.tscn" id="3_wdetw"]
+[ext_resource type="Script" uid="uid://d2urpjqbqey5p" path="res://Enemies/EnemyHealthbar.cs" id="5_biruh"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_72oj0"]
 radius = 18.0
@@ -19,8 +20,7 @@ unique_name_in_owner = true
 position = Vector2(-2, 2)
 shape = SubResource("CapsuleShape2D_72oj0")
 script = ExtResource("2_jcwuj")
-MaxHealth = 3
-CurrentHealth = 3
+MaxHealth = 100
 metadata/_custom_type_script = "uid://mrhg30a6816q"
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1249053894]
@@ -35,3 +35,25 @@ unique_name_in_owner = true
 
 [node name="ShootTimer" type="Timer" parent="." unique_id=620794368]
 autostart = true
+
+[node name="HealthbarBG" type="Line2D" parent="." unique_id=1396332118]
+position = Vector2(-25, -25)
+points = PackedVector2Array(0, 0, 50, 0)
+width = 6.0
+default_color = Color(0, 0, 0, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+round_precision = 2
+
+[node name="Healthbar" type="Line2D" parent="HealthbarBG" unique_id=563722657]
+points = PackedVector2Array(0, 0, 50, 0)
+width = 5.0
+default_color = Color(1, 0, 0, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+round_precision = 2
+script = ExtResource("5_biruh")
+
+[connection signal="DamageReceived" from="HitboxComponent" to="HealthbarBG/Healthbar" method="SetHealth"]

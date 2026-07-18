@@ -15,13 +15,19 @@ namespace Enemies {
         public override void _Ready() {
             HitboxComponent = GetNode<HitboxComponent>("%HitboxComponent");
             _player = GetTree().GetNodesInGroup(Constants.Groups.Player)[0] as PlayerMovement;
-            _shootTimer.WaitTime = _weaponManager.CurrentWeapon.AttackSpeed;
-            _shootTimer.Timeout += () => _weaponManager.Shoot();
+            HitboxComponent.Died += Die;
         }
 
 
         public override void _Process(double delta) {
+            if(_player == null) return;
             _weaponManager.LookAt(_player.GlobalPosition);
+            _weaponManager.Shoot();
+        }
+
+
+        public void Die() {
+            QueueFree();
         }
     }
 }

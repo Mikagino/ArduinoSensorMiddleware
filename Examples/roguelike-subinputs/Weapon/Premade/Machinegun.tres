@@ -18,6 +18,7 @@ fill_from = Vector2(0.5, 0.5)
 [resource]
 script = ExtResource("3_q2m3g")
 AttackSpeed = 200.0
+Damage = 15
 WeaponIcon = ExtResource("2_w5is3")
 BulletIcon = SubResource("GradientTexture2D_w5is3")
 metadata/_custom_type_script = "uid://00wxi1npq0nn"

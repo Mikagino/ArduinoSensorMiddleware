@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.tres" id="3_tok1r"]
 [ext_resource type="Resource" uid="uid://dt8k67dapyhub" path="res://Weapon/Premade/Machinegun.tres" id="5_6ysni"]
 [ext_resource type="Script" uid="uid://rqfylrdov5k0" path="res://Player/PickupComponent.cs" id="6_6ysni"]
+[ext_resource type="PackedScene" uid="uid://b6m17e2fp6pkh" path="res://Player/PlayerUI.tscn" id="7_vlldt"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6ysni"]
 radius = 13.0
@@ -33,6 +34,7 @@ _weaponManager = NodePath("WeaponManager")
 unique_name_in_owner = true
 shape = SubResource("CapsuleShape2D_6ysni")
 script = ExtResource("2_8g4oa")
+MaxHealth = 100
 
 [node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=846960333]
 unique_name_in_owner = true
@@ -47,3 +49,9 @@ script = ExtResource("6_6ysni")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PickupArea" unique_id=791627112]
 shape = SubResource("CircleShape2D_lbj6w")
+
+[node name="Node" type="Node" parent="." unique_id=2018252336]
+
+[node name="PlayerUI" parent="Node" unique_id=653240842 instance=ExtResource("7_vlldt")]
+
+[connection signal="DamageReceived" from="HitboxComponent" to="Node/PlayerUI" method="SetHealth"]

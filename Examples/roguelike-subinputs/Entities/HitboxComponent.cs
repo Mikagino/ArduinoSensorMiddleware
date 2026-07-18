@@ -7,6 +7,7 @@ public partial class HitboxComponent : CollisionShape2D {
 
 
     [Signal] public delegate void DiedEventHandler();
+    [Signal] public delegate void DamageReceivedEventHandler(int currentHealth);
 
 
     public override void _Ready() {
@@ -19,14 +20,10 @@ public partial class HitboxComponent : CollisionShape2D {
     /// <param name="damage"></param>
     public void ApplyDamage(int damage) {
         CurrentHealth -= damage;
+        EmitSignal(SignalName.DamageReceived, CurrentHealth);
         if(CurrentHealth <= 0) {
             CurrentHealth = 0;
             EmitSignal(SignalName.Died);
-            Die();
         }
-    }
-
-    public void Die() {
-        GetParent().QueueFree(); // DEBUG!
     }
 }
