@@ -2,10 +2,18 @@ using Godot;
 
 namespace Weapon {
     public partial class WeaponManager : Sprite2D {
-        [Export] public WeaponResource CurrentWeapon;
+        [Export] public WeaponResource? CurrentWeapon;
         [Export] private PackedScene _weaponItemScene;
         [Export] private PackedScene _bulletScene;
-        [Export] public int CurrentAmmunition { private set; get; }
+        [Export]
+        public int CurrentAmmunition {
+            private set {
+                _currentAmmunition = value;
+                EmitSignal(SignalName.AmmunitionChanged, CurrentAmmunition);
+            }
+            get => _currentAmmunition;
+        }
+        private int _currentAmmunition;
 
 
         private Node _droppedWeaponsContainer;
@@ -14,6 +22,7 @@ namespace Weapon {
 
 
         [Signal] public delegate void AmmunitionChangedEventHandler(int newAmmunition);
+        [Signal] public delegate void AmmunitionEmptiedEventHandler();
 
 
         public override void _Ready() {
@@ -24,9 +33,12 @@ namespace Weapon {
 
 
         public void DropWeapon() {
-            Sprite2D weaponItemInstance = _weaponItemScene.Instantiate<Sprite2D>();
+            EmitSignal(SignalName.AmmunitionEmptied);
+            WeaponItem weaponItemInstance = _weaponItemScene.Instantiate<WeaponItem>();
+            weaponItemInstance.Initialize(CurrentWeapon, GlobalPosition);
             _droppedWeaponsContainer.AddChild(weaponItemInstance);
-            CurrentAmmunition = 0;
+            CurrentWeapon = null;
+            Texture = null;
         }
 
 
@@ -47,7 +59,15 @@ namespace Weapon {
             _bulletContainer.AddChild(newBullet);
             _lastShot = (long)Time.GetTicksMsec();
             CurrentAmmunition--;
-            EmitSignal(SignalName.AmmunitionChanged, CurrentAmmunition);
         }
+
+
+        /// <summary>
+        /// Yeet weapon away when ammunition falls below 0
+        /// </summary>
+        // public void YEET() {
+        //     WeaponItem yeetedWeapon = _weaponItemScene.Instantiate<WeaponItem>();
+
+        // }
     }
 }

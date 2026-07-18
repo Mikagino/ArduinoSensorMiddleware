@@ -61,6 +61,7 @@ namespace Player {
         public override void _UnhandledInput(InputEvent @event) {
             if(@event.IsActionPressed(Constants.Inputs.DropItem)) {
                 _weaponManager.DropWeapon();
+                GD.Print("Drop");
             }
             if(@event.IsActionPressed(Constants.Inputs.Shoot)) {
                 _shooting = true;

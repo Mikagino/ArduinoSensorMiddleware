@@ -17,6 +17,12 @@ public partial class PlayerUI : Control {
 
 
     public void SetAmmunition(int newAmmunition) {
+        if(_ammunitionLabel == null) return;
         _ammunitionLabel.Text = newAmmunition.ToString();
+    }
+
+
+    public void AmmunitionEmptied() {
+        _ammunitionLabel.Text = "-";
     }
 }

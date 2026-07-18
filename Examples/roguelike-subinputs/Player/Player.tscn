@@ -56,3 +56,4 @@ shape = SubResource("CircleShape2D_lbj6w")
 
 [connection signal="DamageReceived" from="HitboxComponent" to="Node/PlayerUI" method="SetHealth"]
 [connection signal="AmmunitionChanged" from="WeaponManager" to="Node/PlayerUI" method="SetAmmunition"]
+[connection signal="AmmunitionEmptied" from="WeaponManager" to="Node/PlayerUI" method="AmmunitionEmptied"]
