@@ -43,6 +43,8 @@ sprite_frames = SubResource("SpriteFrames_lbj6w")
 
 [node name="WeaponManager" parent="." unique_id=1069582113 instance=ExtResource("3_ddoul")]
 CurrentWeapon = ExtResource("5_6ysni")
+MinYeetRange = 100
+MaxYeetRange = 500
 
 [node name="PickupArea" type="Area2D" parent="." unique_id=1606841001]
 script = ExtResource("6_6ysni")
@@ -50,10 +52,13 @@ script = ExtResource("6_6ysni")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PickupArea" unique_id=791627112]
 shape = SubResource("CircleShape2D_lbj6w")
 
-[node name="Node" type="Node" parent="." unique_id=2018252336]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1128461901]
 
-[node name="PlayerUI" parent="Node" unique_id=653240842 instance=ExtResource("7_vlldt")]
+[node name="PlayerUI" parent="CanvasLayer" unique_id=653240842 instance=ExtResource("7_vlldt")]
 
-[connection signal="DamageReceived" from="HitboxComponent" to="Node/PlayerUI" method="SetHealth"]
-[connection signal="AmmunitionChanged" from="WeaponManager" to="Node/PlayerUI" method="SetAmmunition"]
-[connection signal="AmmunitionEmptied" from="WeaponManager" to="Node/PlayerUI" method="AmmunitionEmptied"]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=384333822]
+position_smoothing_enabled = true
+
+[connection signal="DamageReceived" from="HitboxComponent" to="CanvasLayer/PlayerUI" method="SetHealth"]
+[connection signal="AmmunitionChanged" from="WeaponManager" to="CanvasLayer/PlayerUI" method="SetAmmunition"]
+[connection signal="AmmunitionEmptied" from="WeaponManager" to="CanvasLayer/PlayerUI" method="AmmunitionEmptied"]

@@ -16,8 +16,11 @@ namespace Weapon {
         }
         private int _currentAmmunition;
 
+
+        [ExportGroup("Yeet")]
         [Export] public int MinYeetRange = 50;
-        [Export] public int MaxYeetRange = 300; 
+        [Export] public int MaxYeetRange = 300;
+        [Export] public float YeetDurationScale = 0.001f;
 
 
         private Node _droppedWeaponsContainer;
@@ -36,14 +39,17 @@ namespace Weapon {
         }
 
 
+        /// <summary>
+        /// Yeets the weapon in a random direction with a random distance
+        /// </summary>
         public void DropWeapon() {
             float randomLength = Random.Shared.Next(MinYeetRange, MaxYeetRange);
-            int tauScalar = 100;
-            float randomRotation = Random.Shared.Next(0, Mathf.RoundToInt(Mathf.Tau * tauScalar));
+            float randomRotation = Random.Shared.Next(63) / 10;
             Vector2 yeetOffset = Vector2.Up.Rotated(randomRotation) * randomLength;
 
             WeaponItem weaponItemInstance = _weaponItemScene.Instantiate<WeaponItem>();
-            weaponItemInstance.Initialize(CurrentWeapon, GlobalPosition + yeetOffset);
+            weaponItemInstance.SpawnTo(CurrentWeapon, GlobalPosition, GlobalPosition + yeetOffset, YeetDurationScale);
+            weaponItemInstance.Rotate(randomRotation);
             _droppedWeaponsContainer.AddChild(weaponItemInstance);
 
             CurrentWeapon = null;
