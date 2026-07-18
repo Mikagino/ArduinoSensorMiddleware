@@ -6,6 +6,9 @@
 
 [resource]
 script = ExtResource("1_a851r")
+AttackSpeed = 600.0
+Damage = 3
+BulletSpeed = 600
 WeaponIcon = ExtResource("1_bxph8")
 BulletIcon = ExtResource("1_wka6e")
 metadata/_custom_type_script = "uid://00wxi1npq0nn"

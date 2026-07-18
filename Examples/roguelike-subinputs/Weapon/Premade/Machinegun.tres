@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="WeaponResource" format=3 uid="uid://dt8k67dapyhub"]
+
+[ext_resource type="Texture2D" uid="uid://c7rt2v7xxyf3c" path="res://Weapon/free-guns-pixel-art/SMG-2.png" id="2_w5is3"]
+[ext_resource type="Script" uid="uid://00wxi1npq0nn" path="res://Weapon/WeaponResource.cs" id="3_q2m3g"]
+
+[sub_resource type="Gradient" id="Gradient_aocy8"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0.055555556, 0.16666667, 0.39814815)
+colors = PackedColorArray(1, 0.9595762, 0.5698676, 1, 0.9284666, 0.28207615, 0.11315722, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_w5is3"]
+gradient = SubResource("Gradient_aocy8")
+width = 16
+height = 16
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
+[resource]
+script = ExtResource("3_q2m3g")
+AttackSpeed = 200.0
+WeaponIcon = ExtResource("2_w5is3")
+BulletIcon = SubResource("GradientTexture2D_w5is3")
+metadata/_custom_type_script = "uid://00wxi1npq0nn"

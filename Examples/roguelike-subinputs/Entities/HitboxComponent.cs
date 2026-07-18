@@ -10,7 +10,7 @@ public partial class HitboxComponent : CollisionShape2D {
 
 
     public override void _Ready() {
-        
+        CurrentHealth = MaxHealth;
     }
 
     /// <summary>
@@ -22,6 +22,11 @@ public partial class HitboxComponent : CollisionShape2D {
         if(CurrentHealth <= 0) {
             CurrentHealth = 0;
             EmitSignal(SignalName.Died);
+            Die();
         }
+    }
+
+    public void Die() {
+        GetParent().QueueFree(); // DEBUG!
     }
 }

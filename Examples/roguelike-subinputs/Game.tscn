@@ -1,9 +1,13 @@
 [gd_scene format=3 uid="uid://dkh6quaxw5n2l"]
 
 [ext_resource type="PackedScene" uid="uid://bkvc83u310o3y" path="res://Player/Player.tscn" id="1_wbfu4"]
+[ext_resource type="PackedScene" uid="uid://dj5asw8w6hsnb" path="res://Enemies/Enemy.tscn" id="2_xkndl"]
 
 [node name="Game" type="Node2D" unique_id=2095138204]
 
 [node name="Player" parent="." unique_id=1414438830 instance=ExtResource("1_wbfu4")]
 position = Vector2(97, 82)
 Speed = 200
+
+[node name="Enemy" parent="." unique_id=2071273226 instance=ExtResource("2_xkndl")]
+position = Vector2(502, 236)

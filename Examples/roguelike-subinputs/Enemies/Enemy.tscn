@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://dj5asw8w6hsnb"]
+
+[ext_resource type="Script" uid="uid://by21mgwowadr2" path="res://Enemies/EnemyMovement.cs" id="1_4isyn"]
+[ext_resource type="Script" uid="uid://mrhg30a6816q" path="res://Entities/HitboxComponent.cs" id="2_jcwuj"]
+[ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.tres" id="2_wdetw"]
+[ext_resource type="PackedScene" uid="uid://cnxa2035pqvhu" path="res://Entities/WeaponManager.tscn" id="3_wdetw"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_72oj0"]
+radius = 18.0
+height = 48.0
+
+[node name="Enemy" type="CharacterBody2D" unique_id=2071273226 node_paths=PackedStringArray("_weaponManager", "_shootTimer")]
+script = ExtResource("1_4isyn")
+_weaponManager = NodePath("WeaponManager")
+_shootTimer = NodePath("ShootTimer")
+
+[node name="HitboxComponent" type="CollisionShape2D" parent="." unique_id=738520369]
+unique_name_in_owner = true
+position = Vector2(-2, 2)
+shape = SubResource("CapsuleShape2D_72oj0")
+script = ExtResource("2_jcwuj")
+MaxHealth = 3
+CurrentHealth = 3
+metadata/_custom_type_script = "uid://mrhg30a6816q"
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1249053894]
+
+[node name="SoldierWalk" type="Sprite2D" parent="." unique_id=236021245]
+self_modulate = Color(0.9999874, 0.32359248, 0.42848453, 1)
+scale = Vector2(2, 2)
+texture = ExtResource("2_wdetw")
+
+[node name="WeaponManager" parent="." unique_id=1069582113 instance=ExtResource("3_wdetw")]
+unique_name_in_owner = true
+
+[node name="ShootTimer" type="Timer" parent="." unique_id=620794368]
+autostart = true

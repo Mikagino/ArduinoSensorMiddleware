@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://cnxa2035pqvhu"]
+
+[ext_resource type="Script" uid="uid://bwktpkefwg7jk" path="res://Entities/WeaponManager.cs" id="1_5qg15"]
+[ext_resource type="Resource" uid="uid://b144uh2tbjlkx" path="res://Weapon/Premade/Pistol.tres" id="2_mkmqd"]
+[ext_resource type="PackedScene" uid="uid://xl7ejxu8na5x" path="res://Weapon/WeaponItem.tscn" id="3_ah38i"]
+[ext_resource type="PackedScene" uid="uid://r1mnsamnabah" path="res://Weapon/Bullet/BulletItem.tscn" id="4_s6r66"]
+
+[node name="WeaponManager" type="Sprite2D" unique_id=1069582113]
+offset = Vector2(25, 5)
+script = ExtResource("1_5qg15")
+CurrentWeapon = ExtResource("2_mkmqd")
+_weaponItemScene = ExtResource("3_ah38i")
+_bulletScene = ExtResource("4_s6r66")
+metadata/_custom_type_script = "uid://bwktpkefwg7jk"
+
+[node name="DroppedWeapons" type="Node" parent="." unique_id=2089221208]
+unique_name_in_owner = true
+
+[node name="BulletContainer" type="Node" parent="." unique_id=1742452408]
+unique_name_in_owner = true
