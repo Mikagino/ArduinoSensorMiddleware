@@ -55,3 +55,4 @@ shape = SubResource("CircleShape2D_lbj6w")
 [node name="PlayerUI" parent="Node" unique_id=653240842 instance=ExtResource("7_vlldt")]
 
 [connection signal="DamageReceived" from="HitboxComponent" to="Node/PlayerUI" method="SetHealth"]
+[connection signal="AmmunitionChanged" from="WeaponManager" to="Node/PlayerUI" method="SetAmmunition"]

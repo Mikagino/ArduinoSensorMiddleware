@@ -5,11 +5,15 @@ namespace Weapon {
         [Export] public WeaponResource CurrentWeapon;
         [Export] private PackedScene _weaponItemScene;
         [Export] private PackedScene _bulletScene;
+        [Export] public int CurrentAmmunition { private set; get; }
 
 
         private Node _droppedWeaponsContainer;
         private Node _bulletContainer;
         private long _lastShot = 0;
+
+
+        [Signal] public delegate void AmmunitionChangedEventHandler(int newAmmunition);
 
 
         public override void _Ready() {
@@ -22,16 +26,19 @@ namespace Weapon {
         public void DropWeapon() {
             Sprite2D weaponItemInstance = _weaponItemScene.Instantiate<Sprite2D>();
             _droppedWeaponsContainer.AddChild(weaponItemInstance);
+            CurrentAmmunition = 0;
         }
 
 
         public void PickupWeapon(WeaponResource weapon) {
             CurrentWeapon = weapon;
             Texture = CurrentWeapon.WeaponIcon;
+            CurrentAmmunition = CurrentWeapon.Ammunition;
         }
 
 
         public void Shoot(Bullet.BulletSourceType? bulletSourceType = null) {
+            if(CurrentAmmunition <= 0) return;
             if(_lastShot + CurrentWeapon.AttackSpeed > (long)Time.GetTicksMsec()) return;
 
             Bullet newBullet = _bulletScene.Instantiate<Bullet>();
@@ -39,6 +46,8 @@ namespace Weapon {
             newBullet.Initialize(CurrentWeapon, Vector2.Right.Rotated(Rotation), bulletSourceType);
             _bulletContainer.AddChild(newBullet);
             _lastShot = (long)Time.GetTicksMsec();
+            CurrentAmmunition--;
+            EmitSignal(SignalName.AmmunitionChanged, CurrentAmmunition);
         }
     }
 }
