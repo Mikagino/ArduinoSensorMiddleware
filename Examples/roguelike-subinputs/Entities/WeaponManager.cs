@@ -1,3 +1,4 @@
+using System;
 using Godot;
 
 namespace Weapon {
@@ -14,6 +15,9 @@ namespace Weapon {
             get => _currentAmmunition;
         }
         private int _currentAmmunition;
+
+        [Export] public int MinYeetRange = 50;
+        [Export] public int MaxYeetRange = 300; 
 
 
         private Node _droppedWeaponsContainer;
@@ -33,12 +37,18 @@ namespace Weapon {
 
 
         public void DropWeapon() {
-            EmitSignal(SignalName.AmmunitionEmptied);
+            float randomLength = Random.Shared.Next(MinYeetRange, MaxYeetRange);
+            int tauScalar = 100;
+            float randomRotation = Random.Shared.Next(0, Mathf.RoundToInt(Mathf.Tau * tauScalar));
+            Vector2 yeetOffset = Vector2.Up.Rotated(randomRotation) * randomLength;
+
             WeaponItem weaponItemInstance = _weaponItemScene.Instantiate<WeaponItem>();
-            weaponItemInstance.Initialize(CurrentWeapon, GlobalPosition);
+            weaponItemInstance.Initialize(CurrentWeapon, GlobalPosition + yeetOffset);
             _droppedWeaponsContainer.AddChild(weaponItemInstance);
+
             CurrentWeapon = null;
             Texture = null;
+            EmitSignal(SignalName.AmmunitionEmptied);
         }
 
 
@@ -60,14 +70,5 @@ namespace Weapon {
             _lastShot = (long)Time.GetTicksMsec();
             CurrentAmmunition--;
         }
-
-
-        /// <summary>
-        /// Yeet weapon away when ammunition falls below 0
-        /// </summary>
-        // public void YEET() {
-        //     WeaponItem yeetedWeapon = _weaponItemScene.Instantiate<WeaponItem>();
-
-        // }
     }
 }
