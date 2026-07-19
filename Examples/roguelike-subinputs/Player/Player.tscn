@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://mrhg30a6816q" path="res://Entities/HitboxComponent.cs" id="2_8g4oa"]
 [ext_resource type="PackedScene" uid="uid://cnxa2035pqvhu" path="res://Entities/WeaponManager.tscn" id="3_ddoul"]
 [ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.tres" id="3_tok1r"]
-[ext_resource type="Resource" uid="uid://dt8k67dapyhub" path="res://Weapon/Premade/Machinegun.tres" id="5_6ysni"]
+[ext_resource type="Resource" uid="uid://beb57v7stqor0" path="res://Weapon/Premade/Pumpgun.tres" id="5_vlldt"]
 [ext_resource type="Script" uid="uid://rqfylrdov5k0" path="res://Player/PickupComponent.cs" id="6_6ysni"]
 [ext_resource type="PackedScene" uid="uid://b6m17e2fp6pkh" path="res://Player/PlayerUI.tscn" id="7_vlldt"]
 
@@ -27,7 +27,7 @@ animations = [{
 radius = 42.0119
 
 [node name="Player" type="CharacterBody2D" unique_id=1414438830 groups=["Player"]]
-collision_mask = 5
+collision_mask = 6
 script = ExtResource("1_3qydi")
 
 [node name="HitboxComponent" type="CollisionShape2D" parent="." unique_id=415844736]
@@ -43,9 +43,7 @@ sprite_frames = SubResource("SpriteFrames_lbj6w")
 
 [node name="WeaponManager" parent="." unique_id=1069582113 instance=ExtResource("3_ddoul")]
 unique_name_in_owner = true
-CurrentWeapon = ExtResource("5_6ysni")
-MinYeetRange = 100
-MaxYeetRange = 500
+CurrentWeapon = ExtResource("5_vlldt")
 
 [node name="PickupComponent" type="Area2D" parent="." unique_id=1606841001]
 collision_layer = 0
@@ -62,6 +60,7 @@ shape = SubResource("CircleShape2D_lbj6w")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=384333822]
 position_smoothing_enabled = true
+position_smoothing_speed = 10.0
 
 [connection signal="DamageReceived" from="HitboxComponent" to="CanvasLayer/PlayerUI" method="SetHealth"]
 [connection signal="AmmunitionChanged" from="WeaponManager" to="CanvasLayer/PlayerUI" method="SetAmmunition"]

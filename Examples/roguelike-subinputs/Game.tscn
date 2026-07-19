@@ -7,9 +7,6 @@
 [ext_resource type="Texture2D" uid="uid://dampj0xdnkmx6" path="res://Levels/Tilemap/2.png" id="5_t88pq"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_lbj6w"]
-vertices = PackedVector2Array(1517.4688, 958.53125, -219.85156, 1050.4922, -332.1328, -275.20313, 1449.5234, -309.8125)
-polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(-343, -285, 1459, -320, 1528, 968, -229, 1061)])
 cell_size = 2.0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t88pq"]
@@ -99,9 +96,13 @@ texture_region_size = Vector2i(8, 8)
 tile_size = Vector2i(8, 8)
 sources/0 = SubResource("TileSetAtlasSource_t88pq")
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_72oj0"]
+size = Vector2(107, 2667)
+
 [node name="Game" type="Node2D" unique_id=2095138204]
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1449049981]
+z_index = -4096
 navigation_polygon = SubResource("NavigationPolygon_lbj6w")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="NavigationRegion2D" unique_id=1752640942]
@@ -118,3 +119,26 @@ position = Vector2(502, 236)
 
 [node name="WeaponItem" parent="." unique_id=1029278073 instance=ExtResource("3_u44n3")]
 Weapon = ExtResource("4_sb48q")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1594958971]
+collision_layer = 2
+collision_mask = 29
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1075897933]
+position = Vector2(-294.5, 364)
+shape = SubResource("RectangleShape2D_72oj0")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D" unique_id=206114124]
+position = Vector2(1021.5, -367.99997)
+rotation = 1.5707964
+shape = SubResource("RectangleShape2D_72oj0")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D" unique_id=954650702]
+position = Vector2(2295, 345.00003)
+rotation = 3.1415927
+shape = SubResource("RectangleShape2D_72oj0")
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="StaticBody2D" unique_id=208233535]
+position = Vector2(1011, 850)
+rotation = 4.712389
+shape = SubResource("RectangleShape2D_72oj0")

@@ -9,5 +9,6 @@ namespace Weapon {
         [Export] public int BulletSpeed = 400;
         [Export] public Texture2D WeaponIcon;
         [Export] public Texture2D BulletIcon;
+        [Export] public float[] BulletsDirectionOffsets = [0];
     }
 }

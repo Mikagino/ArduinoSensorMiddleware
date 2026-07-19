@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="WeaponResource" format=3 uid="uid://beb57v7stqor0"]
+
+[ext_resource type="Texture2D" uid="uid://dpumg6nnchdgs" path="res://Weapon/free-guns-pixel-art/Shotgun-1.png" id="2_bkw2h"]
+[ext_resource type="Script" uid="uid://00wxi1npq0nn" path="res://Weapon/WeaponResource.cs" id="3_y38v6"]
+
+[sub_resource type="Gradient" id="Gradient_snma2"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0.16839378, 0.36206895, 0.6927711)
+colors = PackedColorArray(0, 0, 0, 1, 0.9284666, 0.28207615, 0.11315722, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_bkw2h"]
+gradient = SubResource("Gradient_snma2")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
+[resource]
+script = ExtResource("3_y38v6")
+AttackSpeed = 600.0
+Ammunition = 6
+Damage = 50
+WeaponIcon = ExtResource("2_bkw2h")
+BulletIcon = SubResource("GradientTexture2D_bkw2h")
+BulletsDirectionOffsets = PackedFloat32Array(-10, 0, 10)
+metadata/_custom_type_script = "uid://00wxi1npq0nn"

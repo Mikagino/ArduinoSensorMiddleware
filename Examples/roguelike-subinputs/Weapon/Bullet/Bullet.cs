@@ -25,14 +25,17 @@ namespace Weapon {
 
 
         public override void _PhysicsProcess(double delta) {
-            var collisionResult = MoveAndCollide(_velocity * (float)delta * _weapon.BulletSpeed);
+            KinematicCollision2D collisionResult = MoveAndCollide(_velocity * (float)delta * _weapon.BulletSpeed);
 
             if(collisionResult != null) {
-                var body = collisionResult.GetCollider();
+                Node2D body = collisionResult.GetCollider() as Node2D;
                 switch(BulletSource) {
                 case BulletSourceType.Enemy:
                     if(body is PlayerMovement playerMovement) {
                         playerMovement.HitboxComponent.ApplyDamage(_weapon.Damage);
+                        QueueFree();
+                    }
+                    else if(body is StaticBody2D) {
                         QueueFree();
                     }
                     else {
@@ -43,6 +46,9 @@ namespace Weapon {
                 case BulletSourceType.Player:
                     if(body is EnemyMovement enemyMovement) {
                         enemyMovement.HitboxComponent.ApplyDamage(_weapon.Damage);
+                        QueueFree();
+                    }
+                    else if(body is StaticBody2D) {
                         QueueFree();
                     }
                     else {

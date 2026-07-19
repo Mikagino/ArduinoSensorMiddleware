@@ -17,10 +17,7 @@ namespace Weapon {
         private int _currentAmmunition;
 
 
-        [ExportGroup("Yeet")]
-        [Export] public int MinYeetRange = 200;
-        [Export] public int MaxYeetRange = 400;
-        [Export] public float YeetDurationScale = 0.001f;
+        [Export] public YeetSettings YeetSettings = new();
 
 
         private Node _droppedWeaponsContainer;
@@ -50,14 +47,14 @@ namespace Weapon {
         public void DropWeapon() {
             if(CurrentWeapon == null) return;
 
-            float randomLength = Random.Shared.Next(MinYeetRange, MaxYeetRange);
+            float randomLength = Random.Shared.Next(YeetSettings.MinYeetRange, YeetSettings.MaxYeetRange);
             float randomRotation = Random.Shared.Next(63) / 10;
             Vector2 yeetOffset = Vector2.Up.Rotated(randomRotation) * randomLength;
 
             WeaponItem weaponItemInstance = _weaponItemScene.Instantiate<WeaponItem>();
-            weaponItemInstance.SpawnTo(CurrentWeapon, GlobalPosition, GlobalPosition + yeetOffset, YeetDurationScale);
-            // weaponItemInstance.Rotate(randomRotation);
+            weaponItemInstance.Rotate(randomRotation);
             _droppedWeaponsContainer.AddChild(weaponItemInstance);
+            weaponItemInstance.SpawnTo(CurrentWeapon, GlobalPosition, GlobalPosition + yeetOffset, YeetSettings.YeetDurationScale);
 
             CurrentWeapon = null;
             Texture = null;
@@ -76,18 +73,22 @@ namespace Weapon {
 
 
         public void Shoot(Bullet.BulletSourceType? bulletSourceType = null) {
-            if(CurrentAmmunition <= 0) {
-                DropWeapon();
-                return;
-            }
+            if(CurrentWeapon == null) return;
+
             if(_lastShot + CurrentWeapon.AttackSpeed > (long)Time.GetTicksMsec()) return;
 
-            Bullet newBullet = _bulletScene.Instantiate<Bullet>();
-            newBullet.GlobalPosition = GlobalPosition + (Offset * 1.5f).Rotated(Rotation);
-            newBullet.Initialize(CurrentWeapon, Vector2.Right.Rotated(Rotation), bulletSourceType);
-            _bulletContainer.AddChild(newBullet);
+            foreach(float bulletDirectionOffset in CurrentWeapon.BulletsDirectionOffsets) {
+                Bullet newBullet = _bulletScene.Instantiate<Bullet>();
+                float rotation = Rotation + Mathf.DegToRad(bulletDirectionOffset);
+                newBullet.GlobalPosition = GlobalPosition + (Offset * 1.5f).Rotated(rotation);
+                newBullet.Initialize(CurrentWeapon, Vector2.Right.Rotated(rotation), bulletSourceType);
+                _bulletContainer.AddChild(newBullet);
+            }
             _lastShot = (long)Time.GetTicksMsec();
             CurrentAmmunition--;
+
+            if(CurrentAmmunition <= 0)
+                DropWeapon();
         }
     }
 }

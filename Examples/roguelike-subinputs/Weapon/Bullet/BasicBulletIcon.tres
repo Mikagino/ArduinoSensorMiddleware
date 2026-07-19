@@ -7,7 +7,7 @@ colors = PackedColorArray(1, 0.9595762, 0.5698676, 1, 0.9284666, 0.28207615, 0.1
 
 [resource]
 gradient = SubResource("Gradient_jel7x")
-width = 16
-height = 16
+width = 32
+height = 32
 fill = 1
 fill_from = Vector2(0.5, 0.5)

@@ -8,7 +8,7 @@ using Weapon;
 
 namespace Enemies {
     public partial class EnemyMovement : CharacterBody2D {
-        [Export] public float MovementSpeed = 4.0f;
+        [Export] public float MovementSpeed = 300;
         [Export] public float WeaponSearchChunkStepSize = 200;
         [Export] public float WeaponSearchChunkMaximum = 600;
         private PlayerMovement _player;
