@@ -4,19 +4,21 @@ using Weapon;
 namespace Player {
     public partial class PlayerMovement : CharacterBody2D {
         [Export] public int Speed = 400;
-        [Export] private WeaponManager _weaponManager;
 
 
+        private WeaponManager _weaponManager;
         private AnimatedSprite2D _sprite;
         private Vector2 _currentDirection;
         private bool _shooting = false;
 
-        public HitboxComponent HitboxComponent;
+
+        public HitboxComponent HitboxComponent { private set; get; }
 
 
         public override void _Ready() {
             _sprite = GetNode<AnimatedSprite2D>("%Sprite");
             HitboxComponent = GetNode<HitboxComponent>("%HitboxComponent");
+            _weaponManager = GetNode<WeaponManager>("%WeaponManager");
             HitboxComponent.Died += Die;
         }
 
@@ -31,7 +33,7 @@ namespace Player {
         /// </summary>
         /// <param name="delta"></param>
         public override void _Process(double delta) {
-            _weaponManager.LookAt(GetViewport().GetMousePosition());
+            _weaponManager.LookAt(GetGlobalMousePosition());
             if(_shooting) _weaponManager.Shoot(Bullet.BulletSourceType.Player);
         }
 

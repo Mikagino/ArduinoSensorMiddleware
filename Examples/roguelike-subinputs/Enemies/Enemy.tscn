@@ -5,15 +5,21 @@
 [ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.tres" id="2_wdetw"]
 [ext_resource type="PackedScene" uid="uid://cnxa2035pqvhu" path="res://Entities/WeaponManager.tscn" id="3_wdetw"]
 [ext_resource type="Script" uid="uid://d2urpjqbqey5p" path="res://Enemies/EnemyHealthbar.cs" id="5_biruh"]
+[ext_resource type="Script" uid="uid://rqfylrdov5k0" path="res://Player/PickupComponent.cs" id="5_n1bor"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_72oj0"]
 radius = 18.0
 height = 48.0
 
-[node name="Enemy" type="CharacterBody2D" unique_id=2071273226 node_paths=PackedStringArray("_weaponManager", "_shootTimer")]
+[sub_resource type="CircleShape2D" id="CircleShape2D_n1bor"]
+radius = 42.0119
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_a5aut"]
+radius = 200.0
+
+[node name="Enemy" type="CharacterBody2D" unique_id=2071273226]
 script = ExtResource("1_4isyn")
-_weaponManager = NodePath("WeaponManager")
-_shootTimer = NodePath("ShootTimer")
+MovementSpeed = 400.0
 
 [node name="HitboxComponent" type="CollisionShape2D" parent="." unique_id=738520369]
 unique_name_in_owner = true
@@ -24,6 +30,9 @@ MaxHealth = 100
 metadata/_custom_type_script = "uid://mrhg30a6816q"
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1249053894]
+unique_name_in_owner = true
+debug_enabled = true
+debug_path_custom_color = Color(0.90395707, 0.00013245583, 0.74640214, 1)
 
 [node name="SoldierWalk" type="Sprite2D" parent="." unique_id=236021245]
 self_modulate = Color(0.9999874, 0.32359248, 0.42848453, 1)
@@ -34,7 +43,28 @@ texture = ExtResource("2_wdetw")
 unique_name_in_owner = true
 
 [node name="ShootTimer" type="Timer" parent="." unique_id=620794368]
+unique_name_in_owner = true
 autostart = true
+
+[node name="PickupComponent" type="Area2D" parent="." unique_id=1180496398]
+collision_layer = 0
+collision_mask = 16
+monitorable = false
+script = ExtResource("5_n1bor")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupComponent" unique_id=679701036]
+shape = SubResource("CircleShape2D_n1bor")
+debug_color = Color(0.15408814, 1.7423332e-05, 0.6183508, 0.41960785)
+
+[node name="WeaponSearchChunk" type="Area2D" parent="." unique_id=1234001626]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 16
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponSearchChunk" unique_id=1139992829]
+shape = SubResource("CircleShape2D_a5aut")
+debug_color = Color(0.72566473, 0.47664672, 1.92523e-07, 0.41960785)
 
 [node name="HealthbarBG" type="Line2D" parent="." unique_id=1396332118]
 position = Vector2(-25, -25)
@@ -57,3 +87,4 @@ round_precision = 2
 script = ExtResource("5_biruh")
 
 [connection signal="DamageReceived" from="HitboxComponent" to="HealthbarBG/Healthbar" method="SetHealth"]
+[connection signal="PickedUpWeapon" from="PickupComponent" to="WeaponManager" method="PickupWeapon"]

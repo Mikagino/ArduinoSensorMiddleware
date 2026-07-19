@@ -18,8 +18,8 @@ namespace Weapon {
 
 
         [ExportGroup("Yeet")]
-        [Export] public int MinYeetRange = 50;
-        [Export] public int MaxYeetRange = 300;
+        [Export] public int MinYeetRange = 200;
+        [Export] public int MaxYeetRange = 400;
         [Export] public float YeetDurationScale = 0.001f;
 
 
@@ -30,6 +30,7 @@ namespace Weapon {
 
         [Signal] public delegate void AmmunitionChangedEventHandler(int newAmmunition);
         [Signal] public delegate void AmmunitionEmptiedEventHandler();
+        [Signal] public delegate void WeaponChangedEventHandler(WeaponResource weapon);
 
 
         public override void _Ready() {
@@ -55,7 +56,7 @@ namespace Weapon {
 
             WeaponItem weaponItemInstance = _weaponItemScene.Instantiate<WeaponItem>();
             weaponItemInstance.SpawnTo(CurrentWeapon, GlobalPosition, GlobalPosition + yeetOffset, YeetDurationScale);
-            weaponItemInstance.Rotate(randomRotation);
+            // weaponItemInstance.Rotate(randomRotation);
             _droppedWeaponsContainer.AddChild(weaponItemInstance);
 
             CurrentWeapon = null;
@@ -70,6 +71,7 @@ namespace Weapon {
             Texture = CurrentWeapon.WeaponIcon;
             CurrentAmmunition = CurrentWeapon.Ammunition;
             weaponItem.QueueFree();
+            EmitSignal(SignalName.WeaponChanged, weaponItem.Weapon);
         }
 
 

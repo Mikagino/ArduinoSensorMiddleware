@@ -26,9 +26,9 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_lbj6w"]
 radius = 42.0119
 
-[node name="Player" type="CharacterBody2D" unique_id=1414438830 node_paths=PackedStringArray("_weaponManager") groups=["Player"]]
+[node name="Player" type="CharacterBody2D" unique_id=1414438830 groups=["Player"]]
+collision_mask = 5
 script = ExtResource("1_3qydi")
-_weaponManager = NodePath("WeaponManager")
 
 [node name="HitboxComponent" type="CollisionShape2D" parent="." unique_id=415844736]
 unique_name_in_owner = true
@@ -42,11 +42,15 @@ scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_lbj6w")
 
 [node name="WeaponManager" parent="." unique_id=1069582113 instance=ExtResource("3_ddoul")]
+unique_name_in_owner = true
 CurrentWeapon = ExtResource("5_6ysni")
 MinYeetRange = 100
 MaxYeetRange = 500
 
 [node name="PickupComponent" type="Area2D" parent="." unique_id=1606841001]
+collision_layer = 0
+collision_mask = 16
+monitorable = false
 script = ExtResource("6_6ysni")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PickupComponent" unique_id=791627112]

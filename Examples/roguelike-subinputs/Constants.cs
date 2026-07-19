@@ -12,5 +12,6 @@ public partial class Constants : Node {
 
     public struct Groups {
         public const string Player = "Player";
+        public const string WeaponItem = "WeaponItem";
     }
 }
