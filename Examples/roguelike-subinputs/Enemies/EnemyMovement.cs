@@ -35,6 +35,10 @@ namespace Enemies {
             _weaponManager.AmmunitionEmptied += WalkToNextWeapon;
 
             _navigationAgent.VelocityComputed += UpdateMoveAndSlide;
+
+            if(_weaponManager.CurrentWeapon != null) {
+                _shootTimer.WaitTime = _weaponManager.CurrentWeapon.AttackSpeed / 1000;
+            }
         }
 
 
@@ -45,7 +49,7 @@ namespace Enemies {
 
 
         private void SetWeaponTimer(WeaponResource weapon) {
-            _shootTimer.WaitTime = weapon.AttackSpeed;
+            _shootTimer.WaitTime = weapon.AttackSpeed / 1000;
         }
 
 
@@ -97,8 +101,8 @@ namespace Enemies {
 
         public async Task WalkToNextWeaponAsync() {
             if(_weaponManager.CurrentWeapon != null || !_navigationAgent.IsNavigationFinished()) return;
-            var weaponItem = GetFirstWeaponInsideSearchChunk();
-            for(var i = 0; (i + 1) * WeaponSearchChunkStepSize <= WeaponSearchChunkMaximum && weaponItem == null; i++) {
+            WeaponItem? weaponItem = GetFirstWeaponInsideSearchChunk();
+            for(int i = 0; (i + 1) * WeaponSearchChunkStepSize <= WeaponSearchChunkMaximum && weaponItem == null; i++) {
                 (_weaponSearchChunk.GetChild<CollisionShape2D>(0).Shape as CircleShape2D).Radius += WeaponSearchChunkStepSize;
                 await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
                 weaponItem = GetFirstWeaponInsideSearchChunk();
@@ -111,10 +115,12 @@ namespace Enemies {
 
 
         private WeaponItem? GetFirstWeaponInsideSearchChunk() {
-            var weapons = _weaponSearchChunk.GetOverlappingAreas();
+            Godot.Collections.Array<Area2D> weapons = _weaponSearchChunk.GetOverlappingAreas();
             GD.Print("Chunk found: " + (weapons.Count != 0 ? "weapon" : "nothing"));
             return weapons.Count != 0 ? weapons.First().GetParent<WeaponItem>() : null;
         }
+
+
         #endregion Movement
     }
 }

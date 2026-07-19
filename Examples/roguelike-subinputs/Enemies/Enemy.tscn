@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://mrhg30a6816q" path="res://Entities/HitboxComponent.cs" id="2_jcwuj"]
 [ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.tres" id="2_wdetw"]
 [ext_resource type="PackedScene" uid="uid://cnxa2035pqvhu" path="res://Entities/WeaponManager.tscn" id="3_wdetw"]
+[ext_resource type="Resource" uid="uid://dt8k67dapyhub" path="res://Weapon/Premade/Machinegun.tres" id="5_a5aut"]
 [ext_resource type="Script" uid="uid://d2urpjqbqey5p" path="res://Enemies/EnemyHealthbar.cs" id="5_biruh"]
 [ext_resource type="Script" uid="uid://rqfylrdov5k0" path="res://Player/PickupComponent.cs" id="5_n1bor"]
 
@@ -19,7 +20,6 @@ radius = 200.0
 
 [node name="Enemy" type="CharacterBody2D" unique_id=2071273226]
 script = ExtResource("1_4isyn")
-MovementSpeed = 300.0
 
 [node name="HitboxComponent" type="CollisionShape2D" parent="." unique_id=738520369]
 unique_name_in_owner = true
@@ -41,6 +41,7 @@ texture = ExtResource("2_wdetw")
 
 [node name="WeaponManager" parent="." unique_id=1069582113 instance=ExtResource("3_wdetw")]
 unique_name_in_owner = true
+CurrentWeapon = ExtResource("5_a5aut")
 
 [node name="ShootTimer" type="Timer" parent="." unique_id=620794368]
 unique_name_in_owner = true
