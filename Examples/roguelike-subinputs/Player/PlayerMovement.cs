@@ -19,7 +19,6 @@ namespace Player {
             _sprite = GetNode<AnimatedSprite2D>("%Sprite");
             HitboxComponent = GetNode<HitboxComponent>("%HitboxComponent");
             _weaponManager = GetNode<WeaponManager>("%WeaponManager");
-            HitboxComponent.Died += Die;
         }
 
 
@@ -71,12 +70,6 @@ namespace Player {
             if(@event.IsActionReleased(Constants.Inputs.Shoot)) {
                 _shooting = false;
             }
-        }
-
-
-        private void Die() {
-            GD.Print("YOU DIED!!!");
-            // QueueFree();
         }
     }
 }

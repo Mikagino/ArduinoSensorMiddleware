@@ -38,3 +38,6 @@ unique_name_in_owner = true
 z_index = -1
 mesh = SubResource("PlaneMesh_lbj6w")
 texture = SubResource("GradientTexture2D_72oj0")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="." unique_id=1987493500]
+rect = Rect2(-20, -20, 40, 40)

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dh60ouqkt8slg" path="res://Player/PlayerUI/PlayerUI.cs" id="1_h8npq"]
 [ext_resource type="Texture2D" uid="uid://ducahncdsocuf" path="res://Weapon/free-guns-pixel-art/Amo8.png" id="1_qbo8c"]
+[ext_resource type="Theme" uid="uid://cm4ly6nhostwa" path="res://Menus/Theme.tres" id="3_ef0gt"]
 
 [node name="PlayerUI" type="Control" unique_id=653240842]
 layout_mode = 3
@@ -13,7 +14,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_h8npq")
 
-[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1305954679]
+[node name="GUI" type="MarginContainer" parent="." unique_id=1305954679]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -26,23 +27,24 @@ theme_override_constants/margin_top = 50
 theme_override_constants/margin_right = 50
 theme_override_constants/margin_bottom = 50
 
-[node name="HealthBar" type="ProgressBar" parent="MarginContainer" unique_id=229835898]
+[node name="HealthBar" type="ProgressBar" parent="GUI" unique_id=229835898]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
 mouse_filter = 2
+theme = ExtResource("3_ef0gt")
 step = 1.0
 value = 100.0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1728771249]
+[node name="HBoxContainer" type="HBoxContainer" parent="GUI" unique_id=1728771249]
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
 mouse_filter = 2
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer" unique_id=1008024494]
+[node name="TextureRect" type="TextureRect" parent="GUI/HBoxContainer" unique_id=1008024494]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 size_flags_vertical = 8
@@ -50,8 +52,44 @@ mouse_filter = 2
 texture = ExtResource("1_qbo8c")
 stretch_mode = 5
 
-[node name="AmmunitionLabel" type="Label" parent="MarginContainer/HBoxContainer" unique_id=1367058748]
+[node name="AmmunitionLabel" type="Label" parent="GUI/HBoxContainer" unique_id=1367058748]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(75, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
+theme = ExtResource("3_ef0gt")
 text = "10"
+
+[node name="GameOver" type="CenterContainer" parent="." unique_id=75956889]
+unique_name_in_owner = true
+process_mode = 3
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameOver" unique_id=188030040]
+layout_mode = 2
+theme_override_constants/separation = 50
+
+[node name="Retry" type="Button" parent="GameOver/VBoxContainer" unique_id=2090573988]
+custom_minimum_size = Vector2(300, 125)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+theme = ExtResource("3_ef0gt")
+text = "Retry"
+
+[node name="Exit" type="Button" parent="GameOver/VBoxContainer" unique_id=154233759]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+theme = ExtResource("3_ef0gt")
+theme_override_font_sizes/font_size = 50
+text = "Exit"
+
+[connection signal="pressed" from="GameOver/VBoxContainer/Retry" to="." method="ReloadCurrentScene"]
+[connection signal="pressed" from="GameOver/VBoxContainer/Exit" to="." method="ExitGame"]

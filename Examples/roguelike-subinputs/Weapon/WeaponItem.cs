@@ -5,6 +5,9 @@ namespace Weapon {
         [Export] public WeaponResource Weapon;
 
 
+        public bool IsVisibleOnScreen = true;
+
+
         private Area2D _pickupArea;
         private MeshInstance2D _highlightMesh;
 
@@ -35,6 +38,11 @@ namespace Weapon {
         public void Enable() {
             _pickupArea.Monitorable = true;
             _highlightMesh.Show();
+        }
+
+
+        public void SetIsVisibleOnScreen(bool isVisible) {
+            IsVisibleOnScreen = isVisible;
         }
     }
 }
