@@ -35,7 +35,11 @@ namespace Weapon {
         public override void _Ready() {
             _droppedWeaponsContainer = GetNode<Node>("%DroppedWeapons");
             _bulletContainer = GetNode<Node>("%BulletContainer");
-            PickupWeapon(CurrentWeapon);
+
+            if(CurrentWeapon != null) {
+                Texture = CurrentWeapon.WeaponIcon;
+                CurrentAmmunition = CurrentWeapon.Ammunition;
+            }
         }
 
 
@@ -43,6 +47,8 @@ namespace Weapon {
         /// Yeets the weapon in a random direction with a random distance
         /// </summary>
         public void DropWeapon() {
+            if(CurrentWeapon == null) return;
+
             float randomLength = Random.Shared.Next(MinYeetRange, MaxYeetRange);
             float randomRotation = Random.Shared.Next(63) / 10;
             Vector2 yeetOffset = Vector2.Up.Rotated(randomRotation) * randomLength;
@@ -58,15 +64,20 @@ namespace Weapon {
         }
 
 
-        public void PickupWeapon(WeaponResource weapon) {
-            CurrentWeapon = weapon;
+        public void PickupWeapon(WeaponItem weaponItem) {
+            if(CurrentWeapon != null) return;
+            CurrentWeapon = weaponItem.Weapon;
             Texture = CurrentWeapon.WeaponIcon;
             CurrentAmmunition = CurrentWeapon.Ammunition;
+            weaponItem.QueueFree();
         }
 
 
         public void Shoot(Bullet.BulletSourceType? bulletSourceType = null) {
-            if(CurrentAmmunition <= 0) return;
+            if(CurrentAmmunition <= 0) {
+                DropWeapon();
+                return;
+            }
             if(_lastShot + CurrentWeapon.AttackSpeed > (long)Time.GetTicksMsec()) return;
 
             Bullet newBullet = _bulletScene.Instantiate<Bullet>();

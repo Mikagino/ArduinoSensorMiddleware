@@ -1,10 +1,9 @@
 using System;
 using Godot;
-using Player;
 using Weapon;
 
 public partial class PickupComponent : Area2D {
-    [Signal] public delegate void PickedUpWeaponEventHandler(WeaponResource weapon);
+    [Signal] public delegate void PickedUpWeaponEventHandler(WeaponItem weapon);
 
 
     public override void _Ready() {
@@ -15,7 +14,7 @@ public partial class PickupComponent : Area2D {
     private void HandlePickup(Area2D area) {
         var item = area.GetParent();
         if(item is WeaponItem) {
-            EmitSignal(SignalName.PickedUpWeapon, (item as WeaponItem).Weapon);
+            EmitSignal(SignalName.PickedUpWeapon, item as WeaponItem);
         }
         else {
             throw new NotImplementedException();

@@ -2,6 +2,8 @@
 
 [ext_resource type="PackedScene" uid="uid://bkvc83u310o3y" path="res://Player/Player.tscn" id="1_wbfu4"]
 [ext_resource type="PackedScene" uid="uid://dj5asw8w6hsnb" path="res://Enemies/Enemy.tscn" id="2_xkndl"]
+[ext_resource type="PackedScene" uid="uid://xl7ejxu8na5x" path="res://Weapon/WeaponItem.tscn" id="3_u44n3"]
+[ext_resource type="Resource" uid="uid://b144uh2tbjlkx" path="res://Weapon/Premade/Pistol.tres" id="4_sb48q"]
 
 [node name="Game" type="Node2D" unique_id=2095138204]
 
@@ -11,3 +13,6 @@ Speed = 200
 
 [node name="Enemy" parent="." unique_id=2071273226 instance=ExtResource("2_xkndl")]
 position = Vector2(502, 236)
+
+[node name="WeaponItem" parent="." unique_id=1029278073 instance=ExtResource("3_u44n3")]
+Weapon = ExtResource("4_sb48q")

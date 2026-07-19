@@ -46,10 +46,10 @@ CurrentWeapon = ExtResource("5_6ysni")
 MinYeetRange = 100
 MaxYeetRange = 500
 
-[node name="PickupArea" type="Area2D" parent="." unique_id=1606841001]
+[node name="PickupComponent" type="Area2D" parent="." unique_id=1606841001]
 script = ExtResource("6_6ysni")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupArea" unique_id=791627112]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupComponent" unique_id=791627112]
 shape = SubResource("CircleShape2D_lbj6w")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1128461901]
@@ -62,3 +62,4 @@ position_smoothing_enabled = true
 [connection signal="DamageReceived" from="HitboxComponent" to="CanvasLayer/PlayerUI" method="SetHealth"]
 [connection signal="AmmunitionChanged" from="WeaponManager" to="CanvasLayer/PlayerUI" method="SetAmmunition"]
 [connection signal="AmmunitionEmptied" from="WeaponManager" to="CanvasLayer/PlayerUI" method="AmmunitionEmptied"]
+[connection signal="PickedUpWeapon" from="PickupComponent" to="WeaponManager" method="PickupWeapon"]
