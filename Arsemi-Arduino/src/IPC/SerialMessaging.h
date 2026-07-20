@@ -18,6 +18,8 @@ public:
   static void write(SerialPackage &package);
   static void write(const uint8_t actionCode);
   static void write(const uint8_t actionCode, const uint8_t parameter);
+  static uint8_t read();
+  static void discardByte();
 
   static bool isPackageAvailable(uint8_t dataLength = 1);
 

@@ -77,14 +77,14 @@ void MessageParsing::parseMessage() {
 void MessageParsing::parseNextActionCode() {
   while (SerialMessaging::isPackageAvailable()) {
     if (Serial.peek() == SerialProtocol::PackageDelimiter) {
-      Serial.read(); // discard PackageDelimiter
-      uint8_t actionCode = Serial.read();
+      SerialMessaging::discardByte(); // discard PackageDelimiter
+      uint8_t actionCode = SerialMessaging::read();
       queuedPackage.ActionCode = (actionCode == -1 ? 0 : actionCode);
+      break;
+    } else {
+      SerialMessaging::discardByte();
     }
-
-    Serial.read(); // discard
   }
-  return 0;
 }
 
 /// @brief Parse the package parameters from the message into queuedPackage.
@@ -95,20 +95,21 @@ void MessageParsing::parseParameters() {
     if (nextByte == SerialProtocol::PackageDelimiter) {
       queuedPackage.Crc8 = queuedPackage.popLastParameter();
       queuedPackage.Done = true;
-      Serial.read(); // discard PackageDelimiter at end of package
+      SerialMessaging::discardByte(); // discard PackageDelimiter at end of package
       SerialMessaging::write(SerialProtocol::Action::System::Debug,
-                             queuedPackage.Crc8);
+                             queuedPackage[1], queuedPackage[2],
+                             queuedPackage[3], queuedPackage[4]);
       return;
     } else if (nextByte == -1)
-      continue;
+      break;
 
-    queuedPackage.appendParameters(nextByte);
-    Serial.read(); // discard next byte
-
+    queuedPackage.appendParameters(SerialMessaging::read());
   }
 
-  SerialMessaging::write(SerialProtocol::Action::System::Error,
-                         SerialProtocol::Error::Package::PackageSizeOverflow);
+  if (queuedPackage.isFull()) {
+    SerialMessaging::write(SerialProtocol::Action::System::Error,
+                           SerialProtocol::Error::Package::PackageSizeOverflow);
+  }
 }
 
 /// @brief Parse action "Add Sensor".
@@ -127,12 +128,13 @@ bool MessageParsing::parseAddSensorAction() {
   if (queuedSensor == nullptr) {
     queuedSensor = SensorFactory::createNewSensor(
         AbstractSensor::SensorTypes(queuedPackage.getParameter(0)));
-    SerialMessaging::write(SerialProtocol::Action::System::Debug,
-                           queuedPackage.getParameter(0));
+    // SerialMessaging::write(SerialProtocol::Action::System::Debug,
+    //                        queuedPackage.getParameter(0));
 
     if (queuedSensor == nullptr)
       SerialMessaging::write(SerialProtocol::Action::System::Error,
                              SerialProtocol::Error::Package::InvalidSensorType);
+    return true; // Discard package due to wrong sensor type
   }
 
   if (queuedSensor->getParameterByteCount() !=
@@ -140,11 +142,14 @@ bool MessageParsing::parseAddSensorAction() {
     SerialMessaging::write(
         SerialProtocol::Action::System::Error,
         SerialProtocol::Error::Package::InvalidSensorParameters);
-    return false;
+    delete queuedSensor;
+    return true;
   }
 
-  if (!checkCrc8Checksum(queuedPackage))
+  if (!checkCrc8Checksum(queuedPackage)) {
+    delete queuedSensor;
     return true; // TODO: Error message
+  }
 
   queuedSensor->parseParameters(queuedPackage);
 

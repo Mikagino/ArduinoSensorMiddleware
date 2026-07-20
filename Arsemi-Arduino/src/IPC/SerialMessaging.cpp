@@ -81,6 +81,15 @@ void SerialMessaging::write(const uint8_t actionCode, const uint8_t parameter) {
   write(package, 2);
 }
 
+/// @brief
+/// @return
+uint8_t SerialMessaging::read() {
+  uint8_t result = Serial.read();
+  return result == 255 ? 0 : result;
+}
+
+void SerialMessaging::discardByte() { Serial.read(); }
+
 /// @brief Check if at least the minimum bytes required for a package are
 /// available [PackageDelimiter, Data, CRC8, PackageDelimiter]
 /// @param dataLength how many data bytes the package should have (action code +
