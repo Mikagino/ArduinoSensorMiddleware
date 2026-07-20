@@ -29,13 +29,16 @@ namespace Weapon {
 
             if(collisionResult != null) {
                 Node2D body = collisionResult.GetCollider() as Node2D;
+
+                if(body is StaticBody2D || body is TileMapLayer) {
+                    QueueFree();
+                    return;
+                }
+                
                 switch(BulletSource) {
                 case BulletSourceType.Enemy:
                     if(body is PlayerMovement playerMovement) {
                         playerMovement.HitboxComponent.ApplyDamage(_weapon.Damage);
-                        QueueFree();
-                    }
-                    else if(body is StaticBody2D) {
                         QueueFree();
                     }
                     else {
@@ -46,9 +49,6 @@ namespace Weapon {
                 case BulletSourceType.Player:
                     if(body is EnemyMovement enemyMovement) {
                         enemyMovement.HitboxComponent.ApplyDamage(_weapon.Damage);
-                        QueueFree();
-                    }
-                    else if(body is StaticBody2D) {
                         QueueFree();
                     }
                     else {

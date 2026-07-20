@@ -16,7 +16,6 @@ namespace Player {
             _weaponItem = weaponItem;
             _camera = GetViewport().GetCamera2D();
             // Show();
-            GD.Print("Init Waypoint ");
         }
 
 
@@ -32,7 +31,6 @@ namespace Player {
             Vector2 targetDisplayPosition = _camera.GlobalPosition + (clampedScreenCoordinates - viewportDimensions * 0.5f) / _camera.Zoom;
             Vector2 vectorToTarget = _weaponItem.GlobalPosition - targetDisplayPosition;
             float targetDisplayRotation = vectorToTarget.Angle() - Mathf.Pi * 0.5f;
-            GD.PrintT(targetDisplayPosition, targetDisplayRotation);
 
             GlobalPosition = GlobalPosition.Lerp(targetDisplayPosition, (float)delta * _smoothingSpeed);
             Rotation = Mathf.Lerp(Rotation, targetDisplayRotation, (float)delta * _smoothingSpeed);

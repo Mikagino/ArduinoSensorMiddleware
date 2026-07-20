@@ -8,16 +8,26 @@ using Weapon;
 
 namespace Enemies {
     public partial class EnemyMovement : CharacterBody2D {
-        [Export] public float MovementSpeed = 300;
+        [Export] public float MovementSpeed = 200;
         [Export] public float WeaponSearchChunkStepSize = 200;
         [Export] public float WeaponSearchChunkMaximum = 600;
-        private PlayerMovement _player;
+        [ExportGroup("Randomized Movement")]
+        [Export] public int MinRotationOffset = 20;
+        [Export] public int MinMoveDistance = 100;
+        [Export] public int MaxMoveDistance = 500;
 
+
+        #region Components
+        private PlayerMovement _player;
         public HitboxComponent HitboxComponent;
         private WeaponManager _weaponManager;
         private Timer _shootTimer;
         private NavigationAgent2D _navigationAgent;
         private Area2D _weaponSearchChunk;
+        #endregion Components
+
+
+        private float _quarterRotation = Mathf.Pi / 2f;
 
 
         public override void _Ready() {
@@ -45,6 +55,7 @@ namespace Enemies {
         public override void _Process(double delta) {
             if(_player == null) return;
             _weaponManager.LookAt(_player.GlobalPosition);
+            RandomizeMovement();
         }
 
 
@@ -123,6 +134,19 @@ namespace Enemies {
         }
 
 
+
+        /// <summary>
+        /// Random movement based on player position, will move around the player and sometimes closer/away
+        /// </summary>
+        private void RandomizeMovement() {
+            if(!_navigationAgent.IsNavigationFinished()) return;
+            Vector2 vectorToPlayer = (_player.GlobalPosition - GlobalPosition).Normalized();
+            float randomMovementRotationOffset = Mathf.DegToRad(Random.Shared.Next(MinRotationOffset));
+            float randomDirection = ((Random.Shared.Next() % 2 == 0) ? _quarterRotation : -_quarterRotation) + randomMovementRotationOffset;
+            Vector2 targetPosition = GlobalPosition + (vectorToPlayer.Rotated(randomDirection) * Random.Shared.Next(MinMoveDistance, MaxMoveDistance));
+            SetMovementTarget(targetPosition);
+            GD.Print("Set random move to: " + targetPosition);
+        }
         #endregion Movement
     }
 }
