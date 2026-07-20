@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://dh60ouqkt8slg" path="res://Player/PlayerUI/PlayerUI.cs" id="1_h8npq"]
 [ext_resource type="Texture2D" uid="uid://ducahncdsocuf" path="res://Weapon/free-guns-pixel-art/Amo8.png" id="1_qbo8c"]
 [ext_resource type="Theme" uid="uid://cm4ly6nhostwa" path="res://Menus/Theme.tres" id="3_ef0gt"]
+[ext_resource type="Texture2D" uid="uid://d2jwbaj2m5sa0" path="res://Weapon/free-guns-pixel-art/Amo7.png" id="4_2ncyk"]
+[ext_resource type="Script" uid="uid://d4cv0dgv8e0k4" path="res://Player/OutOfScreenIcon.cs" id="5_1i0l3"]
 
 [node name="PlayerUI" type="Control" unique_id=653240842]
 layout_mode = 3
@@ -90,6 +92,28 @@ size_flags_vertical = 6
 theme = ExtResource("3_ef0gt")
 theme_override_font_sizes/font_size = 50
 text = "Exit"
+
+[node name="Node" type="Node" parent="." unique_id=702502698]
+
+[node name="OutOfScreenIcon" type="TextureRect" parent="Node" unique_id=1231031275]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(75, 75)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -37.5
+offset_top = -37.5
+offset_right = 37.5
+offset_bottom = 37.5
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(37.5, 37.5)
+texture = ExtResource("4_2ncyk")
+expand_mode = 1
+script = ExtResource("5_1i0l3")
 
 [connection signal="pressed" from="GameOver/VBoxContainer/Retry" to="." method="ReloadCurrentScene"]
 [connection signal="pressed" from="GameOver/VBoxContainer/Exit" to="." method="ExitGame"]

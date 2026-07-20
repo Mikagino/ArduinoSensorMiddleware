@@ -68,21 +68,23 @@ shape = SubResource("CircleShape2D_lbj6w")
 position_smoothing_enabled = true
 position_smoothing_speed = 10.0
 
-[node name="OutOfScreenArea" type="Area2D" parent="." unique_id=202557645]
+[node name="OutOfScreenArea" type="Area2D" parent="Camera2D" unique_id=202557645]
+collision_layer = 0
+collision_mask = 16
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="OutOfScreenArea" unique_id=539649737]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Camera2D/OutOfScreenArea" unique_id=539649737]
 position = Vector2(0, -424)
 shape = SubResource("RectangleShape2D_lbj6w")
 
-[node name="CollisionShape2D4" type="CollisionShape2D" parent="OutOfScreenArea" unique_id=783129988]
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="Camera2D/OutOfScreenArea" unique_id=783129988]
 position = Vector2(0, 424)
 shape = SubResource("RectangleShape2D_lbj6w")
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="OutOfScreenArea" unique_id=38615639]
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Camera2D/OutOfScreenArea" unique_id=38615639]
 position = Vector2(-676, 0)
 shape = SubResource("RectangleShape2D_vlldt")
 
-[node name="CollisionShape2D3" type="CollisionShape2D" parent="OutOfScreenArea" unique_id=2071101891]
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="Camera2D/OutOfScreenArea" unique_id=2071101891]
 position = Vector2(676, 0)
 shape = SubResource("RectangleShape2D_vlldt")
 
@@ -91,3 +93,4 @@ shape = SubResource("RectangleShape2D_vlldt")
 [connection signal="AmmunitionChanged" from="WeaponManager" to="CanvasLayer/PlayerUI" method="SetAmmunition"]
 [connection signal="AmmunitionEmptied" from="WeaponManager" to="CanvasLayer/PlayerUI" method="AmmunitionEmptied"]
 [connection signal="PickedUpWeapon" from="PickupComponent" to="WeaponManager" method="PickupWeapon"]
+[connection signal="area_entered" from="Camera2D/OutOfScreenArea" to="CanvasLayer/PlayerUI" method="SetWeaponOutOfScreen"]
