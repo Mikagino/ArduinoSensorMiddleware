@@ -102,13 +102,15 @@ namespace Enemies {
         public async Task WalkToNextWeaponAsync() {
             if(_weaponManager.CurrentWeapon != null || !_navigationAgent.IsNavigationFinished()) return;
             WeaponItem? weaponItem = GetFirstWeaponInsideSearchChunk();
+            CircleShape2D circleCollisionShape = _weaponSearchChunk.GetChild<CollisionShape2D>(0).Shape as CircleShape2D;
             for(int i = 0; (i + 1) * WeaponSearchChunkStepSize <= WeaponSearchChunkMaximum && weaponItem == null; i++) {
-                (_weaponSearchChunk.GetChild<CollisionShape2D>(0).Shape as CircleShape2D).Radius += WeaponSearchChunkStepSize;
+                circleCollisionShape.Radius += WeaponSearchChunkStepSize;
                 await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
                 weaponItem = GetFirstWeaponInsideSearchChunk();
             }
             if(weaponItem == null) throw new Exception("No weapon could be found!");
             SetMovementTarget(weaponItem.GlobalPosition);
+            circleCollisionShape.Radius = WeaponSearchChunkStepSize;
             if(!_navigationAgent.IsNavigationFinished())
                 _navigationAgent.Connect(NavigationAgent2D.SignalName.NavigationFinished, Callable.From(WalkToNextWeapon), (uint)ConnectFlags.OneShot);
         }
