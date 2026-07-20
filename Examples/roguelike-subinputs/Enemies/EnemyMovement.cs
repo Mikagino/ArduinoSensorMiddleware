@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Components;
 using Godot;
 using Player;
 using Weapon;
@@ -129,7 +130,6 @@ namespace Enemies {
 
         private WeaponItem? GetFirstWeaponInsideSearchChunk() {
             Godot.Collections.Array<Area2D> weapons = _weaponSearchChunk.GetOverlappingAreas();
-            GD.Print("Chunk found: " + (weapons.Count != 0 ? "weapon" : "nothing"));
             return weapons.Count != 0 ? weapons.First().GetParent<WeaponItem>() : null;
         }
 
@@ -145,7 +145,6 @@ namespace Enemies {
             float randomDirection = ((Random.Shared.Next() % 2 == 0) ? _quarterRotation : -_quarterRotation) + randomMovementRotationOffset;
             Vector2 targetPosition = GlobalPosition + (vectorToPlayer.Rotated(randomDirection) * Random.Shared.Next(MinMoveDistance, MaxMoveDistance));
             SetMovementTarget(targetPosition);
-            GD.Print("Set random move to: " + targetPosition);
         }
         #endregion Movement
     }

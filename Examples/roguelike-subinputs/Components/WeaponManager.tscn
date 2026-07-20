@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cnxa2035pqvhu"]
 
-[ext_resource type="Script" uid="uid://bwktpkefwg7jk" path="res://Entities/WeaponManager.cs" id="1_5qg15"]
+[ext_resource type="Script" uid="uid://bwktpkefwg7jk" path="res://Components/WeaponManager.cs" id="1_5qg15"]
 [ext_resource type="Resource" uid="uid://b144uh2tbjlkx" path="res://Weapon/Premade/Pistol.tres" id="2_mkmqd"]
 [ext_resource type="PackedScene" uid="uid://xl7ejxu8na5x" path="res://Weapon/WeaponItem.tscn" id="3_ah38i"]
 [ext_resource type="PackedScene" uid="uid://r1mnsamnabah" path="res://Weapon/Bullet/BulletItem.tscn" id="4_s6r66"]

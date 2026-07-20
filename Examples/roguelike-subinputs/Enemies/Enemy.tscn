@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://dj5asw8w6hsnb"]
 
 [ext_resource type="Script" uid="uid://by21mgwowadr2" path="res://Enemies/EnemyMovement.cs" id="1_4isyn"]
-[ext_resource type="Script" uid="uid://mrhg30a6816q" path="res://Entities/HitboxComponent.cs" id="2_jcwuj"]
+[ext_resource type="Script" uid="uid://mrhg30a6816q" path="res://Components/HitboxComponent.cs" id="2_jcwuj"]
 [ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.tres" id="2_wdetw"]
-[ext_resource type="PackedScene" uid="uid://cnxa2035pqvhu" path="res://Entities/WeaponManager.tscn" id="3_wdetw"]
+[ext_resource type="PackedScene" uid="uid://cnxa2035pqvhu" path="res://Components/WeaponManager.tscn" id="3_wdetw"]
 [ext_resource type="Resource" uid="uid://dt8k67dapyhub" path="res://Weapon/Premade/Machinegun.tres" id="5_a5aut"]
 [ext_resource type="Script" uid="uid://d2urpjqbqey5p" path="res://Enemies/EnemyHealthbar.cs" id="5_biruh"]
 [ext_resource type="Script" uid="uid://rqfylrdov5k0" path="res://Player/PickupComponent.cs" id="5_n1bor"]

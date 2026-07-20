@@ -42,7 +42,7 @@ namespace Weapon {
                         QueueFree();
                     }
                     else {
-                        throw new NotImplementedException();
+                        // throw new NotImplementedException();
                     }
                     break;
 
@@ -52,7 +52,7 @@ namespace Weapon {
                         QueueFree();
                     }
                     else {
-                        throw new NotImplementedException();
+                        // throw new NotImplementedException();
                     }
                     break;
                 }

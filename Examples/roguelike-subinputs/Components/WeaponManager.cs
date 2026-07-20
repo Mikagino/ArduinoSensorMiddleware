@@ -1,7 +1,8 @@
 using System;
 using Godot;
+using Weapon;
 
-namespace Weapon {
+namespace Components {
     public partial class WeaponManager : Sprite2D {
         [Export] public WeaponResource? CurrentWeapon;
         [Export] private PackedScene _weaponItemScene;

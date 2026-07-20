@@ -2,9 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://c7rt2v7xxyf3c" path="res://Weapon/free-guns-pixel-art/SMG-2.png" id="1_s2w46"]
 [ext_resource type="Script" uid="uid://bb5m6niku04hd" path="res://Weapon/WeaponItem.cs" id="1_xonlb"]
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_lbj6w"]
-radius = 20.024984
+[ext_resource type="Resource" uid="uid://dt8k67dapyhub" path="res://Weapon/Premade/Machinegun.tres" id="2_8smhp"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_lbj6w"]
 size = Vector2(100, 100)
@@ -21,20 +19,25 @@ height = 16
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 
-[node name="WeaponItem" type="Sprite2D" unique_id=1029278073 groups=["WeaponItem"]]
-texture = ExtResource("1_s2w46")
-script = ExtResource("1_xonlb")
+[sub_resource type="CircleShape2D" id="CircleShape2D_lbj6w"]
+radius = 20.024984
 
-[node name="PickupArea" type="Area2D" parent="." unique_id=637826547]
-unique_name_in_owner = true
+[node name="WeaponItem" type="StaticBody2D" unique_id=273050343 node_paths=PackedStringArray("_pickupArea", "_sprite", "_highlightMesh") groups=["WeaponItem"]]
+disable_mode = 1
 collision_layer = 16
-collision_mask = 5
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupArea" unique_id=723253411]
-shape = SubResource("CircleShape2D_lbj6w")
+collision_mask = 2
+script = ExtResource("1_xonlb")
+Weapon = ExtResource("2_8smhp")
+_pickupArea = NodePath("CollisionShape2D")
+_sprite = NodePath("WeaponItem")
+_highlightMesh = NodePath("Highlight")
 
 [node name="Highlight" type="MeshInstance2D" parent="." unique_id=1181700948]
-unique_name_in_owner = true
-z_index = -1
 mesh = SubResource("PlaneMesh_lbj6w")
 texture = SubResource("GradientTexture2D_72oj0")
+
+[node name="WeaponItem" type="Sprite2D" parent="." unique_id=1029278073]
+texture = ExtResource("1_s2w46")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=723253411]
+shape = SubResource("CircleShape2D_lbj6w")

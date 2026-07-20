@@ -1,26 +1,23 @@
 using Godot;
 
 namespace Weapon {
-    public partial class WeaponItem : Sprite2D {
+    public partial class WeaponItem : StaticBody2D {
         [Export] public WeaponResource Weapon;
 
 
         public bool IsVisibleOnScreen = true;
 
 
-        private Area2D _pickupArea;
-        private MeshInstance2D _highlightMesh;
+        [ExportGroup("Components")]
+        [Export] private CollisionShape2D _pickupArea;
+        [Export] private Sprite2D _sprite;
+        [Export] private MeshInstance2D _highlightMesh;
 
-
-        public override void _Ready() {
-            _pickupArea = GetNode<Area2D>("%PickupArea");
-            _highlightMesh = GetNode<MeshInstance2D>("%Highlight");
-        }
 
         public void SpawnTo(WeaponResource weapon, Vector2 fromGlobalPosition, Vector2 toGlobalPosition, float durationScale) {
             Disable();
             Weapon = weapon;
-            Texture = Weapon.WeaponIcon;
+            _sprite.Texture = Weapon.WeaponIcon;
             GlobalPosition = fromGlobalPosition;
             CreateTween()
                 .SetEase(Tween.EaseType.Out)
@@ -30,13 +27,13 @@ namespace Weapon {
 
 
         public void Disable() {
-            _pickupArea.Monitorable = false;
+            _pickupArea.Disabled = true;
             _highlightMesh.Hide();
         }
 
 
         public void Enable() {
-            _pickupArea.Monitorable = true;
+            _pickupArea.Disabled = false;
             _highlightMesh.Show();
         }
 
