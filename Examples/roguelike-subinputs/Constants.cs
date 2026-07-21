@@ -8,6 +8,7 @@ public partial class Constants : Node {
         public const string Right = "Right";
         public const string DropItem = "DropItem";
         public const string Shoot = "Shoot";
+        public const string Dodge = "Dodge";
     }
 
     public struct Groups {

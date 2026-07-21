@@ -4,7 +4,7 @@ using Weapon;
 
 namespace Player {
     public partial class PlayerMovement : CharacterBody2D {
-        [Export] public int Speed = 400;
+        [Export] public int CurrentSpeed = 400;
 
 
         private WeaponManager _weaponManager;
@@ -24,7 +24,7 @@ namespace Player {
 
 
         private void UpdateInputVector() {
-            Velocity = Speed * Input.GetVector(Constants.Inputs.Left, Constants.Inputs.Right, Constants.Inputs.Up, Constants.Inputs.Down);
+            Velocity = CurrentSpeed * Input.GetVector(Constants.Inputs.Left, Constants.Inputs.Right, Constants.Inputs.Up, Constants.Inputs.Down);
         }
 
 
@@ -70,6 +70,11 @@ namespace Player {
             if(@event.IsActionReleased(Constants.Inputs.Shoot)) {
                 _shooting = false;
             }
+        }
+
+
+        public void SetSpeed(int speed) {
+            CurrentSpeed = speed;
         }
     }
 }

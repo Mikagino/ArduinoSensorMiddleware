@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cmkgn1t3rndsj" path="res://Player/PlayerMovement.cs" id="1_3qydi"]
 [ext_resource type="Script" uid="uid://mrhg30a6816q" path="res://Components/HitboxComponent.cs" id="2_8g4oa"]
 [ext_resource type="PackedScene" uid="uid://cnxa2035pqvhu" path="res://Components/WeaponManager.tscn" id="3_ddoul"]
+[ext_resource type="Script" uid="uid://dnk10thycy786" path="res://Player/SpeedComponent.cs" id="3_s1rgi"]
 [ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.tres" id="3_tok1r"]
 [ext_resource type="Resource" uid="uid://beb57v7stqor0" path="res://Weapon/Premade/Pumpgun.tres" id="5_vlldt"]
 [ext_resource type="Script" uid="uid://rqfylrdov5k0" path="res://Player/PickupComponent.cs" id="6_6ysni"]
@@ -35,12 +36,20 @@ size = Vector2(200, 648)
 [node name="Player" type="CharacterBody2D" unique_id=1414438830 groups=["Player"]]
 collision_mask = 6
 script = ExtResource("1_3qydi")
+CurrentSpeed = 300
 
 [node name="HitboxComponent" type="CollisionShape2D" parent="." unique_id=415844736]
 unique_name_in_owner = true
 shape = SubResource("CapsuleShape2D_6ysni")
 script = ExtResource("2_8g4oa")
 MaxHealth = 100
+
+[node name="SpeedComponent" type="Timer" parent="." unique_id=786761677]
+wait_time = 0.25
+one_shot = true
+script = ExtResource("3_s1rgi")
+CurrentSpeed = 300
+_minSpeed = 150
 
 [node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=846960333]
 unique_name_in_owner = true
@@ -90,6 +99,7 @@ shape = SubResource("RectangleShape2D_vlldt")
 
 [connection signal="DamageReceived" from="HitboxComponent" to="CanvasLayer/PlayerUI" method="SetHealth"]
 [connection signal="Died" from="HitboxComponent" to="CanvasLayer/PlayerUI" method="GameOver"]
+[connection signal="SpeedChanged" from="SpeedComponent" to="." method="SetSpeed"]
 [connection signal="AmmunitionChanged" from="WeaponManager" to="CanvasLayer/PlayerUI" method="SetAmmunition"]
 [connection signal="AmmunitionEmptied" from="WeaponManager" to="CanvasLayer/PlayerUI" method="AmmunitionEmptied"]
 [connection signal="PickedUpWeapon" from="PickupComponent" to="WeaponManager" method="PickupWeapon"]

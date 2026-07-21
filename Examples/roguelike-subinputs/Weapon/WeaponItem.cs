@@ -15,6 +15,11 @@ namespace Weapon {
         public bool IsVisibleOnScreen = true;
 
 
+        public override void _Ready() {
+            _sprite.Texture = Weapon.WeaponIcon;
+        }
+
+
         public async Task SpawnTo(WeaponResource weapon, Vector2 fromGlobalPosition, Vector2 impulse) {
             // Disable();
             await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
