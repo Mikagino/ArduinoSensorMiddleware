@@ -19,16 +19,19 @@ height = 16
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_8smhp"]
+radius = 33.0
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_lbj6w"]
 radius = 20.024984
 
-[node name="WeaponItem" type="StaticBody2D" unique_id=273050343 node_paths=PackedStringArray("_pickupArea", "_sprite", "_highlightMesh") groups=["WeaponItem"]]
+[node name="WeaponItem" type="RigidBody2D" unique_id=446977510 node_paths=PackedStringArray("_pickupCollision", "_sprite", "_highlightMesh") groups=["WeaponItem"]]
 disable_mode = 1
-collision_layer = 16
+collision_layer = 0
 collision_mask = 2
 script = ExtResource("1_xonlb")
 Weapon = ExtResource("2_8smhp")
-_pickupArea = NodePath("CollisionShape2D")
+_pickupCollision = NodePath("Area2D/PickupCollision")
 _sprite = NodePath("WeaponItem")
 _highlightMesh = NodePath("Highlight")
 
@@ -40,4 +43,11 @@ texture = SubResource("GradientTexture2D_72oj0")
 texture = ExtResource("1_s2w46")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=723253411]
+shape = SubResource("CircleShape2D_8smhp")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1133943806]
+collision_layer = 16
+collision_mask = 5
+
+[node name="PickupCollision" type="CollisionShape2D" parent="Area2D" unique_id=641643385]
 shape = SubResource("CircleShape2D_lbj6w")

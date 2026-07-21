@@ -50,12 +50,12 @@ namespace Components {
 
             float randomLength = Random.Shared.Next(YeetSettings.MinYeetRange, YeetSettings.MaxYeetRange);
             float randomRotation = Random.Shared.Next(63) / 10;
-            Vector2 yeetOffset = Vector2.Up.Rotated(randomRotation) * randomLength;
+            Vector2 yeetImpulse = Vector2.Up.Rotated(randomRotation) * randomLength;
 
             WeaponItem weaponItemInstance = _weaponItemScene.Instantiate<WeaponItem>();
             weaponItemInstance.Rotate(randomRotation);
             _droppedWeaponsContainer.AddChild(weaponItemInstance);
-            weaponItemInstance.SpawnTo(CurrentWeapon, GlobalPosition, GlobalPosition + yeetOffset, YeetSettings.YeetDurationScale);
+            weaponItemInstance.SpawnTo(CurrentWeapon, GlobalPosition, yeetImpulse);
 
             CurrentWeapon = null;
             Texture = null;

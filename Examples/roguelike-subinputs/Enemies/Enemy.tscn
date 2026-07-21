@@ -13,7 +13,7 @@ radius = 18.0
 height = 48.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_n1bor"]
-radius = 42.0119
+radius = 30.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_a5aut"]
 radius = 200.0
@@ -28,7 +28,6 @@ position = Vector2(-2, 2)
 shape = SubResource("CapsuleShape2D_72oj0")
 script = ExtResource("2_jcwuj")
 MaxHealth = 100
-metadata/_custom_type_script = "uid://mrhg30a6816q"
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1249053894]
 unique_name_in_owner = true

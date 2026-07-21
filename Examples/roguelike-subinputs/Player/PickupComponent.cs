@@ -7,14 +7,14 @@ public partial class PickupComponent : Area2D {
 
 
     public override void _Ready() {
-        BodyEntered += HandlePickup;
+        AreaEntered += HandlePickup;
     }
 
 
-    private void HandlePickup(Node2D body) {
-        GD.Print("Pickup of type: " + body.GetType());
-        if(body is WeaponItem) {
-            EmitSignal(SignalName.PickedUpWeapon, body as WeaponItem);
+    private void HandlePickup(Area2D area) {
+        Node2D areasParent = area.GetParent<Node2D>();
+        if(areasParent is WeaponItem) {
+            EmitSignal(SignalName.PickedUpWeapon, areasParent as WeaponItem);
         }
         else {
             throw new NotImplementedException();
