@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://bcn0a5l7mgwr7"]
+
+[ext_resource type="Script" uid="uid://mrhg30a6816q" path="res://Components/HitboxComponent.cs" id="1_4s5n1"]
+[ext_resource type="Texture2D" uid="uid://b6npghadjr4ha" path="res://Components/InvincibilityTexture.tres" id="2_jan1p"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6ysni"]
+radius = 13.0
+height = 36.0
+
+[node name="HitboxComponent" type="CollisionShape2D" unique_id=259441882]
+shape = SubResource("CapsuleShape2D_6ysni")
+script = ExtResource("1_4s5n1")
+MaxHealth = 100
+
+[node name="InvincibilitySprite" type="Sprite2D" parent="." unique_id=1747569947]
+unique_name_in_owner = true
+visible = false
+texture = ExtResource("2_jan1p")

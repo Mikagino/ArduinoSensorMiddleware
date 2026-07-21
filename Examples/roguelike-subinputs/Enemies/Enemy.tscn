@@ -1,16 +1,12 @@
 [gd_scene format=3 uid="uid://dj5asw8w6hsnb"]
 
 [ext_resource type="Script" uid="uid://by21mgwowadr2" path="res://Enemies/EnemyMovement.cs" id="1_4isyn"]
-[ext_resource type="Script" uid="uid://mrhg30a6816q" path="res://Components/HitboxComponent.cs" id="2_jcwuj"]
+[ext_resource type="PackedScene" uid="uid://bcn0a5l7mgwr7" path="res://Components/HitboxComponent.tscn" id="2_a5aut"]
 [ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.tres" id="2_wdetw"]
 [ext_resource type="PackedScene" uid="uid://cnxa2035pqvhu" path="res://Components/WeaponManager.tscn" id="3_wdetw"]
 [ext_resource type="Resource" uid="uid://dt8k67dapyhub" path="res://Weapon/Premade/Machinegun.tres" id="5_a5aut"]
 [ext_resource type="Script" uid="uid://d2urpjqbqey5p" path="res://Enemies/EnemyHealthbar.cs" id="5_biruh"]
 [ext_resource type="Script" uid="uid://rqfylrdov5k0" path="res://Player/PickupComponent.cs" id="5_n1bor"]
-
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_72oj0"]
-radius = 18.0
-height = 48.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_n1bor"]
 radius = 30.0
@@ -22,12 +18,8 @@ radius = 200.0
 script = ExtResource("1_4isyn")
 MovementSpeed = 50.0
 
-[node name="HitboxComponent" type="CollisionShape2D" parent="." unique_id=738520369]
+[node name="HitboxComponent" parent="." unique_id=259441882 instance=ExtResource("2_a5aut")]
 unique_name_in_owner = true
-position = Vector2(-2, 2)
-shape = SubResource("CapsuleShape2D_72oj0")
-script = ExtResource("2_jcwuj")
-MaxHealth = 100
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1249053894]
 unique_name_in_owner = true
@@ -87,4 +79,5 @@ round_precision = 2
 script = ExtResource("5_biruh")
 
 [connection signal="DamageReceived" from="HitboxComponent" to="HealthbarBG/Healthbar" method="SetHealth"]
+[connection signal="Died" from="HitboxComponent" to="." method="Die"]
 [connection signal="PickedUpWeapon" from="PickupComponent" to="WeaponManager" method="PickupWeapon"]

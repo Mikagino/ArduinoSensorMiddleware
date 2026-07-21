@@ -5,13 +5,18 @@ namespace Components {
     public partial class HitboxComponent : CollisionShape2D {
         [Export] public int MaxHealth = 5;
         [Export] public int CurrentHealth;
+        [Export] public bool Invincibility;
 
 
         [Signal] public delegate void DiedEventHandler();
         [Signal] public delegate void DamageReceivedEventHandler(int currentHealth);
 
 
+        private Sprite2D _invincibilitySprite;
+
+
         public override void _Ready() {
+            _invincibilitySprite = GetNode<Sprite2D>("%InvincibilitySprite");
             CurrentHealth = MaxHealth;
         }
 
@@ -26,6 +31,18 @@ namespace Components {
                 CurrentHealth = 0;
                 EmitSignal(SignalName.Died);
             }
+        }
+
+
+        public void SetInvincible() {
+            Invincibility = true;
+            _invincibilitySprite.Show();
+        }
+
+
+        public void SetVulnerable() {
+            Invincibility = false;
+            _invincibilitySprite.Hide();
         }
     }
 }

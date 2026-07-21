@@ -39,8 +39,6 @@ namespace Enemies {
             _weaponManager = GetNode<WeaponManager>("%WeaponManager");
             _weaponSearchChunk = GetNode<Area2D>("%WeaponSearchChunk");
 
-            HitboxComponent.Died += Die;
-
             _shootTimer.Timeout += () => _weaponManager.Shoot();
             _weaponManager.WeaponChanged += SetWeaponTimer;
             _weaponManager.AmmunitionEmptied += WalkToNextWeapon;

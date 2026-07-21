@@ -18,23 +18,32 @@ public partial class SpeedComponent : Timer {
 
 
     [Signal] public delegate void SpeedChangedEventHandler(int speed);
+    [Signal] public delegate void DodgeStartedEventHandler();
+    [Signal] public delegate void DodgeEndedEventHandler();
 
 
     public override void _Ready() {
-        Timeout += () => CurrentSpeed = _averageSpeed;
+        Timeout += EndDodge;
         CurrentSpeed = _averageSpeed;
     }
 
 
     public override void _UnhandledInput(InputEvent @event) {
         if(@event.IsActionPressed(Constants.Inputs.Dodge)) {
-            Dodge();
+            StartDodge();
         }
     }
 
 
-    private void Dodge() {
+    private void StartDodge() {
         CurrentSpeed = _dodgeSpeed;
         Start();
+        EmitSignal(SignalName.DodgeStarted);
+    }
+
+
+    private void EndDodge() {
+        CurrentSpeed = _averageSpeed;
+        EmitSignal(SignalName.DodgeEnded);
     }
 }
