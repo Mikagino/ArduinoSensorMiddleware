@@ -17,9 +17,9 @@ fill_from = Vector2(0.5, 0.5)
 
 [resource]
 script = ExtResource("3_y38v6")
-AttackSpeed = 600.0
-Ammunition = 6
-Damage = 50
+AttackSpeed = 550.0
+Ammunition = 7
+Damage = 10
 WeaponIcon = ExtResource("2_bkw2h")
 BulletIcon = SubResource("GradientTexture2D_bkw2h")
 BulletsDirectionOffsets = PackedFloat32Array(-10, 0, 10)
