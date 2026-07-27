@@ -15,19 +15,18 @@ size = Vector2(107, 2667)
 
 [node name="Player" parent="." unique_id=1414438830 instance=ExtResource("1_wbfu4")]
 position = Vector2(97, 82)
-Speed = 200
 
 [node name="Enemy" parent="." unique_id=2071273226 instance=ExtResource("2_xkndl")]
 position = Vector2(455, 6)
 
-[node name="Enemy2" parent="." unique_id=1855148360 instance=ExtResource("2_xkndl")]
-position = Vector2(983, 14)
+[node name="Enemy2" parent="." unique_id=1855523064 instance=ExtResource("2_xkndl")]
+position = Vector2(759, -8)
 
-[node name="Enemy3" parent="." unique_id=1653429816 instance=ExtResource("2_xkndl")]
-position = Vector2(766, 427)
+[node name="Enemy3" parent="." unique_id=1508389930 instance=ExtResource("2_xkndl")]
+position = Vector2(576, 306)
 
-[node name="Enemy4" parent="." unique_id=132394113 instance=ExtResource("2_xkndl")]
-position = Vector2(1151, 277)
+[node name="Enemy4" parent="." unique_id=1008592621 instance=ExtResource("2_xkndl")]
+position = Vector2(1057, 270)
 
 [node name="WeaponItem" parent="." unique_id=1029278073 instance=ExtResource("3_u44n3")]
 Weapon = ExtResource("4_sb48q")

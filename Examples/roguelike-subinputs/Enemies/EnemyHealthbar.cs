@@ -3,9 +3,12 @@ using Godot;
 public partial class EnemyHealthbar : Line2D {
     private Vector2 fullLifePosition;
 
+
     public override void _Ready() {
         fullLifePosition = GetPointPosition(1);
+        SetHealth(100);
     }
+
 
     public void SetHealth(int newHealth) {
         if(newHealth >= 100) {

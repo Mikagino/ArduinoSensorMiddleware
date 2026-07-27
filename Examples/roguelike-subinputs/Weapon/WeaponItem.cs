@@ -14,6 +14,8 @@ namespace Weapon {
 
         public bool IsVisibleOnScreen = true;
 
+        private int _initialEnablingDelay = 500;
+
 
         public override void _Ready() {
             _sprite.Texture = Weapon.WeaponIcon;
@@ -21,24 +23,15 @@ namespace Weapon {
 
 
         public async Task SpawnTo(WeaponResource weapon, Vector2 fromGlobalPosition, Vector2 impulse) {
-            // Disable();
+            Disable();
             await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
             Weapon = weapon;
             _sprite.Texture = Weapon.WeaponIcon;
-            GlobalPosition = fromGlobalPosition + impulse.Normalized() * 75;
+            GlobalPosition = fromGlobalPosition;
 
             ApplyImpulse(impulse);
-            // Tween tween = CreateTween();
-            // ConstantLinearVelocity = impulse;
-            // tween.TweenProperty(this, "constant_linear_velocity", Vector2.Zero, impulse.Length() * 0.1f);
-            // tween.Finished += Enable;
-        }
-
-
-        public override void _Process(double delta) {
-            // if(LinearVelocity.IsZeroApprox()) {
-            //     Enable();
-            // }
+            await Task.Delay(500);
+            Enable();
         }
 
 

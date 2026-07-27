@@ -36,6 +36,7 @@ CurrentSpeed = 300
 
 [node name="HitboxComponent" parent="." unique_id=259441882 instance=ExtResource("2_s1rgi")]
 unique_name_in_owner = true
+Invincibility = true
 
 [node name="SpeedComponent" type="Timer" parent="." unique_id=786761677]
 wait_time = 0.25

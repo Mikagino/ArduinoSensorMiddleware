@@ -21,7 +21,6 @@ namespace Components {
         [Export] public YeetSettings YeetSettings = new();
 
 
-        private Node _droppedWeaponsContainer;
         private Node _bulletContainer;
         private long _lastShot = 0;
 
@@ -32,7 +31,6 @@ namespace Components {
 
 
         public override void _Ready() {
-            _droppedWeaponsContainer = GetNode<Node>("%DroppedWeapons");
             _bulletContainer = GetNode<Node>("%BulletContainer");
 
             if(CurrentWeapon != null) {
@@ -54,7 +52,8 @@ namespace Components {
 
             WeaponItem weaponItemInstance = _weaponItemScene.Instantiate<WeaponItem>();
             weaponItemInstance.Rotate(randomRotation);
-            _droppedWeaponsContainer.AddChild(weaponItemInstance);
+
+            GetTree().Root.AddChild(weaponItemInstance);
             weaponItemInstance.SpawnTo(CurrentWeapon, GlobalPosition, yeetImpulse);
 
             CurrentWeapon = null;

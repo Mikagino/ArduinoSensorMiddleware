@@ -1,76 +1,36 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Components;
 using Godot;
 using Player;
-using Weapon;
-
 
 namespace Enemies {
     public partial class EnemyMovement : CharacterBody2D {
         [Export] public float MovementSpeed = 200;
-        [Export] public float WeaponSearchChunkStepSize = 200;
-        [Export] public float WeaponSearchChunkMaximum = 600;
-        [ExportGroup("Randomized Movement")]
-        [Export] public int MinRotationOffset = 20;
-        [Export] public int MinMoveDistance = 100;
-        [Export] public int MaxMoveDistance = 500;
 
 
-        #region Components
+        [ExportGroup("Components")]
+        [Export] public HitboxComponent HitboxComponent;
+        [Export] public WeaponManager WeaponManager;
+        [Export] public NavigationAgent2D NavigationAgent;
+
+
         private PlayerMovement _player;
-        public HitboxComponent HitboxComponent;
-        private WeaponManager _weaponManager;
-        private Timer _shootTimer;
-        private NavigationAgent2D _navigationAgent;
-        private Area2D _weaponSearchChunk;
-        #endregion Components
-
-
-        private float _quarterRotation = Mathf.Pi / 2f;
 
 
         public override void _Ready() {
             _player = GetTree().GetNodesInGroup(Constants.Groups.Player)[0] as PlayerMovement;
-            HitboxComponent = GetNode<HitboxComponent>("%HitboxComponent");
-            _navigationAgent = GetNode<NavigationAgent2D>("%NavigationAgent2D");
-            _shootTimer = GetNode<Timer>("%ShootTimer");
-            _weaponManager = GetNode<WeaponManager>("%WeaponManager");
-            _weaponSearchChunk = GetNode<Area2D>("%WeaponSearchChunk");
-
-            _shootTimer.Timeout += () => _weaponManager.Shoot();
-            _weaponManager.WeaponChanged += SetWeaponTimer;
-            _weaponManager.AmmunitionEmptied += WalkToNextWeapon;
-
-            _navigationAgent.VelocityComputed += UpdateMoveAndSlide;
-
-            if(_weaponManager.CurrentWeapon != null) {
-                _shootTimer.WaitTime = _weaponManager.CurrentWeapon.AttackSpeed / 1000;
-            }
-        }
-
-
-        public override void _Process(double delta) {
-            if(_player == null) return;
-            _weaponManager.LookAt(_player.GlobalPosition);
-            RandomizeMovement();
-        }
-
-
-        private void SetWeaponTimer(WeaponResource weapon) {
-            _shootTimer.WaitTime = weapon.AttackSpeed / 1000;
+            NavigationAgent.VelocityComputed += UpdateMoveAndSlide;
         }
 
 
         public void Die() {
+            WeaponManager.DropWeapon();
             QueueFree();
         }
 
 
         #region Movement
-        private void SetMovementTarget(Vector2 movementTarget) {
-            _navigationAgent.TargetPosition = movementTarget;
+        public void SetMovementTarget(Vector2 movementTarget) {
+            NavigationAgent.TargetPosition = movementTarget;
         }
 
 
@@ -79,18 +39,18 @@ namespace Enemies {
         /// </summary>
         public override void _PhysicsProcess(double delta) {
             // Do not query when the map has never synchronized and is empty.
-            if(NavigationServer2D.MapGetIterationId(_navigationAgent.GetNavigationMap()) == 0) {
+            if(NavigationServer2D.MapGetIterationId(NavigationAgent.GetNavigationMap()) == 0) {
                 return;
             }
 
-            if(_navigationAgent.IsNavigationFinished()) {
+            if(NavigationAgent.IsNavigationFinished()) {
                 return;
             }
 
-            Vector2 nextPathPosition = _navigationAgent.GetNextPathPosition();
+            Vector2 nextPathPosition = NavigationAgent.GetNextPathPosition();
             Vector2 newVelocity = GlobalPosition.DirectionTo(nextPathPosition) * MovementSpeed;
-            if(_navigationAgent.AvoidanceEnabled) {
-                _navigationAgent.Velocity = newVelocity;
+            if(NavigationAgent.AvoidanceEnabled) {
+                NavigationAgent.Velocity = newVelocity;
             }
             else {
                 UpdateMoveAndSlide(newVelocity);
@@ -101,48 +61,6 @@ namespace Enemies {
         private void UpdateMoveAndSlide(Vector2 safeVelocity) {
             Velocity = safeVelocity;
             MoveAndSlide();
-        }
-
-
-        public void WalkToNextWeapon() {
-            WalkToNextWeaponAsync();
-        }
-
-
-        public async Task WalkToNextWeaponAsync() {
-            if(_weaponManager.CurrentWeapon != null || !_navigationAgent.IsNavigationFinished()) return;
-            WeaponItem? weaponItem = GetFirstWeaponInsideSearchChunk();
-            CircleShape2D circleCollisionShape = _weaponSearchChunk.GetChild<CollisionShape2D>(0).Shape as CircleShape2D;
-            for(int i = 0; (i + 1) * WeaponSearchChunkStepSize <= WeaponSearchChunkMaximum && weaponItem == null; i++) {
-                circleCollisionShape.Radius += WeaponSearchChunkStepSize;
-                await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
-                weaponItem = GetFirstWeaponInsideSearchChunk();
-            }
-            if(weaponItem == null) throw new Exception("No weapon could be found!");
-            SetMovementTarget(weaponItem.GlobalPosition);
-            circleCollisionShape.Radius = WeaponSearchChunkStepSize;
-            if(!_navigationAgent.IsNavigationFinished())
-                _navigationAgent.Connect(NavigationAgent2D.SignalName.NavigationFinished, Callable.From(WalkToNextWeapon), (uint)ConnectFlags.OneShot);
-        }
-
-
-        private WeaponItem? GetFirstWeaponInsideSearchChunk() {
-            Godot.Collections.Array<Area2D> weapons = _weaponSearchChunk.GetOverlappingAreas();
-            return weapons.Count != 0 ? weapons.First().GetParent<WeaponItem>() : null;
-        }
-
-
-
-        /// <summary>
-        /// Random movement based on player position, will move around the player and sometimes closer/away
-        /// </summary>
-        private void RandomizeMovement() {
-            if(!_navigationAgent.IsNavigationFinished()) return;
-            Vector2 vectorToPlayer = (_player.GlobalPosition - GlobalPosition).Normalized();
-            float randomMovementRotationOffset = Mathf.DegToRad(Random.Shared.Next(MinRotationOffset));
-            float randomDirection = ((Random.Shared.Next() % 2 == 0) ? _quarterRotation : -_quarterRotation) + randomMovementRotationOffset;
-            Vector2 targetPosition = GlobalPosition + (vectorToPlayer.Rotated(randomDirection) * Random.Shared.Next(MinMoveDistance, MaxMoveDistance));
-            SetMovementTarget(targetPosition);
         }
         #endregion Movement
     }
