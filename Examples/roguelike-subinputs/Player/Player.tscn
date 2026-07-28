@@ -45,6 +45,11 @@ script = ExtResource("3_s1rgi")
 CurrentSpeed = 300
 _minSpeed = 150
 
+[node name="StaminaRegenerateTimer" type="Timer" parent="SpeedComponent" unique_id=1341605646]
+unique_name_in_owner = true
+wait_time = 2.0
+autostart = true
+
 [node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=846960333]
 unique_name_in_owner = true
 scale = Vector2(2, 2)
@@ -96,6 +101,8 @@ shape = SubResource("RectangleShape2D_vlldt")
 [connection signal="DodgeEnded" from="SpeedComponent" to="HitboxComponent" method="SetVulnerable"]
 [connection signal="DodgeStarted" from="SpeedComponent" to="HitboxComponent" method="SetInvincible"]
 [connection signal="SpeedChanged" from="SpeedComponent" to="." method="SetSpeed"]
+[connection signal="StaminaChanged" from="SpeedComponent" to="CanvasLayer/PlayerUI" method="SetStamina"]
+[connection signal="StaminaSetup" from="SpeedComponent" to="CanvasLayer/PlayerUI" method="InitializeStamina"]
 [connection signal="AmmunitionChanged" from="WeaponManager" to="CanvasLayer/PlayerUI" method="SetAmmunition"]
 [connection signal="AmmunitionEmptied" from="WeaponManager" to="CanvasLayer/PlayerUI" method="AmmunitionEmptied"]
 [connection signal="PickedUpWeapon" from="PickupComponent" to="WeaponManager" method="PickupWeapon"]

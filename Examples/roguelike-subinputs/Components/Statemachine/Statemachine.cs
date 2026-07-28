@@ -23,7 +23,6 @@ namespace Components {
             CurrentState?.Exit();
             newState.Enter();
             CurrentState = newState;
-            GD.Print("Transition to: " + newState.Name);
         }
     }
 }

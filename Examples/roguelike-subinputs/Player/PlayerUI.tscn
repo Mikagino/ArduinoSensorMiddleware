@@ -8,7 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://d2jwbaj2m5sa0" path="res://Weapon/free-guns-pixel-art/Amo7.png" id="4_2ncyk"]
 [ext_resource type="Script" uid="uid://d4cv0dgv8e0k4" path="res://Player/OutOfScreenIcon.cs" id="5_1i0l3"]
 
-[node name="PlayerUI" type="Control" unique_id=653240842]
+[node name="PlayerUI" type="Control" unique_id=653240842 node_paths=PackedStringArray("_staminaBar")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -17,6 +17,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_h8npq")
+_staminaBar = NodePath("GUI/VBoxContainer/StaminaBar")
 
 [node name="GUI" type="MarginContainer" parent="." unique_id=1305954679]
 layout_mode = 1
@@ -37,14 +38,17 @@ size_flags_horizontal = 0
 size_flags_vertical = 8
 
 [node name="StaminaBar" type="HBoxContainer" parent="GUI/VBoxContainer" unique_id=562825365]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 0
 script = ExtResource("2_0sfn1")
 
 [node name="Stamina1" type="TextureRect" parent="GUI/VBoxContainer/StaminaBar" unique_id=592223932]
+custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 size_flags_horizontal = 3
 texture = ExtResource("3_0hjsp")
-expand_mode = 5
+expand_mode = 1
 stretch_mode = 4
 
 [node name="HealthBar" type="ProgressBar" parent="GUI/VBoxContainer" unique_id=229835898]

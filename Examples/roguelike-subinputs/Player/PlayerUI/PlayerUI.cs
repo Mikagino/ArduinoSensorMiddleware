@@ -1,5 +1,4 @@
 using Godot;
-using Weapon;
 
 namespace Player {
     public partial class PlayerUI : Control {
@@ -7,6 +6,7 @@ namespace Player {
         private Label _ammunitionLabel;
         private Control _gameOver;
         private OutOfScreenIcon _outOfScreenIcon;
+        [Export] private StaminaBar _staminaBar;
 
 
         public override void _Ready() {
@@ -32,6 +32,16 @@ namespace Player {
         public void AmmunitionEmptied() {
             _ammunitionLabel.Text = "X";
             _ammunitionLabel.SelfModulate = Color.Color8(255, 0, 0, 255);
+        }
+
+
+        public void SetStamina(int value) {
+            _staminaBar.SetStamina(value);
+        }
+
+
+        public void InitializeStamina(int maximumStamina) {
+            _staminaBar.InitializeStamina(maximumStamina);
         }
 
 
