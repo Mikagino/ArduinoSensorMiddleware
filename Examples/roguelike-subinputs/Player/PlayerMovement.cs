@@ -20,6 +20,7 @@ namespace Player {
             _sprite = GetNode<AnimatedSprite2D>("%Sprite");
             HitboxComponent = GetNode<HitboxComponent>("%HitboxComponent");
             _weaponManager = GetNode<WeaponManager>("%WeaponManager");
+           
         }
 
 
