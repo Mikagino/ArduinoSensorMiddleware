@@ -17,6 +17,9 @@ namespace Arsemi {
             protected static List<uint> _previouslyGeneratedIDs = [];
 
 
+            public BaselineMeasurement BaselineMeasurement = new();
+
+
             public enum SensorTypes {
                 EMPTY = 0,
                 TYPE_GENERIC_ANALOG = 1,
@@ -37,14 +40,9 @@ namespace Arsemi {
                 RawSamples.Push(x, y);
                 ApplyFilters();
                 Data.Value = FilteredSamples[0].Y;
-            }
 
-
-            /// <summary>
-            /// Stores the value read from serial into the shared memory
-            /// </summary>
-            public void StoreValue() {
-
+                if(BaselineMeasurement.State == BaselineMeasurement.MeasurementState.PROCESSING)
+                    BaselineMeasurement.ComputeValueIntoBaseline(Data.Value);
             }
 
 
@@ -125,11 +123,24 @@ namespace Arsemi {
             /// Calls CheckCondition() on each event and invokes Actions if conditions are met.
             /// </summary>
             public void CheckEventsConditions() {
-                foreach(var @event in Events) {
-                    @event.Value.Invoke(RawSamples);
+                foreach(Predicate<RingBuffer> @event in Events.Values) {
+                    @event.Invoke(RawSamples);
                 }
             }
             #endregion Events
+
+
+            #region Baseline Measurement
+            /// <summary>
+            /// Starts a baseline measurement which takes seconds time and will return only after it is finished.
+            /// </summary>
+            /// <param name="seconds"></param>
+            public async Task<BaselineMeasurement?> StartBaselineMeasurementAsync(int seconds = 60) {
+                BaselineMeasurement.Start();
+                await Task.Delay(seconds * 1000);
+                return BaselineMeasurement;
+            }
+            #endregion Baseline Measurement
         }
     }
 }

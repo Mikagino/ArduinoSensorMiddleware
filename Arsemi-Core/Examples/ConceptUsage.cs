@@ -14,59 +14,54 @@ namespace Arsemi {
         public static class ConceptUsage {
             [JsonInclude] private static ArsemiCore _arsemiCore = new();
             public const string PathToConfigDirectory = "/home/mika/Downloads/ArsemiConfig/";
-            public static Action? HeartrushAction;
+            // public static Action? HeartrushAction;
 
             private static string _heartrushEventName = "Heartrush";
             private static string _buttonPressEventName = "ButtonPress";
 
 
             public static async Task Main() {
-                string stringPack = "1067:32:13";
-                var size = sizeof(char) * stringPack.Length;
-                byte[] binPack = [SerialProtocol.Action.System.Error, SerialProtocol.Error.Package.InvalidActionCode];
-                size = sizeof(byte) * binPack.Length;
-                byte[] safeBinPack = [SerialProtocol.PackageStartByte, SerialProtocol.Action.System.Error, SerialProtocol.Error.Package.InvalidActionCode, 20, SerialProtocol.PackageStartByte];
-                size = sizeof(byte) * safeBinPack.Length;
+                // string stringPack = "1067:32:13";
+                // var size = sizeof(char) * stringPack.Length;
+                // byte[] binPack = [SerialProtocol.Action.System.Error, SerialProtocol.Error.Package.InvalidActionCode];
+                // size = sizeof(byte) * binPack.Length;
+                // byte[] safeBinPack = [SerialProtocol.PackageStartByte, SerialProtocol.Action.System.Error, SerialProtocol.Error.Package.InvalidActionCode, 20, SerialProtocol.PackageStartByte];
+                // size = sizeof(byte) * safeBinPack.Length;
                 await Setup(); // Alternative: AutomaticSetup()
-                bool exiting = false;
-                while(!exiting) {
-                    exiting = await UpdateLoopAsync();
-                }
-                await Exit();
+                // bool exiting = false;
+                // while(!exiting) {
+                //     exiting = await UpdateLoopAsync();
+                // }
+                // await Exit();
             }
 
 
-            /// <summary>
-            /// Sets up each sensor, filters and other settings via code.
-            /// Ideally this is done in the GUI and then only AutomaticSetup() called.
-            /// </summary>
-            [GlobalSetup]
+            // /// <summary>
+            // /// Sets up each sensor, filters and other settings via code.
+            // /// Ideally this is done in the GUI and then only AutomaticSetup() called.
+            // /// </summary>
+            // [GlobalSetup]
             public static async Task Setup() {
                 // _arsemiCore.DebugClass();
                 // return;
-
-                // AbstractSensor hr = _arsemiCore.AddSensor(new MAX30102Sensor("Heartrate"));
-                // AbstractFilter butterworth = new ButterworthFilter(hr, 2);
-                // hr.AddFilter(butterworth, "Butterworth")
-                //     .SetInterval(100);
-                // .AddEvent(new AboveThresholdEvent(15), "Excitement");
-
                 _arsemiCore.AddSensor(new DigitalSensor("Button", 2))
                         .SetInterval(50)
                         .AddEvent(_buttonPressEventName, rb => EventCondition.AboveThreshold(rb, 0));
                 _arsemiCore.AddSensor(new MAX30102Sensor("Heartrate"))
                         .SetInterval(50)
-                        .AddEvent(_buttonPressEventName, rb => EventCondition.BelowThreshold(rb, 50))
-                        .AddFilter(FilterAliases.ButterworthHighPassFilter(100, 10), "Highpass");
+                        .AddEvent(_heartrushEventName, rb => EventCondition.BelowThreshold(rb, 50))
+                        .AddFilter(FilterAliases.ButterworthHighPassFilter(100, 10), "Highpass")
+                        .StartBaselineMeasurementAsync(60);
+                await ConfigSaver.GenerateGlobals(_arsemiCore, PathToConfigDirectory);
                 if(await _arsemiCore.ConnectMicrocontrollerAsync() != MessageParsing.ConnectionResult.SUCCESS)
                     return;
-                //_arsemiCore.FinishSetup();
+                _arsemiCore.FinishSetup();
 
-                //await ConfigSaver.SaveTo(_arsemiCore, PathToConfigDirectory);
-                //await ConfigSaver.GenerateGlobals(_arsemiCore, PathToConfigDirectory);
-                // ArsemiGlobals.Events.Excitement += EventAction;
-                //_arsemiCore.StartLoop();
+                await ConfigSaver.SaveTo(_arsemiCore, PathToConfigDirectory);
+                _arsemiCore.StartLoop();
                 _arsemiCore.EventReceived += HandleEvent;
+
+                _arsemiCore.Sensors[(int)ArsemiGlobals.SensorNames.Heartrate].StartBaselineMeasurementAsync(60);
             }
 
 
