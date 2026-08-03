@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://dkh6quaxw5n2l"]
+
+[ext_resource type="PackedScene" uid="uid://drpto73hiak7m" path="res://Levels/Level1.tscn" id="1_t88pq"]
+[ext_resource type="PackedScene" uid="uid://bkvc83u310o3y" path="res://Player/Player.tscn" id="1_wbfu4"]
+[ext_resource type="PackedScene" uid="uid://dj5asw8w6hsnb" path="res://Enemies/Enemy.tscn" id="2_xkndl"]
+[ext_resource type="PackedScene" uid="uid://xl7ejxu8na5x" path="res://Weapon/WeaponItem.tscn" id="3_u44n3"]
+[ext_resource type="Resource" uid="uid://b144uh2tbjlkx" path="res://Weapon/Premade/Pistol.tres" id="4_sb48q"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_72oj0"]
+size = Vector2(107, 2667)
+
+[node name="Game" type="Node2D" unique_id=2095138204]
+
+[node name="Level1" parent="." unique_id=162046443 instance=ExtResource("1_t88pq")]
+
+[node name="Player" parent="." unique_id=1414438830 instance=ExtResource("1_wbfu4")]
+position = Vector2(97, 82)
+
+[node name="Enemy" parent="." unique_id=2071273226 instance=ExtResource("2_xkndl")]
+position = Vector2(455, 6)
+
+[node name="Enemy2" parent="." unique_id=1855523064 instance=ExtResource("2_xkndl")]
+position = Vector2(759, -8)
+
+[node name="Enemy3" parent="." unique_id=1508389930 instance=ExtResource("2_xkndl")]
+position = Vector2(576, 306)
+
+[node name="Enemy4" parent="." unique_id=1008592621 instance=ExtResource("2_xkndl")]
+position = Vector2(1057, 270)
+
+[node name="WeaponItem" parent="." unique_id=1029278073 instance=ExtResource("3_u44n3")]
+Weapon = ExtResource("4_sb48q")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1594958971]
+collision_layer = 2
+collision_mask = 29
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1075897933]
+position = Vector2(-294.5, 364)
+shape = SubResource("RectangleShape2D_72oj0")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D" unique_id=206114124]
+position = Vector2(1021.5, -367.99997)
+rotation = 1.5707964
+shape = SubResource("RectangleShape2D_72oj0")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D" unique_id=954650702]
+position = Vector2(2295, 345.00003)
+rotation = 3.1415927
+shape = SubResource("RectangleShape2D_72oj0")
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="StaticBody2D" unique_id=208233535]
+position = Vector2(1011, 850)
+rotation = 4.712389
+shape = SubResource("RectangleShape2D_72oj0")

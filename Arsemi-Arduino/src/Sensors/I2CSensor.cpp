@@ -1,0 +1,24 @@
+#include "I2CSensor.h"
+
+I2CSensor::I2CSensor(uint8_t address, uint8_t reg, uint8_t bytes)
+    : _address(address), _reg(reg), _bytes(bytes) {}
+
+bool I2CSensor::begin() { return true; }
+
+void I2CSensor::updateLastValue() {
+  Wire.beginTransmission(_address);
+  Wire.write(_reg);
+  Wire.endTransmission(false);
+
+  Wire.requestFrom(_address, _bytes);
+
+  unsigned int value = 0;
+
+  for (int i = 0; i < _bytes; i++) {
+    value = (value << 8) | Wire.read();
+  }
+
+  _lastValue = value;
+}
+
+bool I2CSensor::parseParameters(SerialPackage& package) { return false; }

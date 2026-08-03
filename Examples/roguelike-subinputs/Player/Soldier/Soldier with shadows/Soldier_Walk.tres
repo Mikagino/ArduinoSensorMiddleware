@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" format=3 uid="uid://gttaqjg7jkhm"]
+
+[ext_resource type="Texture2D" uid="uid://d24ou2p6jt3rj" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.png" id="1_jonvc"]
+
+[resource]
+atlas = ExtResource("1_jonvc")
+region = Rect2(34, 32, 32, 32)

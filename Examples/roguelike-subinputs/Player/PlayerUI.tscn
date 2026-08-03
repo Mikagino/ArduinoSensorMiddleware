@@ -1,0 +1,141 @@
+[gd_scene format=3 uid="uid://b6m17e2fp6pkh"]
+
+[ext_resource type="Script" uid="uid://dh60ouqkt8slg" path="res://Player/PlayerUI/PlayerUI.cs" id="1_h8npq"]
+[ext_resource type="Texture2D" uid="uid://ducahncdsocuf" path="res://Weapon/free-guns-pixel-art/Amo8.png" id="1_qbo8c"]
+[ext_resource type="Script" uid="uid://qv2il71t10gc" path="res://Player/PlayerUI/StaminaBar.cs" id="2_0sfn1"]
+[ext_resource type="Texture2D" uid="uid://b6npghadjr4ha" path="res://Components/InvincibilityTexture.tres" id="3_0hjsp"]
+[ext_resource type="Theme" uid="uid://cm4ly6nhostwa" path="res://Menus/Theme.tres" id="3_ef0gt"]
+[ext_resource type="Texture2D" uid="uid://d2jwbaj2m5sa0" path="res://Weapon/free-guns-pixel-art/Amo7.png" id="4_2ncyk"]
+[ext_resource type="Script" uid="uid://d4cv0dgv8e0k4" path="res://Player/OutOfScreenIcon.cs" id="5_1i0l3"]
+
+[node name="PlayerUI" type="Control" unique_id=653240842 node_paths=PackedStringArray("_staminaBar")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_h8npq")
+_staminaBar = NodePath("GUI/VBoxContainer/StaminaBar")
+
+[node name="GUI" type="MarginContainer" parent="." unique_id=1305954679]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GUI" unique_id=612438257]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+
+[node name="StaminaBar" type="HBoxContainer" parent="GUI/VBoxContainer" unique_id=562825365]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+script = ExtResource("2_0sfn1")
+
+[node name="Stamina1" type="TextureRect" parent="GUI/VBoxContainer/StaminaBar" unique_id=592223932]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("3_0hjsp")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="HealthBar" type="ProgressBar" parent="GUI/VBoxContainer" unique_id=229835898]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+mouse_filter = 2
+theme = ExtResource("3_ef0gt")
+step = 1.0
+value = 100.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GUI" unique_id=1728771249]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="GUI/HBoxContainer" unique_id=1008024494]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+texture = ExtResource("1_qbo8c")
+stretch_mode = 5
+
+[node name="AmmunitionLabel" type="Label" parent="GUI/HBoxContainer" unique_id=1367058748]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(75, 0)
+layout_mode = 2
+theme = ExtResource("3_ef0gt")
+text = "10"
+
+[node name="GameOver" type="CenterContainer" parent="." unique_id=75956889]
+unique_name_in_owner = true
+process_mode = 3
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameOver" unique_id=188030040]
+layout_mode = 2
+theme_override_constants/separation = 50
+
+[node name="Retry" type="Button" parent="GameOver/VBoxContainer" unique_id=2090573988]
+custom_minimum_size = Vector2(300, 125)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+theme = ExtResource("3_ef0gt")
+text = "Retry"
+
+[node name="Exit" type="Button" parent="GameOver/VBoxContainer" unique_id=154233759]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+theme = ExtResource("3_ef0gt")
+theme_override_font_sizes/font_size = 50
+text = "Exit"
+
+[node name="Node" type="Node" parent="." unique_id=702502698]
+
+[node name="OutOfScreenIcon" type="TextureRect" parent="Node" unique_id=1231031275]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(75, 75)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -37.5
+offset_top = -37.5
+offset_right = 37.5
+offset_bottom = 37.5
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(37.5, 37.5)
+texture = ExtResource("4_2ncyk")
+expand_mode = 1
+script = ExtResource("5_1i0l3")
+
+[connection signal="pressed" from="GameOver/VBoxContainer/Retry" to="." method="ReloadCurrentScene"]
+[connection signal="pressed" from="GameOver/VBoxContainer/Exit" to="." method="ExitGame"]

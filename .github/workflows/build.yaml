@@ -1,0 +1,32 @@
+name: NuGet Generation when pushing on release branch
+
+on:
+  push:
+    branches:
+      - release
+  pull_requests:
+    types: [closed]
+    branches:
+      - release
+
+jobs:
+  build:
+    if: github.event_name == 'push' || github.event.pull_request.merged == true
+    runs-on: ubuntu-18.04
+    name: Update NuGet package
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v1
+
+      - name: Setup .NET Core 8.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Build solution and generate NuGet package
+        run: |
+          cd Arsemi-Core
+          dotnet pack -c Release -o out
+
+      - name: Push NuGet package
+        run: dotnet nuget push ./Arsemi-Core/out/*.nupkg --skip-duplicate --no-symbols true --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json

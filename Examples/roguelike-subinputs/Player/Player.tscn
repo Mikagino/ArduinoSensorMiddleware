@@ -1,0 +1,113 @@
+[gd_scene format=3 uid="uid://bkvc83u310o3y"]
+
+[ext_resource type="Script" uid="uid://cmkgn1t3rndsj" path="res://Player/PlayerMovement.cs" id="1_3qydi"]
+[ext_resource type="PackedScene" uid="uid://bcn0a5l7mgwr7" path="res://Components/HitboxComponent.tscn" id="2_s1rgi"]
+[ext_resource type="PackedScene" uid="uid://cnxa2035pqvhu" path="res://Components/WeaponManager.tscn" id="3_ddoul"]
+[ext_resource type="Script" uid="uid://dnk10thycy786" path="res://Player/SpeedComponent.cs" id="3_s1rgi"]
+[ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.tres" id="3_tok1r"]
+[ext_resource type="Resource" uid="uid://beb57v7stqor0" path="res://Weapon/Premade/Pumpgun.tres" id="5_vlldt"]
+[ext_resource type="Script" uid="uid://rqfylrdov5k0" path="res://Player/PickupComponent.cs" id="6_6ysni"]
+[ext_resource type="PackedScene" uid="uid://b6m17e2fp6pkh" path="res://Player/PlayerUI.tscn" id="7_vlldt"]
+[ext_resource type="Script" uid="uid://2kvb1p8wd8do" path="res://Player/ArsemiComponent.cs" id="9_j23h2"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_lbj6w"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_tok1r")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_lbj6w"]
+radius = 30.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lbj6w"]
+size = Vector2(1552, 200)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vlldt"]
+size = Vector2(200, 648)
+
+[node name="Player" type="CharacterBody2D" unique_id=1414438830 groups=["Player"]]
+collision_mask = 6
+script = ExtResource("1_3qydi")
+CurrentSpeed = 300
+
+[node name="HitboxComponent" parent="." unique_id=259441882 instance=ExtResource("2_s1rgi")]
+unique_name_in_owner = true
+Invincibility = true
+
+[node name="SpeedComponent" type="Timer" parent="." unique_id=786761677]
+wait_time = 0.25
+one_shot = true
+script = ExtResource("3_s1rgi")
+CurrentSpeed = 300
+_minSpeed = 150
+
+[node name="StaminaRegenerateTimer" type="Timer" parent="SpeedComponent" unique_id=1341605646]
+unique_name_in_owner = true
+wait_time = 2.0
+autostart = true
+
+[node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=846960333]
+unique_name_in_owner = true
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_lbj6w")
+
+[node name="WeaponManager" parent="." unique_id=1069582113 instance=ExtResource("3_ddoul")]
+unique_name_in_owner = true
+CurrentWeapon = ExtResource("5_vlldt")
+
+[node name="PickupComponent" type="Area2D" parent="." unique_id=1606841001]
+disable_mode = 1
+collision_layer = 0
+collision_mask = 16
+script = ExtResource("6_6ysni")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupComponent" unique_id=791627112]
+shape = SubResource("CircleShape2D_lbj6w")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1128461901]
+
+[node name="PlayerUI" parent="CanvasLayer" unique_id=653240842 instance=ExtResource("7_vlldt")]
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=384333822]
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0
+
+[node name="OutOfScreenArea" type="Area2D" parent="Camera2D" unique_id=202557645]
+collision_layer = 0
+collision_mask = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Camera2D/OutOfScreenArea" unique_id=539649737]
+position = Vector2(0, -424)
+shape = SubResource("RectangleShape2D_lbj6w")
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="Camera2D/OutOfScreenArea" unique_id=783129988]
+position = Vector2(0, 424)
+shape = SubResource("RectangleShape2D_lbj6w")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Camera2D/OutOfScreenArea" unique_id=38615639]
+position = Vector2(-676, 0)
+shape = SubResource("RectangleShape2D_vlldt")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="Camera2D/OutOfScreenArea" unique_id=2071101891]
+position = Vector2(676, 0)
+shape = SubResource("RectangleShape2D_vlldt")
+
+[node name="ArsemiComponent" type="Node" parent="." unique_id=1268123311]
+script = ExtResource("9_j23h2")
+
+[connection signal="DamageReceived" from="HitboxComponent" to="CanvasLayer/PlayerUI" method="SetHealth"]
+[connection signal="Died" from="HitboxComponent" to="CanvasLayer/PlayerUI" method="GameOver"]
+[connection signal="DodgeEnded" from="SpeedComponent" to="HitboxComponent" method="SetVulnerable"]
+[connection signal="DodgeStarted" from="SpeedComponent" to="HitboxComponent" method="SetInvincible"]
+[connection signal="SpeedChanged" from="SpeedComponent" to="." method="SetSpeed"]
+[connection signal="StaminaChanged" from="SpeedComponent" to="CanvasLayer/PlayerUI" method="SetStamina"]
+[connection signal="StaminaSetup" from="SpeedComponent" to="CanvasLayer/PlayerUI" method="InitializeStamina"]
+[connection signal="AmmunitionChanged" from="WeaponManager" to="CanvasLayer/PlayerUI" method="SetAmmunition"]
+[connection signal="AmmunitionEmptied" from="WeaponManager" to="CanvasLayer/PlayerUI" method="AmmunitionEmptied"]
+[connection signal="PickedUpWeapon" from="PickupComponent" to="WeaponManager" method="PickupWeapon"]
+[connection signal="area_entered" from="Camera2D/OutOfScreenArea" to="CanvasLayer/PlayerUI" method="SetWeaponOutOfScreen"]

@@ -1,0 +1,111 @@
+[gd_scene format=3 uid="uid://dj5asw8w6hsnb"]
+
+[ext_resource type="Script" uid="uid://by21mgwowadr2" path="res://Enemies/EnemyMovement.cs" id="1_4isyn"]
+[ext_resource type="PackedScene" uid="uid://bcn0a5l7mgwr7" path="res://Components/HitboxComponent.tscn" id="2_a5aut"]
+[ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.tres" id="2_wdetw"]
+[ext_resource type="PackedScene" uid="uid://cnxa2035pqvhu" path="res://Components/WeaponManager.tscn" id="3_wdetw"]
+[ext_resource type="Resource" uid="uid://dt8k67dapyhub" path="res://Weapon/Premade/Machinegun.tres" id="5_a5aut"]
+[ext_resource type="Script" uid="uid://d2urpjqbqey5p" path="res://Enemies/EnemyHealthbar.cs" id="5_biruh"]
+[ext_resource type="Script" uid="uid://rqfylrdov5k0" path="res://Player/PickupComponent.cs" id="5_n1bor"]
+[ext_resource type="Script" uid="uid://cxdyfntw7a5aa" path="res://Enemies/States/EnemyStatemachine.cs" id="8_ikgc1"]
+[ext_resource type="Script" uid="uid://cwur81we4fm7k" path="res://Enemies/RandomWalkShootState.cs" id="9_da7ms"]
+[ext_resource type="Script" uid="uid://c736gvxd3kiee" path="res://Enemies/FindNextWeaponState.cs" id="10_jio8c"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_n1bor"]
+radius = 30.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_a5aut"]
+radius = 200.0
+
+[node name="Enemy" type="CharacterBody2D" unique_id=2071273226 node_paths=PackedStringArray("HitboxComponent", "WeaponManager", "NavigationAgent")]
+script = ExtResource("1_4isyn")
+MovementSpeed = 50.0
+HitboxComponent = NodePath("HitboxComponent")
+WeaponManager = NodePath("WeaponManager")
+NavigationAgent = NodePath("NavigationAgent2D")
+
+[node name="HitboxComponent" parent="." unique_id=259441882 instance=ExtResource("2_a5aut")]
+unique_name_in_owner = true
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1249053894]
+unique_name_in_owner = true
+debug_path_custom_color = Color(0.90395707, 0.00013245583, 0.74640214, 1)
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=236021245]
+self_modulate = Color(0.9999874, 0.32359248, 0.42848453, 1)
+scale = Vector2(2, 2)
+texture = ExtResource("2_wdetw")
+
+[node name="WeaponManager" parent="." unique_id=1069582113 instance=ExtResource("3_wdetw")]
+unique_name_in_owner = true
+CurrentWeapon = ExtResource("5_a5aut")
+
+[node name="PickupComponent" type="Area2D" parent="." unique_id=1180496398]
+collision_layer = 0
+collision_mask = 16
+monitorable = false
+script = ExtResource("5_n1bor")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupComponent" unique_id=679701036]
+shape = SubResource("CircleShape2D_n1bor")
+debug_color = Color(0.15408814, 1.7423332e-05, 0.6183508, 0.41960785)
+
+[node name="WeaponSearchChunk" type="Area2D" parent="." unique_id=1234001626]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 16
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponSearchChunk" unique_id=1139992829]
+shape = SubResource("CircleShape2D_a5aut")
+debug_color = Color(0.72566473, 0.47664672, 1.92523e-07, 0.41960785)
+
+[node name="HealthbarBG" type="Line2D" parent="." unique_id=1396332118]
+position = Vector2(-25, -25)
+points = PackedVector2Array(0, 0, 50, 0)
+width = 6.0
+default_color = Color(0, 0, 0, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+round_precision = 2
+
+[node name="Healthbar" type="Line2D" parent="HealthbarBG" unique_id=563722657]
+points = PackedVector2Array(0, 0, 50, 0)
+width = 5.0
+default_color = Color(1, 0, 0, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+round_precision = 2
+script = ExtResource("5_biruh")
+
+[node name="Statemachine" type="Node" parent="." unique_id=1912909924 node_paths=PackedStringArray("_enemy", "_initialState", "_findNextWeaponState")]
+script = ExtResource("8_ikgc1")
+_enemy = NodePath("..")
+_initialState = NodePath("RandomWalkShootState")
+_findNextWeaponState = NodePath("FindNextWeaponState")
+
+[node name="RandomWalkShootState" type="Node" parent="Statemachine" unique_id=270543102 node_paths=PackedStringArray("_enemy", "_navigationAgent", "_weaponManager", "_shootTimer")]
+script = ExtResource("9_da7ms")
+_enemy = NodePath("../..")
+_navigationAgent = NodePath("../../NavigationAgent2D")
+_weaponManager = NodePath("../../WeaponManager")
+_shootTimer = NodePath("ShootTimer")
+metadata/_custom_type_script = "uid://10ipupo4b53l"
+
+[node name="ShootTimer" type="Timer" parent="Statemachine/RandomWalkShootState" unique_id=620794368]
+autostart = true
+
+[node name="FindNextWeaponState" type="Node" parent="Statemachine" unique_id=201179721 node_paths=PackedStringArray("_enemy", "_weaponSearchChunk", "_statemachine", "_randomWalkShootState")]
+script = ExtResource("10_jio8c")
+_enemy = NodePath("../..")
+_weaponSearchChunk = NodePath("../../WeaponSearchChunk")
+_statemachine = NodePath("..")
+_randomWalkShootState = NodePath("../RandomWalkShootState")
+metadata/_custom_type_script = "uid://10ipupo4b53l"
+
+[connection signal="DamageReceived" from="HitboxComponent" to="HealthbarBG/Healthbar" method="SetHealth"]
+[connection signal="Died" from="HitboxComponent" to="." method="Die"]
+[connection signal="AmmunitionEmptied" from="WeaponManager" to="." method="WalkToNextWeapon"]
+[connection signal="PickedUpWeapon" from="PickupComponent" to="WeaponManager" method="PickupWeapon"]
