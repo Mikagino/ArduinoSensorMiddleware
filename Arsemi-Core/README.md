@@ -10,3 +10,7 @@ To learn how to use Arsemi visit the repository's wiki: https://github.com/Mikag
 ## Feedback
 
 If you want to give feedback, write an issue in the repository (https://github.com/Mikagino/ArduinoSensorMiddleware)
+
+
+## External Assets
+Icon: https://www.vecteezy.com/free-vector/burning-heart-symbol

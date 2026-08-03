@@ -11,6 +11,7 @@
 		<RepositoryUrl>https://github.com/Mikagino/ArduinoSensorMiddleware</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<VersionPrefix>1.0.0</VersionPrefix>
+		<PackageIcon>ArsemiIcon128px.JPG</PackageIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -18,6 +19,7 @@
 		<PackageReference Include="NullFX.CRC" Version="1.1.10" />
 		<PackageReference Include="System.IO.Ports" Version="8.0.0" />
 		<None Include="README.md" Pack="true" PackagePath="" />
+		<None Include="ArsemiIcon128px.JPG" Pack="true" PackagePath=""/>
 	</ItemGroup>
 
 </Project>
