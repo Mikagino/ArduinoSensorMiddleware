@@ -10,6 +10,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/Mikagino/ArduinoSensorMiddleware</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<VersionPrefix>1.0.0</VersionPrefix>
 	</PropertyGroup>
 
 	<ItemGroup>

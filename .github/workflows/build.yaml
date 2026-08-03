@@ -21,10 +21,10 @@ jobs:
       - name: Build solution and generate NuGet package
         run: |
           cd Arsemi-Core
-          dotnet pack -c Release -o out
+          dotnet pack -c Release -o out /p:VersionSuffix=run${{ github.run_number }}
 
       - name: Push NuGet package
         run: |
           cd Arsemi-Core
           ls -la out
-          dotnet nuget push ./out/*.nupkg --skip-duplicate --no-symbols true --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+          dotnet nuget push ./out/*.nupkg --skip-duplicate --no-symbols true --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json || true
