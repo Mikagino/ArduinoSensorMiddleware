@@ -9,6 +9,7 @@
 		<LangVersion>preview</LangVersion>
         <PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/Mikagino/ArduinoSensorMiddleware</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
 	<ItemGroup>
