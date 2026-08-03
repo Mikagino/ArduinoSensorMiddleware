@@ -4,14 +4,9 @@ on:
   push:
     branches:
       - release
-  pull_requests:
-    types: [closed]
-    branches:
-      - release
 
 jobs:
   build:
-    if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-18.04
     name: Update NuGet package
     steps:
