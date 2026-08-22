@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
+using Arsemi.Sensor.Data;
 using Arsemi.Sensor.Event;
 using Arsemi.Sensor.Filter;
-using Arsemi.Utilities;
 
 namespace Arsemi {
     namespace Sensor {

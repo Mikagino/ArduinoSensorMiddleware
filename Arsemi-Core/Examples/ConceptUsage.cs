@@ -3,7 +3,6 @@ using Arsemi.IPC;
 using Arsemi.Sensor;
 using Arsemi.Sensor.Event;
 using Arsemi.Sensor.Filter;
-using Arsemi.Utilities;
 using BenchmarkDotNet.Attributes;
 
 namespace Arsemi {
@@ -21,23 +20,23 @@ namespace Arsemi {
 
 
             public static async Task Main() {
-                var stringSizeClearConfig = (SerialProtocol.Action.Setup.ClearConfiguration.ToString().Length) * sizeof(char);
-                var stringSizeError = (SerialProtocol.Action.System.Error.ToString() + ":" + SerialProtocol.Error.Package.InvalidActionCode.ToString()).Length * sizeof(char);
-                var stringSizeNewSample = (SerialProtocol.Action.Sensor.NewSample.ToString() + ":7:255").Length * sizeof(char);
+                int stringSizeClearConfig = (SerialProtocol.Action.Setup.ClearConfiguration.ToString().Length) * sizeof(char);
+                int stringSizeError = (SerialProtocol.Action.System.Error.ToString() + ":" + SerialProtocol.Error.Package.InvalidActionCode.ToString()).Length * sizeof(char);
+                int stringSizeNewSample = (SerialProtocol.Action.Sensor.NewSample.ToString() + ":7:255").Length * sizeof(char);
 
                 byte[] binClearConfig = [SerialProtocol.Action.Setup.ClearConfiguration];
-                var size = sizeof(byte) * binClearConfig.Length;
+                int size = sizeof(byte) * binClearConfig.Length;
                 byte[] binError = [SerialProtocol.Action.System.Error, SerialProtocol.Error.Package.InvalidActionCode];
-                var size2 = sizeof(byte) * binError.Length;
+                int size2 = sizeof(byte) * binError.Length;
                 byte[] binNewSample = [SerialProtocol.Action.Sensor.NewSample, 7, 255];
-                var size3 = sizeof(byte) * binNewSample.Length;
+                int size3 = sizeof(byte) * binNewSample.Length;
 
                 byte[] safeBinClearConfig = [SerialProtocol.PackageStartByte, SerialProtocol.Action.Setup.ClearConfiguration, 255, SerialProtocol.PackageStartByte];
-                var size4 = sizeof(byte) * safeBinClearConfig.Length;
+                int size4 = sizeof(byte) * safeBinClearConfig.Length;
                 byte[] safeBinError = [SerialProtocol.PackageStartByte, SerialProtocol.Action.System.Error, SerialProtocol.Error.Package.InvalidActionCode, 255, SerialProtocol.PackageStartByte];
-                var size5 = sizeof(byte) * safeBinError.Length;
+                int size5 = sizeof(byte) * safeBinError.Length;
                 byte[] safeNewSample = [SerialProtocol.PackageStartByte, SerialProtocol.Action.Sensor.NewSample, 7, 255, 255, SerialProtocol.PackageStartByte];
-                var size6 = sizeof(byte) * safeNewSample.Length;
+                int size6 = sizeof(byte) * safeNewSample.Length;
 
                 await Setup(); // Alternative: AutomaticSetup()
                 // bool exiting = false;

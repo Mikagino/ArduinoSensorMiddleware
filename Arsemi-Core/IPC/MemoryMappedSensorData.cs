@@ -1,5 +1,5 @@
 using System.IO.MemoryMappedFiles;
-using Arsemi.Sensor;
+using Arsemi.Sensor.Data;
 
 namespace Arsemi {
     namespace IPC {

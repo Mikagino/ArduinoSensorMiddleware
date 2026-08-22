@@ -1,4 +1,5 @@
-using Arsemi.Utilities;
+
+using Arsemi.Sensor.Data;
 
 namespace Arsemi {
     namespace Sensor {

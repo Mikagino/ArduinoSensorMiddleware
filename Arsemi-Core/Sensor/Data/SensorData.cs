@@ -1,0 +1,16 @@
+using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
+
+namespace Arsemi {
+    namespace Sensor {
+        namespace Data {
+            [StructLayout(LayoutKind.Sequential, Pack = 1)]
+            public struct SensorData() {
+                public byte Value = 0;
+                [JsonInclude] public byte ID;
+                [JsonInclude] public string Name = "";
+                [JsonInclude] public byte IntervalMS;
+            }
+        }
+    }
+}
