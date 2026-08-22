@@ -30,6 +30,7 @@ namespace Arsemi {
                 /// </summary>
                 /// <param name="value"></param>
                 public void ComputeValueIntoBaseline(byte value) {
+                    if(State != MeasurementState.PROCESSING) return;
                     _pushedSum += value;
                     _pushedValueCount++;
                     Average = (long)_pushedSum / _pushedValueCount;

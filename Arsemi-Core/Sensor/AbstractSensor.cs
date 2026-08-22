@@ -41,8 +41,7 @@ namespace Arsemi {
                 ApplyFilters();
                 Data.Value = FilteredSamples[0].Y;
 
-                if(BaselineMeasurement.State == BaselineMeasurement.MeasurementState.PROCESSING)
-                    BaselineMeasurement.ComputeValueIntoBaseline(Data.Value);
+                BaselineMeasurement.ComputeValueIntoBaseline(Data.Value);
             }
 
 
