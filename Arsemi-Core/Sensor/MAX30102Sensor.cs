@@ -5,7 +5,7 @@ namespace Arsemi {
         public class MAX30102Sensor : AbstractSensor {
             public new const SensorTypes SensorType = SensorTypes.TYPE_MAX30102;
 
-            public HeartrateAnalysis HeartrateAnalysis = new();
+            public HeartrateAnalysis HeartrateAnalysor = new();
 
 
             public MAX30102Sensor(string name) {
@@ -23,7 +23,7 @@ namespace Arsemi {
 
 
             protected override void ApplyFinalPostProcessing() {
-                HeartrateAnalysis.CheckForBeat(Data.Value);
+                HeartrateAnalysor.CheckForBeat(Data.Value);
             }
         }
     }

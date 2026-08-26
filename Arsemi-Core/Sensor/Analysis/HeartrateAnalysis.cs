@@ -10,12 +10,12 @@ namespace Arsemi {
             /// <para>TODO: implement more complex, adaptive algorithm.</para>
             /// </summary>
             /// <param name="sampleCount"></param>
-            public class HeartrateAnalysis {
+            public class HeartrateAnalysis(float rTreshold = 0.7f, float decayRate = 0.02f, float thresholdRate = 0.05f, int minDiff = 12) {
                 #region Constants
-                private const float RThreshold = 0.7f;
-                private const float DecayRate = 0.02f;
-                private const float ThresholdRate = 0.05f;
-                private const int MinDiff = 50;
+                private readonly float RThreshold = rTreshold;
+                private readonly float DecayRate = decayRate;
+                private readonly float ThresholdRate = thresholdRate;
+                private readonly int MinDiff = minDiff;
                 #endregion Constants
 
 
@@ -32,9 +32,10 @@ namespace Arsemi {
 
                 #endregion Current values
 
-                private Stopwatch _watch = new();
+                private readonly Stopwatch _watch = new();
 
 
+                public int Bpm { get; private set; }
                 public Action? HeartbeatDetected;
 
 
@@ -87,10 +88,10 @@ namespace Arsemi {
                 /// </summary>
                 private void InvokeHeartbeatFeedback() {
                     if(_lastHeartbeatMillis != 0) {
-                        int bpm = (int)(60000 / (_watch.ElapsedMilliseconds - _lastHeartbeatMillis));
-                        if(bpm > 50 && bpm < 250) {
+                        Bpm = (int)(60000 / (_watch.ElapsedMilliseconds - _lastHeartbeatMillis));
+                        if(Bpm > 50 && Bpm < 250) {
                             Console.Write("Heart Rate (bpm): ");
-                            Console.WriteLine(bpm);
+                            Console.WriteLine(Bpm);
                         }
                     }
                     HeartbeatDetected?.Invoke();
