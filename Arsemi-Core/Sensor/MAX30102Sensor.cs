@@ -1,7 +1,11 @@
+using Arsemi.Sensor.Analysis;
+
 namespace Arsemi {
     namespace Sensor {
         public class MAX30102Sensor : AbstractSensor {
             public new const SensorTypes SensorType = SensorTypes.TYPE_MAX30102;
+
+            public HeartrateAnalysis HeartrateAnalysis = new();
 
 
             public MAX30102Sensor(string name) {
@@ -15,6 +19,11 @@ namespace Arsemi {
             /// <returns>[SensorType, IntervalMS]</returns>
             public override byte[] ParseDataToByteArray() {
                 return [(byte)SensorType, Data.IntervalMS];
+            }
+
+
+            protected override void ApplyFinalPostProcessing() {
+                HeartrateAnalysis.CheckForBeat(Data.Value);
             }
         }
     }

@@ -36,12 +36,26 @@ namespace Arsemi {
             #endregion Samples
 
 
+            /// <summary>
+            /// Called when a new sample arrives.
+            /// </summary>
+            /// <param name="x"></param>
+            /// <param name="y"></param>
             public void PushNewValue(byte x, byte y) {
                 RawSamples.Push(x, y);
                 ApplyFilters();
                 Data.Value = FilteredSamples[0].Y;
 
                 BaselineMeasurement.ComputeValueIntoBaseline(Data.Value);
+                ApplyFinalPostProcessing();
+            }
+
+
+            /// <summary>
+            /// Override this function to implement special behaviour after a new sample arrived and the filtering is done.
+            /// </summary>
+            protected virtual void ApplyFinalPostProcessing() {
+
             }
 
 
