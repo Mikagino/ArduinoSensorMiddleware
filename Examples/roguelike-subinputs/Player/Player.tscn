@@ -7,7 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://gttaqjg7jkhm" path="res://Player/Soldier/Soldier with shadows/Soldier_Walk.tres" id="3_tok1r"]
 [ext_resource type="Resource" uid="uid://beb57v7stqor0" path="res://Weapon/Premade/Pumpgun.tres" id="5_vlldt"]
 [ext_resource type="Script" uid="uid://rqfylrdov5k0" path="res://Player/PickupComponent.cs" id="6_6ysni"]
-[ext_resource type="PackedScene" uid="uid://b6m17e2fp6pkh" path="res://Player/PlayerUI.tscn" id="7_vlldt"]
+[ext_resource type="PackedScene" uid="uid://b6m17e2fp6pkh" path="res://Player/PlayerUI/PlayerUI.tscn" id="7_vlldt"]
 [ext_resource type="Script" uid="uid://2kvb1p8wd8do" path="res://Player/ArsemiComponent.cs" id="9_j23h2"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_lbj6w"]

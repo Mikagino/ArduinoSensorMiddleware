@@ -1,12 +1,13 @@
 [gd_scene format=3 uid="uid://b6m17e2fp6pkh"]
 
-[ext_resource type="Script" uid="uid://dh60ouqkt8slg" path="res://Player/PlayerUI/PlayerUI.cs" id="1_h8npq"]
-[ext_resource type="Texture2D" uid="uid://ducahncdsocuf" path="res://Weapon/free-guns-pixel-art/Amo8.png" id="1_qbo8c"]
-[ext_resource type="Script" uid="uid://qv2il71t10gc" path="res://Player/PlayerUI/StaminaBar.cs" id="2_0sfn1"]
-[ext_resource type="Texture2D" uid="uid://b6npghadjr4ha" path="res://Components/InvincibilityTexture.tres" id="3_0hjsp"]
-[ext_resource type="Theme" uid="uid://cm4ly6nhostwa" path="res://Menus/Theme.tres" id="3_ef0gt"]
-[ext_resource type="Texture2D" uid="uid://d2jwbaj2m5sa0" path="res://Weapon/free-guns-pixel-art/Amo7.png" id="4_2ncyk"]
-[ext_resource type="Script" uid="uid://d4cv0dgv8e0k4" path="res://Player/OutOfScreenIcon.cs" id="5_1i0l3"]
+[ext_resource type="Script" uid="uid://dh60ouqkt8slg" path="res://Player/PlayerUI/PlayerUI.cs" id="1_xpwe5"]
+[ext_resource type="Script" uid="uid://qv2il71t10gc" path="res://Player/PlayerUI/StaminaBar.cs" id="2_d5hn3"]
+[ext_resource type="Texture2D" uid="uid://b6npghadjr4ha" path="res://Components/InvincibilityTexture.tres" id="3_xdila"]
+[ext_resource type="Theme" uid="uid://cm4ly6nhostwa" path="res://Menus/Theme.tres" id="4_2qqtv"]
+[ext_resource type="Texture2D" uid="uid://ducahncdsocuf" path="res://Weapon/free-guns-pixel-art/Amo8.png" id="5_bbjq5"]
+[ext_resource type="PackedScene" uid="uid://bv2scxrrqxng" path="res://Player/PlayerUI/HeartrateStat.tscn" id="6_382oe"]
+[ext_resource type="Texture2D" uid="uid://d2jwbaj2m5sa0" path="res://Weapon/free-guns-pixel-art/Amo7.png" id="7_1ea2s"]
+[ext_resource type="Script" uid="uid://d4cv0dgv8e0k4" path="res://Player/OutOfScreenIcon.cs" id="8_o5i7t"]
 
 [node name="PlayerUI" type="Control" unique_id=653240842 node_paths=PackedStringArray("_staminaBar")]
 layout_mode = 3
@@ -16,8 +17,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-script = ExtResource("1_h8npq")
-_staminaBar = NodePath("GUI/VBoxContainer/StaminaBar")
+script = ExtResource("1_xpwe5")
+_staminaBar = NodePath("GUI/BottomLeftStats/StaminaBar")
 
 [node name="GUI" type="MarginContainer" parent="." unique_id=1305954679]
 layout_mode = 1
@@ -32,56 +33,59 @@ theme_override_constants/margin_top = 50
 theme_override_constants/margin_right = 50
 theme_override_constants/margin_bottom = 50
 
-[node name="VBoxContainer" type="VBoxContainer" parent="GUI" unique_id=612438257]
+[node name="BottomLeftStats" type="VBoxContainer" parent="GUI" unique_id=612438257]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
 
-[node name="StaminaBar" type="HBoxContainer" parent="GUI/VBoxContainer" unique_id=562825365]
+[node name="StaminaBar" type="HBoxContainer" parent="GUI/BottomLeftStats" unique_id=562825365]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
-script = ExtResource("2_0sfn1")
+script = ExtResource("2_d5hn3")
 
-[node name="Stamina1" type="TextureRect" parent="GUI/VBoxContainer/StaminaBar" unique_id=592223932]
+[node name="Stamina1" type="TextureRect" parent="GUI/BottomLeftStats/StaminaBar" unique_id=592223932]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 size_flags_horizontal = 3
-texture = ExtResource("3_0hjsp")
+texture = ExtResource("3_xdila")
 expand_mode = 1
 stretch_mode = 4
 
-[node name="HealthBar" type="ProgressBar" parent="GUI/VBoxContainer" unique_id=229835898]
+[node name="HealthBar" type="ProgressBar" parent="GUI/BottomLeftStats" unique_id=229835898]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
 mouse_filter = 2
-theme = ExtResource("3_ef0gt")
+theme = ExtResource("4_2qqtv")
 step = 1.0
 value = 100.0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="GUI" unique_id=1728771249]
+[node name="AmmunitionStat" type="HBoxContainer" parent="GUI" unique_id=1728771249]
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
 mouse_filter = 2
 
-[node name="TextureRect" type="TextureRect" parent="GUI/HBoxContainer" unique_id=1008024494]
+[node name="TextureRect" type="TextureRect" parent="GUI/AmmunitionStat" unique_id=1008024494]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 size_flags_vertical = 8
 mouse_filter = 2
-texture = ExtResource("1_qbo8c")
+texture = ExtResource("5_bbjq5")
 stretch_mode = 5
 
-[node name="AmmunitionLabel" type="Label" parent="GUI/HBoxContainer" unique_id=1367058748]
+[node name="AmmunitionLabel" type="Label" parent="GUI/AmmunitionStat" unique_id=1367058748]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(75, 0)
 layout_mode = 2
-theme = ExtResource("3_ef0gt")
+theme = ExtResource("4_2qqtv")
 text = "10"
+
+[node name="HeartrateStat" parent="GUI" unique_id=32813216 instance=ExtResource("6_382oe")]
+layout_mode = 2
 
 [node name="GameOver" type="CenterContainer" parent="." unique_id=75956889]
 unique_name_in_owner = true
@@ -103,7 +107,7 @@ custom_minimum_size = Vector2(300, 125)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 6
-theme = ExtResource("3_ef0gt")
+theme = ExtResource("4_2qqtv")
 text = "Retry"
 
 [node name="Exit" type="Button" parent="GameOver/VBoxContainer" unique_id=154233759]
@@ -111,7 +115,7 @@ custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 6
-theme = ExtResource("3_ef0gt")
+theme = ExtResource("4_2qqtv")
 theme_override_font_sizes/font_size = 50
 text = "Exit"
 
@@ -133,9 +137,9 @@ offset_bottom = 37.5
 grow_horizontal = 2
 grow_vertical = 2
 pivot_offset = Vector2(37.5, 37.5)
-texture = ExtResource("4_2ncyk")
+texture = ExtResource("7_1ea2s")
 expand_mode = 1
-script = ExtResource("5_1i0l3")
+script = ExtResource("8_o5i7t")
 
 [connection signal="pressed" from="GameOver/VBoxContainer/Retry" to="." method="ReloadCurrentScene"]
 [connection signal="pressed" from="GameOver/VBoxContainer/Exit" to="." method="ExitGame"]

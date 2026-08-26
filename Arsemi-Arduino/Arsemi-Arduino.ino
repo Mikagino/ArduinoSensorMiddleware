@@ -12,9 +12,9 @@ MessageParsing messageParsing(arsemi);
 
 void setup() {
   SerialMessaging::begin();
-  AbstractSensor* button = new DigitalSensor(2);
-  button->intervalMillis = 50;
-  arsemi.addSensor(button);
+  //AbstractSensor* button = new DigitalSensor(2);
+  //button->intervalMillis = 50;
+  //arsemi.addSensor(button);
 
   AbstractSensor* hrSensor = new MAX30102Sensor();
   hrSensor->intervalMillis = 50;

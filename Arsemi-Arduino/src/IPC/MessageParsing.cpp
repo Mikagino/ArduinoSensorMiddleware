@@ -79,7 +79,7 @@ void MessageParsing::parseNextActionCode() {
     if (Serial.peek() == SerialProtocol::PackageDelimiter) {
       SerialMessaging::discardByte(); // discard PackageDelimiter
       uint8_t actionCode = SerialMessaging::read();
-      queuedPackage.ActionCode = (actionCode == -1 ? 0 : actionCode);
+      queuedPackage.ActionCode = actionCode;
       break;
     } else {
       SerialMessaging::discardByte();
@@ -96,9 +96,9 @@ void MessageParsing::parseParameters() {
       queuedPackage.Crc8 = queuedPackage.popLastParameter();
       queuedPackage.Done = true;
       SerialMessaging::discardByte(); // discard PackageDelimiter at end of package
-      SerialMessaging::write(SerialProtocol::Action::System::Debug,
-                             queuedPackage[1], queuedPackage[2],
-                             queuedPackage[3], queuedPackage[4]);
+      // SerialMessaging::write(SerialProtocol::Action::System::Debug,
+      //                        queuedPackage[1], queuedPackage[2],
+      //                        queuedPackage[3], queuedPackage[4]);
       return;
     } else if (nextByte == -1)
       break;
