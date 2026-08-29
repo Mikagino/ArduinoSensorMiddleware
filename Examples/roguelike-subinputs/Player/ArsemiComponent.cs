@@ -11,7 +11,9 @@ public partial class ArsemiComponent : Node {
 
 
     public override void _Ready() {
-        Arsemigo.Instance.AddSensor(new MAX30102Sensor("HeartrateSensor"))
+        MAX30102Sensor heartrateSensor = new("HeartrateSensor");
+        // heartrateSensor.
+        Arsemigo.Instance.AddSensor(heartrateSensor)
             .SetInterval(100)
             .AddEvent(HeartrushEvent, rb => Arsemi.Sensor.Event.EventCondition.AboveThreshold(rb, 70));
 
