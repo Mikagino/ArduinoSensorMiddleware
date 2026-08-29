@@ -38,6 +38,10 @@ namespace Arsemi {
                 byte[] safeNewSample = [SerialProtocol.PackageStartByte, SerialProtocol.Action.Sensor.NewSample, 7, 255, 255, SerialProtocol.PackageStartByte];
                 int size6 = sizeof(byte) * safeNewSample.Length;
 
+                foreach(byte b in safeNewSample) {
+                    Console.Write(b.ToString() + " ");
+                }
+
                 await Setup(); // Alternative: AutomaticSetup()
                 // bool exiting = false;
                 // while(!exiting) {
